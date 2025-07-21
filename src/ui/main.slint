@@ -1,0 +1,62 @@
+import { Button, VerticalBox, HorizontalBox, ListView } from "std-widgets.slint";
+
+component Header {
+    height: 50px;
+    Rectangle {
+        background: white;
+    }
+
+    HorizontalBox {
+        padding: 10px;
+        Rectangle {
+            // 左侧占位
+        }
+
+        Text {
+            text: "交易计算器";
+            color: #FE9900;
+            font-size: 18px;
+            horizontal-alignment: center;
+        }
+
+        Rectangle {
+            // 右侧占位，推动按钮到最右边
+        }
+
+        Rectangle {
+            width: 60px;
+            height: 30px;
+            background: #FE9900;
+            border-radius: 4px;
+            Text {
+                text: "建仓";
+                color: white;
+                vertical-alignment: center;
+                horizontal-alignment: center;
+            }
+
+            TouchArea {
+                clicked => {
+                    // TODO: 添加按钮点击逻辑
+                }
+            }
+        }
+    }
+}
+
+export component MainWindow inherits Window {
+    title: "交易计算器";
+    width: 600px;
+    height: 500px;
+    background: #f5f5f5;
+
+    VerticalBox {
+        Header { }
+
+        Rectangle {
+            // 主要内容区域
+            background: white;
+            ListView { }
+        }
+    }
+}
