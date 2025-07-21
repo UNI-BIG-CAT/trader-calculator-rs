@@ -42,11 +42,15 @@ fn create_tables(conn: &Connection) -> Result<()> {
         CREATE TABLE IF NOT EXISTS tb_stock_action (
             stock_action_id INTEGER PRIMARY KEY AUTOINCREMENT,     -- ID
             stock_id INTEGER NOT NULL,                             -- 股票ID
-            price REAL NOT NULL,                                   -- 交易价格
-            amount REAL NOT NULL,                                  -- 交易数量
-            commission_fee REAL NOT NULL DEFAULT 0,                -- 佣金费
-            action INTEGER NOT NULL DEFAULT 1,                     -- 操作类型：1-建仓 2-平仓 3-加仓 4-减仓
-            current_cost REAL NOT NULL DEFAULT 0,                  -- 当前成本
+            current_price REAL NOT NULL,                           -- 当前价格
+            current_cost REAL NOT NULL DEFAULT 0,                  -- 持仓成本
+            total_amount REAL NOT NULL,                            -- 总数量
+            transaction_price REAL NOT NULL,                       -- 交易价格
+            transaction_amount REAL NOT NULL,                      -- 交易数量
+            transaction_commission_fee REAL NOT NULL DEFAULT 0,    -- 交易佣金费
+            action INTEGER NOT NULL DEFAULT 1,                     -- 操作类型 1-建仓 2-平仓 3-加仓 4-减仓
+            profit REAL NOT NULL DEFAULT 0,                        -- 盈亏金额(忽略清仓手续费)
+            profit_rate REAL NOT NULL DEFAULT 0,                   -- 盈亏比例(忽略清仓手续费)
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,         -- 创建时间
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP          -- 更新时间（需应用层更新）
         );
@@ -91,11 +95,15 @@ pub struct StockRecord {
 pub struct StockActionRecord {
     pub stock_action_id: i32,
     pub stock_id: i32,
-    pub price: f64,
-    pub amount: f64,
-    pub commission_fee: f64,
-    pub action: i32,
+    pub current_price: f64,
     pub current_cost: f64,
+    pub total_amount: f64,
+    pub transaction_price: f64,
+    pub transaction_amount: f64,
+    pub transaction_commission_fee: f64,
+    pub action: i32,
+    pub profit: f64,
+    pub profit_rate: f64,
     pub created_at: String,
     pub updated_at: String,
 }

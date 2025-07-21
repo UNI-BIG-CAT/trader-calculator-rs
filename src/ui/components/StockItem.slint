@@ -1,0 +1,91 @@
+import { Button, VerticalBox, HorizontalBox, ListView, LineEdit } from "std-widgets.slint";
+import { StockItem } from "../data.slint";
+
+
+component StockListItem inherits Rectangle {
+    in property <StockItem> stock_data;
+    callback view_stock(int);
+    callback delete_stock(int);
+    height: 60px;
+    background: white;
+    border-width: 1px;
+    border-color: #e0e0e0;
+    HorizontalBox {
+        padding: 10px;
+        spacing: 10px;
+        
+        // 股票信息区域
+        VerticalBox {
+            alignment: start;
+            HorizontalBox {
+                Text {
+                    text: stock_data.stock_name;
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: #333;
+                }
+
+                spacing: 20px;
+                Text {
+                    text: "类型: " + (stock_data.stock_type == 1 ? "沪市" : stock_data.stock_type == 2 ? "深市" : stock_data.stock_type == 3 ? "创业板" : "科创板");
+                    font-size: 12px;
+                    color: #666;
+                }
+
+                Text {
+                    text: "费率: " + (stock_data.commission_fee_rate * 10000) + "‱";
+                    font-size: 12px;
+                    color: #666;
+                }
+            }
+        }
+        
+        // 按钮区域
+        HorizontalBox {
+            spacing: 10px;
+            alignment: end;
+            
+            // 查看按钮
+            Rectangle {
+                width: 50px;
+                height: 30px;
+                background: #FE9900;
+                border-radius: 4px;
+                Text {
+                    text: "查看";
+                    color: white;
+                    font-size: 12px;
+                    vertical-alignment: center;
+                    horizontal-alignment: center;
+                }
+
+                TouchArea {
+                    clicked => {
+                        root.view_stock(stock_data.stock_id);
+                    }
+                }
+            }
+            
+            // 删除按钮
+            Rectangle {
+                width: 50px;
+                height: 30px;
+                background: #f8f9fa;
+                border-radius: 4px;
+                Text {
+                    text: "删除";
+                    color: #555;
+                    font-size: 12px;
+                    vertical-alignment: center;
+                    horizontal-alignment: center;
+                }
+
+                TouchArea {
+                    clicked => {
+                        root.delete_stock(stock_data.stock_id);
+                    }
+                }
+            }
+        }
+    }
+}

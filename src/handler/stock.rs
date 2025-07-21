@@ -1,12 +1,13 @@
 use crate::database::stock::StockHandler as DbStockHandler;
 use crate::database::stock_action::StockActionHandler as DbStockActionHandler;
-use crate::{StockItem, MainWindow};
+use crate::{StockItem, MainWindow, OpenStockData};
 use rusqlite::Result;
 use std::sync::{Arc, Mutex};
 use std::rc::Rc;
 use rusqlite::Connection;
 use slint::ComponentHandle;
-use rand::Rng;
+use crate::constant::{StockType, ActionType};
+
 
 /// UI处理器 - 负责股票列表显示
 pub fn load_stock_list(db_conn: &Arc<Mutex<Connection>>, ui: &MainWindow) -> Result<()> {
@@ -48,12 +49,11 @@ pub fn handle_view_stock(db_conn: &Arc<Mutex<Connection>>, stock_id: i32) {
             println!("股票信息:");
             println!("  ID: {}", stock.stock_id);
             println!("  名称: {}", stock.stock_name);
-            println!("  类型: {}", match stock.stock_type {
-                1 => "沪市",
-                2 => "深市", 
-                3 => "创业板",
-                4 => "科创板",
-                _ => "未知"
+            println!("  类型: {}", match StockType::from(stock.stock_type) {
+                StockType::SH => "沪市",
+                StockType::SZ => "深市", 
+                StockType::CYB => "创业板",
+                StockType::KCB => "科创板",
             });
             println!("  费率: {}%", stock.commission_fee_rate * 100.0);
             println!("  创建时间: {}", stock.created_at);
@@ -64,13 +64,12 @@ pub fn handle_view_stock(db_conn: &Arc<Mutex<Connection>>, stock_id: i32) {
                     println!("  交易记录: {} 条", actions.len());
                     for action in actions.iter().take(5) { // 只显示前5条
                         println!("    - 价格: {}, 数量: {}, 操作: {}", 
-                            action.price, action.amount, 
-                            match action.action {
-                                1 => "建仓",
-                                2 => "平仓", 
-                                3 => "加仓",
-                                4 => "减仓",
-                                _ => "未知"
+                            action.current_price, action.total_amount, 
+                            match ActionType::from(action.action) {
+                                ActionType::Open => "建仓",
+                                ActionType::Close => "平仓", 
+                                ActionType::AddPosition => "加仓",
+                                ActionType::ReducePosition => "减仓",
                             });
                     }
                 }
@@ -103,28 +102,74 @@ pub fn handle_delete_stock(db_conn: &Arc<Mutex<Connection>>, ui: &MainWindow, st
         }
     }
 }
-
-/// UI处理器 - 处理新建股票操作
-pub fn handle_create_stock(db_conn: &Arc<Mutex<Connection>>, ui: &MainWindow) {
-    println!("创建新股票...");
+/// UI处理器 - 处理建仓对话框数据
+pub fn handle_create_stock(
+    db_conn: &Arc<Mutex<Connection>>, 
+    ui: &MainWindow, 
+    data: OpenStockData
+) {
+    println!("建仓股票: {}", data.stock_name);
+    println!("  类型: {}", if data.stock_type == 1 { "沪市" } else { "深市" });
+    println!("  当前价格: {} 元", data.current_price);
+    println!("  建仓价格: {} 元", data.transaction_price);
+    println!("  建仓数量: {} 股", data.transaction_amount);
     
-    // 创建一个示例股票
-    let mut rng = rand::thread_rng();
-    let stock_names = ["招商银行", "中国平安", "五粮液", "贵州茅台", "腾讯控股", "阿里巴巴"];
-    let random_name = stock_names[rng.gen_range(0..stock_names.len())];
-    let random_type = rng.gen_range(1..=4);
-    let random_rate = rng.gen_range(0.0001..0.001); // 0.01% - 0.1%
+    // 计算默认佣金费率
+    let commission_fee_rate = match data.stock_type {
+        1 => 0.0003, // 沪市默认万3
+        2 => 0.0003, // 深市默认万3
+        _ => 0.0003,
+    };
     
-    match DbStockHandler::insert_stock(&db_conn, random_name, random_type, random_rate) {
+    // 1. 先创建股票记录
+    match DbStockHandler::insert_stock(&db_conn, &data.stock_name, data.stock_type, commission_fee_rate) {
         Ok(stock_id) => {
-            println!("新建股票成功! ID: {}, 名称: {}", stock_id, random_name);
-            // 重新加载列表
-            if let Err(e) = load_stock_list(&db_conn, ui) {
-                eprintln!("重新加载股票列表失败: {}", e);
+            println!("创建股票记录成功，ID: {}", stock_id);
+            
+            // 2. 计算建仓成本和佣金
+            let total_amount = (data.transaction_price * data.transaction_amount) as f64;  // 总金额
+            let commission_fee = total_amount * commission_fee_rate;  // 佣金
+            let total_cost = total_amount + commission_fee;  // 总成本
+            let cost_per_share = total_cost / data.transaction_amount as f64;  // 每股成本
+            
+            // 3. 创建建仓交易记录
+            match DbStockActionHandler::insert_action(
+                &db_conn,
+                stock_id as i32,
+                data.current_price as f64,
+                total_cost,
+                data.transaction_amount as f64,
+                data.transaction_price as f64,
+                data.transaction_amount as f64,
+                commission_fee,
+                ActionType::Open as i32, // action = 1 表示建仓
+                cost_per_share,
+                cost_per_share
+            ) {
+                Ok(action_id) => {
+                    println!("创建建仓记录成功,ID: {}", action_id);
+                    println!("建仓详情:");
+                    println!("  总金额: {:.2} 元", total_amount);
+                    println!("  佣金费: {:.2} 元", commission_fee);
+                    println!("  总成本: {:.2} 元", total_cost);
+                    println!("  成本价: {:.4} 元/股", cost_per_share);
+                    
+                    // 重新加载列表
+                    if let Err(e) = load_stock_list(&db_conn, ui) {
+                        eprintln!("重新加载股票列表失败: {}", e);
+                    }
+                }
+                Err(e) => {
+                    eprintln!("创建建仓记录失败: {}", e);
+                    // 建仓记录创建失败，删除刚才创建的股票记录
+                    if let Err(delete_err) = DbStockHandler::delete_stock(&db_conn, stock_id as i32) {
+                        eprintln!("回滚删除股票记录也失败: {}", delete_err);
+                    }
+                }
             }
         }
         Err(e) => {
-            eprintln!("新建股票失败: {}", e);
+            eprintln!("创建股票记录失败: {}", e);
         }
     }
 }
