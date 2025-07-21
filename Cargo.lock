@@ -4394,6 +4394,7 @@ name = "trader-calculator-rs"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "rand",
  "rusqlite",
  "slint",
  "slint-build",

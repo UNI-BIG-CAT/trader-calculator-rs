@@ -1,6 +1,7 @@
 use rusqlite::{Connection, Result};
 use std::sync::{Arc, Mutex};
-
+pub mod stock;
+pub mod stock_action;
 // 应用状态管理器，用于共享数据库连接
 pub struct DatabaseState {
     pub db: Arc<Mutex<Connection>>,
