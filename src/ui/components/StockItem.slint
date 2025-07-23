@@ -2,7 +2,7 @@ import { Button, VerticalBox, HorizontalBox, ListView, LineEdit } from "std-widg
 import { StockItem } from "../data.slint";
 
 
-component StockListItem inherits Rectangle {
+export component StockListItem inherits Rectangle {
     in property <StockItem> stock_data;
     callback view_stock(int);
     callback delete_stock(int);

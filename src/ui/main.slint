@@ -1,20 +1,29 @@
 import { Button, VerticalBox, HorizontalBox, ListView, LineEdit } from "std-widgets.slint";
-import { OpenStockData,StockItem } from "./data.slint";
+import { OpenStockData, StockItem, StockActionItem } from "./data.slint";
 import { MainHeader } from "./components/mainHeader.slint";
 import { StockListItem } from "./components/StockItem.slint";
 import { CreateStockDialog } from "./components/CreateStockDialog.slint";
+import { DetailWindow } from "./detail.slint";
 
 export component MainWindow inherits Window {
-    title: "交易计算器";
+    title: "股算神器";
     width: 800px;
-    height: 600px;
+    height: 800px;
     background: #f5f5f5;
     
     // 股票列表数据
     in property <[StockItem]> stock_list: [];
     
+    // 详情页数据
+    in property <StockItem> selected_stock;
+    in property <[StockActionItem]> stock_actions: [];
+    
+    // 页面状态
+    in-out property <bool> show_detail: false;
+    
     // 对话框状态
     in-out property <bool> show_create_dialog: false;
+    in-out property <bool> show_single_action_dialog: false;
     
     // 回调函数
     callback view_stock_details(int);
@@ -22,8 +31,14 @@ export component MainWindow inherits Window {
     callback create_new_stock();
     callback refresh_stock_list();
     callback create_stock_with_data(OpenStockData);
+    callback add_position();
+    callback reduce_position();
+    callback back_position(int);
+    callback close_position();
+    callback check_single_action_callback();
 
-    VerticalBox {
+    // 主界面内容
+    if !show_detail: VerticalBox {
         MainHeader {
             create_stock => {
                 root.show_create_dialog = true;
@@ -75,6 +90,27 @@ export component MainWindow inherits Window {
                     }
                 }
             }
+        }
+    }
+    
+    // 详情页面
+    if show_detail: DetailWindow {
+        stock_info: selected_stock;
+        action_list: stock_actions;
+        go_back => {
+            root.show_detail = false;
+        }
+        add_position => {
+            root.add_position();
+        }
+        reduce_position => {
+            root.reduce_position();
+        }
+        back_position => {
+            root.back_position(selected_stock.stock_id);
+        }
+        close_position => {
+            root.close_position();
         }
     }
     

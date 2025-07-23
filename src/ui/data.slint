@@ -15,3 +15,19 @@ export struct StockItem {
     commission_fee_rate: float,
     created_at: string,
 }
+
+// 股票操作记录数据结构
+export struct StockActionItem {
+    stock_action_id: int,
+    stock_id: int,
+    current_price: float,
+    current_cost: float,
+    total_amount: float,
+    transaction_price: float,
+    transaction_amount: float,
+    transaction_commission_fee: float,
+    action: int,  // 1-建仓 2-平仓 3-加仓 4-减仓
+    profit: float,
+    profit_rate: float,
+    created_at: string,
+}

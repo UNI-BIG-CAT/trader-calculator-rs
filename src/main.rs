@@ -1,13 +1,18 @@
 slint::include_modules!();
 
+mod constant;
 mod database;
 mod handler;
-mod constant;
 
 use database::DatabaseState;
-use handler::stock::{load_stock_list, handle_view_stock, handle_delete_stock, handle_create_stock};
-use std::rc::Rc;
+use handler::stock::{
+    handle_create_stock, handle_delete_stock, handle_view_stock, load_stock_list,
+};
+use handler::stock_action::{
+    handle_add_position, handle_back_position, handle_close_position, handle_reduce_position,
+};
 use slint::ComponentHandle;
+use std::rc::Rc;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     /**********************数据库**************************/
@@ -23,16 +28,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Err(e) = load_stock_list(&db_conn, &ui) {
         eprintln!("初始化加载股票列表失败: {}", e);
     }
-    
+
     /**********************回调**************************/
     // 设置查看股票详情回调
     {
         let db_conn = db_conn.clone();
+        let ui_weak = ui.as_weak();
         ui.on_view_stock_details(move |stock_id| {
-            handle_view_stock(&db_conn, stock_id);
+            if let Some(ui) = ui_weak.upgrade() {
+                handle_view_stock(&db_conn, &ui, stock_id);
+            }
         });
     }
-    
+
     // 设置删除股票回调
     {
         let db_conn = db_conn.clone();
@@ -43,7 +51,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         });
     }
-    
+
     // 设置建仓对话框回调
     {
         let db_conn = db_conn.clone();
@@ -54,7 +62,42 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         });
     }
-    
+
+    {
+        let ui_weak = ui.as_weak();
+        ui.on_add_position(move || {
+            // if let Some(ui) = ui_weak.upgrade() {
+            //     handle_add_position(&db_conn, &ui);
+            // }
+        });
+    }
+
+    {
+        let ui_weak = ui.as_weak();
+        ui.on_reduce_position(move || {
+            // if let Some(ui) = ui_weak.upgrade() {
+            //     handle_add_position(&db_conn, &ui);
+            // }
+        });
+    }
+
+    {
+        let db_conn = db_conn.clone();
+        let ui_weak = ui.as_weak();
+        ui.on_back_position(move |stock_id| {
+            if let Some(ui) = ui_weak.upgrade() {
+                handle_back_position(&db_conn, &ui, stock_id);
+            }
+        });
+    }
+    {
+        let ui_weak = ui.as_weak();
+        ui.on_close_position(move || {
+            // if let Some(ui) = ui_weak.upgrade() {
+            //     handle_add_position(&db_conn, &ui);
+            // }
+        });
+    }
     // 启动UI
     ui.run()?;
     Ok(())

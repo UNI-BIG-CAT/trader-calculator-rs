@@ -61,8 +61,8 @@ impl StockActionHandler {
                 action: row.get(8)?,
                 profit: row.get(9)?,
                 profit_rate: row.get(10)?,
-                created_at: row.get(7)?,
-                updated_at: row.get(8)?,
+                created_at: row.get(11)?,
+                updated_at: row.get(12)?,
             })
         })?;
 
@@ -74,9 +74,9 @@ impl StockActionHandler {
     }
 
     /// 删除最后一条操作记录
-    pub fn delete_last_action(db_conn: &Arc<Mutex<Connection>>) -> Result<()> {
+    pub fn delete_last_action(db_conn: &Arc<Mutex<Connection>>,stock_id:i32) -> Result<()> {
         let conn = db_conn.lock().unwrap();
-        conn.execute("DELETE FROM tb_stock_action WHERE stock_action_id = (SELECT MAX(stock_action_id) FROM tb_stock_action)", [])?;
+        conn.execute("DELETE FROM tb_stock_action WHERE stock_action_id = (SELECT MAX(stock_action_id) FROM tb_stock_action WHERE stock_id = ?)", [stock_id])?;
         Ok(())
     }
 }
