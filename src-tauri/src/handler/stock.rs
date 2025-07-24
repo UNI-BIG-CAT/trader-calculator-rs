@@ -1,9 +1,4 @@
-use crate::constant::ActionType;
-use crate::database::stock_action::StockActionHandler as DbStockActionHandler;
-use rusqlite::Connection;
-use rusqlite::Result;
-use std::rc::Rc;
-use std::sync::{Arc, Mutex};
+use crate::database::stock::StockHandler;
 
 // Tauri专用的简化函数
 /// 获取所有股票 - 适配Tauri

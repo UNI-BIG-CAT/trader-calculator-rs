@@ -1,6 +1,7 @@
 use rusqlite::{Connection, Result};
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, OnceLock};
 
+/*************************************数据库状态管理器**************************************/
 // 应用状态管理器，用于共享数据库连接
 pub struct DatabaseState {
     pub db: Arc<Mutex<Connection>>,
@@ -20,6 +21,7 @@ impl DatabaseState {
     }
 }
 
+/*************************************数据库表创建**************************************/
 // 独立的表格创建函数，可以被DatabaseState
 fn create_tables(conn: &Connection) -> Result<()> {
     conn.execute(
@@ -79,10 +81,17 @@ fn create_tables(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
-// 初始化
-pub fn init_db() -> Arc<Mutex<Connection>> {
-    let db_path = "calculator-db.db";
-    let db_state = DatabaseState::new(db_path).unwrap();
-    let db_conn = db_state.get_connection();
-    db_conn
+/*************************************全局数据库实例**************************************/
+static DB_INSTANCE: OnceLock<Arc<Mutex<Connection>>> = OnceLock::new();
+
+// 获取公用的数据库状态 - 单例模式
+#[allow(dead_code)]
+pub fn get_db_state() -> Arc<Mutex<Connection>> {
+    DB_INSTANCE
+        .get_or_init(|| {
+            let db_path = "calculator-db.db";
+            let db_state = DatabaseState::new(db_path).unwrap();
+            db_state.get_connection()
+        })
+        .clone()
 }
