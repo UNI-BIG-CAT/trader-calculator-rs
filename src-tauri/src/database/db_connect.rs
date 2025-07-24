@@ -9,8 +9,8 @@ pub struct DatabaseState {
 
 impl DatabaseState {
     pub fn new(db_path: &str) -> Result<Self> {
-        let conn = Connection::open(db_path)?;
-        create_tables(&conn)?;
+        let conn = Connection::open(db_path)?; // 打开数据库
+        create_tables(&conn)?; // 创建表
         Ok(DatabaseState {
             db: Arc::new(Mutex::new(conn)),
         })

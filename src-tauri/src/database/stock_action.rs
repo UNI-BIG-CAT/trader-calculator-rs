@@ -1,5 +1,4 @@
-use rusqlite::{Connection, Result};
-use std::sync::{Arc, Mutex};
+use crate::database::db_connect::get_db_state;
 
 // 数据结构定义
 #[derive(Debug, Clone)]
@@ -22,13 +21,8 @@ pub struct StockActionRecord {
 // 操作记录处理
 pub struct StockActionHandler;
 impl StockActionHandler {
-    // pub fn new() -> Self {
-    //     Self
-    // }
-
     /// 插入股票操作数据
     pub fn insert_action(
-        db_conn: &Arc<Mutex<Connection>>, 
         stock_id: i32, 
         current_price: f64, 
         current_cost: f64, 
@@ -39,7 +33,8 @@ impl StockActionHandler {
         action: i32, 
         profit: f64, 
         profit_rate: f64, 
-    ) -> Result<i64> {
+    ) -> Result<i64, rusqlite::Error> {
+        let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         conn.execute(
             "INSERT INTO tb_stock_action (stock_id, current_price, current_cost, total_amount, transaction_price, transaction_amount, transaction_commission_fee, action, profit, profit_rate) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
@@ -59,7 +54,8 @@ impl StockActionHandler {
         Ok(conn.last_insert_rowid())
     }
     /// 根据股票ID查询操作记录
-    pub fn get_actions_by_stock_id(db_conn: &Arc<Mutex<Connection>>, stock_id: i32) -> Result<Vec<StockActionRecord>> {
+    pub fn get_actions_by_stock_id( stock_id: i32) -> Result<Vec<StockActionRecord>,rusqlite::Error> {
+        let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         let mut stmt = conn.prepare(
             "SELECT stock_action_id, stock_id, current_price, current_cost, total_amount, transaction_price, transaction_amount, transaction_commission_fee, action, profit, profit_rate, created_at, updated_at FROM tb_stock_action WHERE stock_id = ? ORDER BY stock_action_id DESC"
@@ -90,7 +86,8 @@ impl StockActionHandler {
         Ok(stock_actions)
     }
     /// 删除最后一条操作记录
-    pub fn delete_last_action(db_conn: &Arc<Mutex<Connection>>,stock_id:i32) -> Result<()> {
+    pub fn delete_last_action(stock_id:i32) -> Result<(),rusqlite::Error> {
+        let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         conn.execute("DELETE FROM tb_stock_action WHERE stock_action_id = (SELECT MAX(stock_action_id) FROM tb_stock_action WHERE stock_id = ?)", [stock_id])?;
         Ok(())

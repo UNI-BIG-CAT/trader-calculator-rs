@@ -1,6 +1,6 @@
-use rusqlite::{Connection, Result};
+use crate::database::db_connect::get_db_state;
+use rusqlite::Result;
 use serde::{Deserialize, Serialize};
-use std::sync::{Arc, Mutex};
 
 // Stock结构体
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -16,17 +16,13 @@ pub struct StockRecord {
 // 操作记录处理
 pub struct StockHandler;
 impl StockHandler {
-    // pub fn new() -> Self {
-    //     Self
-    // }
-
     /// 插入股票数据
     pub fn insert_stock(
-        db_conn: &Arc<Mutex<Connection>>,
         stock_name: &str,
         stock_type: i32,
         commission_fee_rate: f64,
-    ) -> Result<i64> {
+    ) -> Result<i64, rusqlite::Error> {
+        let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         conn.execute(
             "INSERT INTO tb_stock (stock_name, type, commission_fee_rate) VALUES (?1, ?2, ?3)",
@@ -40,7 +36,8 @@ impl StockHandler {
     }
 
     /// 查询所有股票数据
-    pub fn get_all_stocks(db_conn: &Arc<Mutex<Connection>>) -> Result<Vec<StockRecord>> {
+    pub fn get_all_stocks() -> Result<Vec<StockRecord>> {
+        let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         let mut stmt = conn.prepare(
             "SELECT stock_id, stock_name, type, commission_fee_rate, created_at, updated_at FROM tb_stock ORDER BY stock_id DESC"
@@ -65,10 +62,8 @@ impl StockHandler {
     }
 
     /// 根据ID查询股票
-    pub fn get_stock_by_id(
-        db_conn: &Arc<Mutex<Connection>>,
-        stock_id: i32,
-    ) -> Result<Option<StockRecord>> {
+    pub fn get_stock_by_id(stock_id: i32) -> Result<Option<StockRecord>> {
+        let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         let mut stmt = conn.prepare(
             "SELECT stock_id, stock_name, type, commission_fee_rate, created_at, updated_at FROM tb_stock WHERE stock_id = ?"
@@ -92,7 +87,8 @@ impl StockHandler {
     }
 
     /// 删除股票数据
-    pub fn delete_stock(db_conn: &Arc<Mutex<Connection>>, stock_id: i32) -> Result<()> {
+    pub fn delete_stock(stock_id: i32) -> Result<()> {
+        let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         conn.execute("DELETE FROM tb_stock WHERE stock_id = ?", [stock_id])?;
         conn.execute("DELETE FROM tb_stock_action WHERE stock_id = ?", [stock_id])?;
