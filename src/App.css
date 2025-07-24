@@ -24,23 +24,26 @@
 }
 
 .header {
-  background-color: #f6f6f6;
+  background-color: #fff;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 10px 0px;
+  margin: 0px 10px;
+  border-radius: 5px;
 }
 
 .header-title {
-  color: #d86e11f8;
+  color: #F1933C;
   font-weight: 500;
   font-size: 1.5rem;
   margin-left: 60px;
 }
 
 .open-stock-btn {
-  background-color: #f6f6f6;
-  color:  #d86e11f8;
-  border: 1px solid #d86e11f8;
+  background-color: #fff;
+  color:  #F1933C;
+  border: 1px solid #F1933C;
   border-radius: 5px;
   padding: 5px 20px;
   margin-right: 20px;
@@ -49,8 +52,111 @@
 }
 
 .open-stock-btn:hover {
-  background-color: #d86e11f8;
+  background-color: #F1933C;
   color: #f6f6f6;
+}
+
+/* 股票列表样式 */
+.stock-list {
+  padding: 20px;
+  background-color: #ffffff;
+  margin: 5px 10px;
+  border-radius: 8px;
+  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
+}
+
+.stock-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); */
+}
+
+.stock-table thead {
+  background-color: #F1933C;
+  color: #ffffff;
+}
+
+.stock-table th {
+  padding: 12px 15px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 0.9rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.stock-table tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+  /* transition: background-color 0.2s; */
+}
+
+.stock-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.stock-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.stock-table td {
+  padding: 12px 15px;
+  font-size: 0.85rem;
+  color: #333;
+  vertical-align: middle;
+}
+
+.stock-table td:first-child {
+  font-weight: 500;
+  color: #F1933C;
+}
+
+/* 操作按钮样式 */
+.action-btn {
+  padding: 4px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  margin-right: 8px;
+  transition: all 0.2s;
+}
+
+.view-btn {
+  background-color: #F1933C;
+  color: #ffffff;
+}
+
+.view-btn:hover {
+  background-color: #F1933C;
+  /* transform: translateY(-1px); */
+}
+
+.delete-btn {
+  border: 1px solid #F1933C;
+  background-color: #ffffff;
+  color: #F1933C;
+}
+
+.delete-btn:hover {
+  background-color: #ffffff;
+  /* transform: translateY(-1px); */
+}
+
+.action-btn:last-child {
+  margin-right: 0;
+}
+
+/* 空数据提示 */
+.empty-message {
+  text-align: center;
+  color: #999;
+  font-size: 0.9rem;
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px dashed #ddd;
 }
 
 /* 对话框样式 */
@@ -84,7 +190,7 @@
 
 .dialog-header h3 {
   margin: 0;
-  color: #d86e11f8;
+  color: #F1933C;
   font-size: 1.2rem;
   font-weight: 500;
 }
@@ -96,14 +202,43 @@
 .form-group {
   margin-bottom: 15px;
   text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .form-group label {
-  display: block;
-  margin-bottom: 5px;
+  margin-bottom: 0;
   color: #333;
-  font-weight: 500;
-  font-size: 0.9rem;
+  font-weight: 400;
+  font-size: 0.85rem;
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.stock-type-buttons {
+  display: flex;
+  justify-content: start;
+  gap: 15px;
+  font-size: 5x;
+}
+/* 股票类型按钮 */
+.stock-type-button {
+  padding: 5px 18px;
+  background-color: #fff;
+  border: 1px solid #F1933C;
+  color: #F1933C;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.stock-type-button-active {
+  padding: 5px 18px;
+  background-color: #F1933C;
+  color: #fff;
+  border: 1px solid #F1933C;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .form-group input {
@@ -118,7 +253,7 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #d86e11f8;
+  border-color: #F1933C;
   box-shadow: 0 0 0 2px rgba(216, 110, 17, 0.1);
 }
 
@@ -145,7 +280,7 @@
 }
 
 .btn-confirm {
-  background-color: #d86e11f8;
+  background-color: #F1933C;
   color: #ffffff;
 }
 

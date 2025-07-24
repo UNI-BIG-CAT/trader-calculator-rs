@@ -8,7 +8,11 @@ pub struct StockRecord {
     pub stock_id: i32,
     pub stock_name: String,
     pub stock_type: i32,
-    pub commission_fee_rate: f64,
+    pub commission_fee_rate: f64, // 佣金
+    pub tax_fee_rate: f64,        // 印花税
+    pub regulatory_fee_rate: f64, // 证管费
+    pub brokerage_fee_rate: f64,  // 经手费
+    pub transfer_fee_rate: f64,   // 过户费
     pub created_at: String,
     pub updated_at: String,
 }
@@ -21,15 +25,23 @@ impl StockHandler {
         stock_name: &str,
         stock_type: i32,
         commission_fee_rate: f64,
+        tax_fee_rate: f64,
+        regulatory_fee_rate: f64,
+        brokerage_fee_rate: f64,
+        transfer_fee_rate: f64,
     ) -> Result<i64, rusqlite::Error> {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         conn.execute(
-            "INSERT INTO tb_stock (stock_name, type, commission_fee_rate) VALUES (?1, ?2, ?3)",
+            "INSERT INTO tb_stock (stock_name, type, commission_fee_rate, tax_fee_rate, regulatory_fee_rate, brokerage_fee_rate, transfer_fee_rate) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
             [
                 stock_name,
                 &stock_type.to_string(),
                 &commission_fee_rate.to_string(),
+                &tax_fee_rate.to_string(),
+                &regulatory_fee_rate.to_string(),
+                &brokerage_fee_rate.to_string(),
+                &transfer_fee_rate.to_string(),
             ],
         )?;
         Ok(conn.last_insert_rowid())
@@ -40,7 +52,7 @@ impl StockHandler {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         let mut stmt = conn.prepare(
-            "SELECT stock_id, stock_name, type, commission_fee_rate, created_at, updated_at FROM tb_stock ORDER BY stock_id DESC"
+            "SELECT stock_id, stock_name, type, commission_fee_rate, tax_fee_rate, regulatory_fee_rate, brokerage_fee_rate, transfer_fee_rate, created_at, updated_at FROM tb_stock ORDER BY stock_id DESC"
         )?;
 
         let stock_iter = stmt.query_map([], |row| {
@@ -49,8 +61,12 @@ impl StockHandler {
                 stock_name: row.get(1)?,
                 stock_type: row.get(2)?,
                 commission_fee_rate: row.get(3)?,
-                created_at: row.get(4)?,
-                updated_at: row.get(5)?,
+                tax_fee_rate: row.get(4)?,
+                regulatory_fee_rate: row.get(5)?,
+                brokerage_fee_rate: row.get(6)?,
+                transfer_fee_rate: row.get(7)?,
+                created_at: row.get(8)?,
+                updated_at: row.get(9)?,
             })
         })?;
 
@@ -66,7 +82,7 @@ impl StockHandler {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         let mut stmt = conn.prepare(
-            "SELECT stock_id, stock_name, type, commission_fee_rate, created_at, updated_at FROM tb_stock WHERE stock_id = ?"
+            "SELECT stock_id, stock_name, type, commission_fee_rate, tax_fee_rate, regulatory_fee_rate, brokerage_fee_rate, transfer_fee_rate, created_at, updated_at FROM tb_stock WHERE stock_id = ?"
         )?;
 
         let mut rows = stmt.query_map([stock_id], |row| {
@@ -75,8 +91,12 @@ impl StockHandler {
                 stock_name: row.get(1)?,
                 stock_type: row.get(2)?,
                 commission_fee_rate: row.get(3)?,
-                created_at: row.get(4)?,
-                updated_at: row.get(5)?,
+                tax_fee_rate: row.get(4)?,
+                regulatory_fee_rate: row.get(5)?,
+                brokerage_fee_rate: row.get(6)?,
+                transfer_fee_rate: row.get(7)?,
+                created_at: row.get(8)?,
+                updated_at: row.get(9)?,
             })
         })?;
 
