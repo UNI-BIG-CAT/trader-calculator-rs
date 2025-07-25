@@ -37,7 +37,7 @@
   color: #F1933C;
   font-weight: 500;
   font-size: 1.5rem;
-  margin-left: 60px;
+  margin-left: 20px;
 }
 
 /* 建仓按钮 */
@@ -47,7 +47,7 @@
   border: 1px solid #F1933C;
   border-radius: 5px;
   padding: 5px 20px;
-  margin-right: 20px;
+  margin-right: 10px;
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -65,7 +65,7 @@
   border: 1px solid #F1933C;
   border-radius: 5px;
   padding: 5px 20px;
-  margin-left: 20px;
+  margin-right: 10px;
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -121,7 +121,7 @@
 }
 
 .stock-table td {
-  padding: 12px 15px;
+  padding: 12px 2px;
   font-size: 0.85rem;
   color: #333;
   vertical-align: middle;

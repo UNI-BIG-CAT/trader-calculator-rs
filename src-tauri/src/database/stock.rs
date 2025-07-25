@@ -13,6 +13,7 @@ pub struct StockRecord {
     pub regulatory_fee_rate: f64, // 证管费
     pub brokerage_fee_rate: f64,  // 经手费
     pub transfer_fee_rate: f64,   // 过户费
+    pub status: i32,              // 状态 1-正常买卖中 2-已经平仓
     pub created_at: String,
     pub updated_at: String,
 }
@@ -52,7 +53,7 @@ impl StockHandler {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         let mut stmt = conn.prepare(
-            "SELECT stock_id, stock_name, type, commission_fee_rate, tax_fee_rate, regulatory_fee_rate, brokerage_fee_rate, transfer_fee_rate, created_at, updated_at FROM tb_stock ORDER BY stock_id DESC"
+            "SELECT stock_id, stock_name, type, commission_fee_rate, tax_fee_rate, regulatory_fee_rate, brokerage_fee_rate, transfer_fee_rate, status, created_at, updated_at FROM tb_stock ORDER BY stock_id DESC"
         )?;
 
         let stock_iter = stmt.query_map([], |row| {
@@ -65,8 +66,9 @@ impl StockHandler {
                 regulatory_fee_rate: row.get(5)?,
                 brokerage_fee_rate: row.get(6)?,
                 transfer_fee_rate: row.get(7)?,
-                created_at: row.get(8)?,
-                updated_at: row.get(9)?,
+                status: row.get(8)?,
+                created_at: row.get(9)?,
+                updated_at: row.get(10)?,
             })
         })?;
 
@@ -82,7 +84,7 @@ impl StockHandler {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         let mut stmt = conn.prepare(
-            "SELECT stock_id, stock_name, type, commission_fee_rate, tax_fee_rate, regulatory_fee_rate, brokerage_fee_rate, transfer_fee_rate, created_at, updated_at FROM tb_stock WHERE stock_id = ?"
+            "SELECT stock_id, stock_name, type, commission_fee_rate, tax_fee_rate, regulatory_fee_rate, brokerage_fee_rate, transfer_fee_rate, status, created_at, updated_at FROM tb_stock WHERE stock_id = ?"
         )?;
 
         let mut rows = stmt.query_map([stock_id], |row| {
@@ -95,8 +97,9 @@ impl StockHandler {
                 regulatory_fee_rate: row.get(5)?,
                 brokerage_fee_rate: row.get(6)?,
                 transfer_fee_rate: row.get(7)?,
-                created_at: row.get(8)?,
-                updated_at: row.get(9)?,
+                status: row.get(8)?,
+                created_at: row.get(9)?,
+                updated_at: row.get(10)?,
             })
         })?;
 
@@ -104,6 +107,17 @@ impl StockHandler {
             Some(stock) => Ok(Some(stock?)),
             None => Ok(None),
         }
+    }
+
+    // 修改股票状态
+    pub fn update_stock_status(stock_id: i32, status: i32) -> Result<()> {
+        let db_conn = get_db_state();
+        let conn = db_conn.lock().unwrap();
+        conn.execute(
+            "UPDATE tb_stock SET status = ? WHERE stock_id = ?",
+            [status, stock_id],
+        )?;
+        Ok(())
     }
 
     /// 删除股票数据

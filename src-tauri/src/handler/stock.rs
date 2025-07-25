@@ -1,6 +1,4 @@
-use crate::constant::action_type::ActionType;
-use crate::constant::fee_rate::FeeRates;
-use crate::constant::stock_type::StockType;
+use crate::constant::{action_type::ActionType, fee_rate::FeeRates, stock_type::StockType};
 use crate::database::stock::{StockHandler, StockRecord};
 use crate::database::stock_action::StockActionHandler;
 
@@ -14,6 +12,14 @@ pub fn get_all_stocks() -> Vec<StockRecord> {
     list
 }
 
+// 获取股票信息
+#[tauri::command]
+pub fn get_stock_info(stock_id: i32) -> Result<Option<StockRecord>, String> {
+    println!("get_stock_info:{stock_id}");
+    let stock = StockHandler::get_stock_by_id(stock_id).map_err(|e| e.to_string())?;
+    Ok(stock)
+}
+
 /// 创建股票 - 适配Tauri
 #[tauri::command]
 pub fn open_stock(
@@ -23,7 +29,6 @@ pub fn open_stock(
     transaction_price: f64,
     transaction_amount: i32,
 ) -> Result<(), String> {
-    println!("open_stock:{stock_name},{stock_type},{current_price},{transaction_price},{transaction_amount}");
     // 插入股票及其费率
     let fee_rates = FeeRates::for_stock_type(StockType::from(stock_type), ActionType::Open);
     let stock_id = StockHandler::insert_stock(
@@ -49,8 +54,14 @@ pub fn open_stock(
     let transaction_regulatory_fee = transaction_value * fee_rates.regulatory;
     let transaction_brokerage_fee = transaction_value * fee_rates.brokerage;
     let transaction_transfer_fee = transaction_value * fee_rates.transfer;
-
+    let total_fee = transaction_commission_fee
+        + transaction_tax_fee
+        + transaction_regulatory_fee
+        + transaction_brokerage_fee
+        + transaction_transfer_fee;
+    //
     let action_type = ActionType::Open as i32; // 操作类型
+                                               //
     let profit = (current_price - current_cost) * total_amount; //利润
     let profit_rate = profit / (current_cost * total_amount); //利润率
 
@@ -59,6 +70,7 @@ pub fn open_stock(
         current_price,
         current_cost,
         total_amount,
+        total_fee,
         transaction_price,
         transaction_amount_f64,
         transaction_commission_fee,

@@ -3,8 +3,11 @@ mod constant;
 mod database;
 mod handler;
 //
-use crate::handler::stock::{get_all_stocks, handle_delete_stock, open_stock};
-use crate::handler::stock_action::get_action_list;
+use crate::handler::stock::{get_all_stocks, get_stock_info, handle_delete_stock, open_stock};
+use crate::handler::stock_action::{
+    get_action_list, handle_add_position, handle_back_position, handle_close_position,
+    handle_reduce_position,
+};
 //
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -12,9 +15,15 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             get_all_stocks,
-            get_action_list,
+            get_stock_info,
             open_stock,
-            handle_delete_stock
+            //
+            get_action_list,
+            handle_add_position,
+            handle_back_position,
+            handle_reduce_position,
+            handle_close_position,
+            handle_delete_stock,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

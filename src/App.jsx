@@ -4,9 +4,11 @@ import "./css/App.css";
 import Detail from "./Detail.jsx";
 
 function App() {
+  /*******************参数*********************/
   // 页面状态管理
   const [currentPage, setCurrentPage] = useState("list"); // "list" 或 "detail"
   const [selectedStockId, setSelectedStockId] = useState(null);
+  const [selectedStockName, setSelectedStockName] = useState(null);
 
   // 股票列表状态
   const [stockList, setStockList] = useState([]);
@@ -21,10 +23,12 @@ function App() {
     transactionAmount: "",
   });
 
+  /*******************生命周期*********************/
   useEffect(() => {
     getStockList();
   }, []);
 
+  /*******************函数*********************/
   // 获取股票列表
   async function getStockList() {
     try {
@@ -105,8 +109,9 @@ function App() {
     }
   };
   // 查看详情
-  const handleViewStock = async (stockId) => {
+  const handleViewStock = async (stockId, stockName) => {
     setSelectedStockId(stockId);
+    setSelectedStockName(stockName);
     setCurrentPage("detail");
   };
 
@@ -114,6 +119,7 @@ function App() {
   const handleBackToList = () => {
     setCurrentPage("list");
     setSelectedStockId(null);
+    setSelectedStockName(null);
   };
 
   // 删除股票
@@ -128,17 +134,27 @@ function App() {
 
   // 根据当前页面状态渲染不同内容
   if (currentPage === "detail") {
-    return <Detail stockId={selectedStockId} onBack={handleBackToList} />;
+    return (
+      <Detail
+        stockId={selectedStockId}
+        stockName={selectedStockName}
+        onBack={handleBackToList}
+      />
+    );
   }
 
   return (
     <main className="container">
       <div className="header">
-        <div></div>
-        <div className="header-title">股票列表</div>
-        <button className="open-stock-btn" onClick={openDialog}>
-          建仓
-        </button>
+        <div className="header-title">盈亏计算器</div>
+        <div>
+          <button className="open-stock-btn" onClick={openDialog}>
+            建仓
+          </button>
+          <button className="open-stock-btn" onClick={openDialog}>
+            连板
+          </button>
+        </div>
       </div>
       {/* 股票列表 */}
       <div className="stock-list">
@@ -168,7 +184,9 @@ function App() {
                 <td>
                   <button
                     className="action-btn view-btn"
-                    onClick={() => handleViewStock(stock.stock_id)}
+                    onClick={() =>
+                      handleViewStock(stock.stock_id, stock.stock_name)
+                    }
                   >
                     查看
                   </button>
@@ -184,7 +202,7 @@ function App() {
           </tbody>
         </table>
         {stockList.length === 0 && (
-          <div className="empty-message">暂无股票数据</div>
+          <div className="empty-message">请先建仓股票</div>
         )}
       </div>
       {/* 对话框遮罩 */}

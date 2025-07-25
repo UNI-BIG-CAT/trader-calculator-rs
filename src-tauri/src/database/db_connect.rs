@@ -35,6 +35,7 @@ fn create_tables(conn: &Connection) -> Result<()> {
             regulatory_fee_rate REAL NOT NULL DEFAULT 0.00002, -- 证管费 0.002%
             brokerage_fee_rate REAL NOT NULL DEFAULT 0.0000487,  -- 经手费 沪市为0.00487% 深市为0.0341‰
             transfer_fee_rate REAL NOT NULL DEFAULT 0,         -- 过户费 沪市为0.001%(万0.1) 深市为0 
+            status INTEGER NOT NULL DEFAULT 1,                 -- 状态 1-正常买卖中 2-已经平仓
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,    -- 创建时间
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP     -- 更新时间（无法自动更新）
         );
@@ -50,6 +51,7 @@ fn create_tables(conn: &Connection) -> Result<()> {
             current_price REAL NOT NULL,                           -- 当前价格
             current_cost REAL NOT NULL DEFAULT 0,                  -- 持仓成本
             total_amount REAL NOT NULL,                            -- 总数量
+            total_fee REAL NOT NULL DEFAULT 0,                     -- 到目前总手续费
             transaction_price REAL NOT NULL,                       -- 交易价格
             transaction_amount REAL NOT NULL,                      -- 交易数量
             transaction_commission_fee REAL NOT NULL DEFAULT 0,    -- 交易佣金费
