@@ -2,7 +2,7 @@ use crate::constant::action_type::ActionType;
 use crate::constant::fee_rate::FeeRates;
 use crate::constant::stock_type::StockType;
 use crate::database::stock::{StockHandler, StockRecord};
-use crate::database::stock_action::{StockActionHandler, StockActionRecord};
+use crate::database::stock_action::StockActionHandler;
 
 // Tauri专用的简化函数
 /// 获取所有股票 - 适配Tauri

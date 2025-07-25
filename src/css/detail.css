@@ -1,0 +1,92 @@
+/* Detail页面样式 */
+.detail-container {
+  padding: 10px;
+  max-width: 800px;
+  /* margin: 0 auto; */
+}
+
+.action-detail {
+  background-color: #ffffff;
+  border-radius: 8px;
+  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
+  /* margin-bottom: 20px; */
+  padding:5px 20px;
+}
+
+.detail-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto;
+  gap: 20px;
+  padding: 8px 0;
+  /* border-bottom: 1px solid #f0f0f0; */
+  align-items: center;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 14px;
+  color: #666;
+  font-weight: 400;
+  text-align: left;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: #333;
+  /* font-weight: 500; */
+  text-align: right;
+  min-width: 80px;
+}
+
+.detail-value.highlight {
+  color: #f44336;
+  /* font-weight: 600; */
+}
+
+.detail-value.profit {
+  color: #f44336;
+  /* font-weight: 600; */
+}
+
+.detail-value.loss {
+  color: #4CAF50;
+  /* font-weight: 600; */
+}
+
+.empty-message {
+  text-align: center;
+  color: #999;
+  font-size: 16px;
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px dashed #ddd;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .detail-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .detail-row > span:nth-child(3),
+  .detail-row > span:nth-child(4) {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #f0f0f0;
+  }
+  
+  .detail-value {
+    text-align: left;
+  }
+}

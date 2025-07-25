@@ -1,7 +1,8 @@
 use crate::database::db_connect::get_db_state;
+use serde::Serialize;
 
 // 数据结构定义
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct StockActionRecord {
     pub stock_action_id: i32,
     pub stock_id: i32,
@@ -45,7 +46,7 @@ impl StockActionHandler {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         conn.execute(
-            "INSERT INTO tb_stock_action (stock_id, current_price, current_cost, total_amount, transaction_price, transaction_amount, action, transaction_commission_fee, transaction_tax_fee, transaction_regulatory_fee, transaction_brokerage_fee, transaction_transfer_fee, profit, profit_rate) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)",
+            "INSERT INTO tb_stock_action (stock_id, current_price, current_cost, total_amount, transaction_price, transaction_amount, transaction_commission_fee, transaction_tax_fee, transaction_regulatory_fee, transaction_brokerage_fee, transaction_transfer_fee, action, profit, profit_rate) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)",
             [
                 &stock_id.to_string(), 
                 &current_price.to_string(), 
@@ -53,12 +54,12 @@ impl StockActionHandler {
                 &total_amount.to_string(), 
                 &transaction_price.to_string(), 
                 &transaction_amount.to_string(), 
-                &action.to_string(), 
                 &transaction_commission_fee.to_string(), 
                 &transaction_tax_fee.to_string(),
                 &transaction_regulatory_fee.to_string(),
                 &transaction_brokerage_fee.to_string(),
                 &transaction_transfer_fee.to_string(),
+                &action.to_string(), 
                 &profit.to_string(), 
                 &profit_rate.to_string()
             ],
@@ -90,8 +91,8 @@ impl StockActionHandler {
                 action: row.get(12)?,
                 profit: row.get(13)?,
                 profit_rate: row.get(14)?,
-                created_at: row.get(11)?,
-                updated_at: row.get(12)?,
+                created_at: row.get(15)?,
+                updated_at: row.get(16)?,
             })
         })?;
 

@@ -1,8 +1,13 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import "./css/App.css";
+import Detail from "./Detail.jsx";
 
 function App() {
+  // 页面状态管理
+  const [currentPage, setCurrentPage] = useState("list"); // "list" 或 "detail"
+  const [selectedStockId, setSelectedStockId] = useState(null);
+
   // 股票列表状态
   const [stockList, setStockList] = useState([]);
   // 对话框显示状态
@@ -49,23 +54,6 @@ function App() {
   // 格式化手续费率
   const formatCommissionFee = (rate) => {
     return (rate * 100).toFixed(4) + "%";
-  };
-
-  // 格式化时间
-  const formatDateTime = (dateString) => {
-    if (!dateString) return "暂无";
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleString("zh-CN", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch (error) {
-      return dateString;
-    }
   };
 
   // 建仓对话框
@@ -116,6 +104,18 @@ function App() {
       alert("建仓失败: " + error);
     }
   };
+  // 查看详情
+  const handleViewStock = async (stockId) => {
+    setSelectedStockId(stockId);
+    setCurrentPage("detail");
+  };
+
+  // 返回列表页
+  const handleBackToList = () => {
+    setCurrentPage("list");
+    setSelectedStockId(null);
+  };
+
   // 删除股票
   const handleDeleteStock = async (stockId) => {
     try {
@@ -125,6 +125,11 @@ function App() {
       console.error("Error deleting stock:", error);
     }
   };
+
+  // 根据当前页面状态渲染不同内容
+  if (currentPage === "detail") {
+    return <Detail stockId={selectedStockId} onBack={handleBackToList} />;
+  }
 
   return (
     <main className="container">
@@ -147,7 +152,6 @@ function App() {
               <th>证管费率</th>
               <th>经手费率</th>
               <th>过户费率</th>
-              {/* <th>建仓时间</th> */}
               <th>操作</th>
             </tr>
           </thead>
@@ -161,9 +165,13 @@ function App() {
                 <td>{formatCommissionFee(stock.regulatory_fee_rate)}</td>
                 <td>{formatCommissionFee(stock.brokerage_fee_rate)}</td>
                 <td>{formatCommissionFee(stock.transfer_fee_rate)}</td>
-                {/* <td>{formatDateTime(stock.created_at)}</td> */}
                 <td>
-                  <button className="action-btn view-btn">查看</button>
+                  <button
+                    className="action-btn view-btn"
+                    onClick={() => handleViewStock(stock.stock_id)}
+                  >
+                    查看
+                  </button>
                   <button
                     className="action-btn delete-btn"
                     onClick={() => handleDeleteStock(stock.stock_id)}

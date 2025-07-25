@@ -40,6 +40,7 @@
   margin-left: 60px;
 }
 
+/* 建仓按钮 */
 .open-stock-btn {
   background-color: #fff;
   color:  #F1933C;
@@ -55,6 +56,25 @@
   background-color: #F1933C;
   color: #f6f6f6;
 }
+
+/* 回退按钮 */
+
+.back-btn {
+  background-color: #fff;
+  color:  #F1933C;
+  border: 1px solid #F1933C;
+  border-radius: 5px;
+  padding: 5px 20px;
+  margin-left: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.back-btn:hover {
+  background-color: #F1933C;
+  color: #fff;
+}
+
 
 /* 股票列表样式 */
 .stock-list {
