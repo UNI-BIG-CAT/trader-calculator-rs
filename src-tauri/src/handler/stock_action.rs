@@ -4,6 +4,26 @@ use crate::constant::{
 use crate::database::stock::StockHandler;
 use crate::database::stock_action::{StockActionHandler, StockActionRecord};
 
+fn calculate_safe_profit_rate(profit: f64, cost: f64, position: f64) -> f64 {
+    // println!("profit:{profit},cost:{cost},position:{position}");
+    let mut denominator = (cost * position).abs();
+    // 检查分母是否接近0或为0
+    if denominator < f64::EPSILON {
+        denominator = profit;
+    }
+    let rate = profit / denominator;
+    // 检查结果是否为无穷大或NaN
+    println!(
+        "profit:{profit},cost:{cost},position:{position},denominator:{denominator},rate:{rate},{},{}",
+        rate.is_infinite(),
+        rate.is_nan()
+    );
+    if rate.is_infinite() || rate.is_nan() {
+        return 0.0; // 返回0作为默认值
+    }
+    rate
+}
+
 /// 获取股票操作记录
 #[tauri::command]
 pub fn handle_get_action_list(stock_id: i32) -> Vec<StockActionRecord> {
@@ -60,9 +80,10 @@ pub fn handle_open_position(
         + transaction_transfer_fee;
     //
     let action_type = ActionType::Open as i32; // 操作类型
-                                               //
-    let profit = (current_price - current_cost) * total_position; //利润
-    let profit_rate = profit / (current_cost * total_position); //利润率
+                                               //利润
+    let profit = (current_price - current_cost) * total_position;
+    // 利润率
+    let profit_rate = calculate_safe_profit_rate(profit, current_cost, total_position);
 
     StockActionHandler::insert_action(
         stock_id as i32,
@@ -128,7 +149,7 @@ pub fn handle_add_position(
     // 当前整体浮动利润
     let profit = (current_price - current_cost) * total_position;
     // 利润率：以当前总成本为基准
-    let profit_rate = profit / (current_cost * total_position);
+    let profit_rate = calculate_safe_profit_rate(profit, current_cost, total_position);
     // 插入操作记录
     StockActionHandler::insert_action(
         stock_id,
@@ -196,7 +217,7 @@ pub fn handle_reduce_position(
     // 利润 = (当前价格 - 持仓成本) * 当前持仓数量
     let profit = (current_price - current_cost) * total_position;
     // 利润率 = 利润 / 当前成本
-    let profit_rate = profit / (current_cost * total_position);
+    let profit_rate = calculate_safe_profit_rate(profit, current_cost, total_position);
     // 插入操作记录
     StockActionHandler::insert_action(
         stock_id,
@@ -254,7 +275,9 @@ pub fn handle_close_position(stock_id: i32, current_price: f64) -> Result<(), St
         + transaction_transfer_fee;
     // 利润
     let profit = (current_price - last_action.current_cost) * last_action.total_position;
-    let profit_rate = profit / (last_action.current_cost * last_action.total_position);
+    let profit_rate =
+        calculate_safe_profit_rate(profit, last_action.current_cost, last_action.total_position);
+
     // 插入操作记录
     StockActionHandler::insert_action(
         stock_id,

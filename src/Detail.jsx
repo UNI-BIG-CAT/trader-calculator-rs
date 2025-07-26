@@ -295,7 +295,9 @@ function Detail({ stockId, stockName, onBack }) {
               <div className="detail-row">
                 <span className="detail-label">总计支出</span>
                 <span className="detail-value">
-                  {formatNumber(getTotalExpenditure(action))}
+                  {action.total_position > 0
+                    ? formatNumber(getTotalExpenditure(action))
+                    : "-"}
                 </span>
                 <span className="detail-label">股票余额</span>
                 <span className="detail-value">
@@ -306,7 +308,9 @@ function Detail({ stockId, stockName, onBack }) {
               <div className="detail-row">
                 <span className="detail-label">持仓成本</span>
                 <span className="detail-value highlight">
-                  {formatNumber(action.current_cost, 3)}
+                  {action.total_position > 0
+                    ? formatNumber(action.current_cost, 3)
+                    : "-"}
                 </span>
                 <span className="detail-label">当前价格(参考)</span>
                 <span className="detail-value highlight">
@@ -335,7 +339,7 @@ function Detail({ stockId, stockName, onBack }) {
                 <span className="detail-label">盈亏比例(忽略清仓手续费)</span>
                 <span
                   className={`detail-value ${
-                    action.profit_rate >= 0 ? "profit" : "loss"
+                    action.profit >= 0 ? "profit" : "loss"
                   }`}
                 >
                   {formatPercent(action.profit_rate)}

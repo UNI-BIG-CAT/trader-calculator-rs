@@ -111,11 +111,11 @@
 
 /* 详情页对话框表单样式 */
 .detail-container .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   text-align: left;
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 8px;
 }
 
 .detail-container .form-group label {
@@ -129,7 +129,7 @@
 
 .detail-container .form-group input {
   width: 100%;
-  padding: 8px 12px;
+  padding: 5px 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 0.9rem;
