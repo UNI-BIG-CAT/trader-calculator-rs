@@ -8,10 +8,10 @@ pub struct StockActionRecord {
     pub stock_id: i32,
     pub current_price: f64,
     pub current_cost: f64,
-    pub total_amount: f64,
+    pub total_position: f64,
     pub total_fee:f64,
     pub transaction_price: f64,
-    pub transaction_amount: f64,
+    pub transaction_position: f64,
     pub transaction_commission_fee: f64, // 佣金
     pub transaction_tax_fee:f64, // 印花税
     pub transaction_regulatory_fee:f64, // 证管费
@@ -32,10 +32,10 @@ impl StockActionHandler {
         stock_id: i32, 
         current_price: f64, 
         current_cost: f64, 
-        total_amount: f64, 
+        total_position: f64, 
         total_fee:f64,
         transaction_price: f64, 
-        transaction_amount: f64, 
+        transaction_position: f64, 
         transaction_commission_fee: f64, 
         transaction_tax_fee: f64,
         transaction_regulatory_fee: f64,
@@ -48,15 +48,15 @@ impl StockActionHandler {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         conn.execute(
-            "INSERT INTO tb_stock_action (stock_id, current_price, current_cost, total_amount, total_fee, transaction_price, transaction_amount, transaction_commission_fee, transaction_tax_fee, transaction_regulatory_fee, transaction_brokerage_fee, transaction_transfer_fee, action, profit, profit_rate) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)",
+            "INSERT INTO tb_stock_action (stock_id, current_price, current_cost, total_position, total_fee, transaction_price, transaction_position, transaction_commission_fee, transaction_tax_fee, transaction_regulatory_fee, transaction_brokerage_fee, transaction_transfer_fee, action, profit, profit_rate) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)",
             [
                 &stock_id.to_string(), 
                 &current_price.to_string(), 
                 &current_cost.to_string(), 
-                &total_amount.to_string(), 
+                &total_position.to_string(), 
                 &total_fee.to_string(),
                 &transaction_price.to_string(), 
-                &transaction_amount.to_string(), 
+                &transaction_position.to_string(), 
                 &transaction_commission_fee.to_string(), 
                 &transaction_tax_fee.to_string(),
                 &transaction_regulatory_fee.to_string(),
@@ -74,7 +74,7 @@ impl StockActionHandler {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         let mut stmt = conn.prepare(
-            "SELECT stock_action_id, stock_id, current_price, current_cost, total_amount, total_fee, transaction_price, transaction_amount, transaction_commission_fee, transaction_tax_fee, transaction_regulatory_fee, transaction_brokerage_fee, transaction_transfer_fee, action, profit, profit_rate, created_at, updated_at FROM tb_stock_action WHERE stock_id = ? ORDER BY stock_action_id ASC"
+            "SELECT stock_action_id, stock_id, current_price, current_cost, total_position, total_fee, transaction_price, transaction_position, transaction_commission_fee, transaction_tax_fee, transaction_regulatory_fee, transaction_brokerage_fee, transaction_transfer_fee, action, profit, profit_rate, created_at, updated_at FROM tb_stock_action WHERE stock_id = ? ORDER BY stock_action_id ASC"
         )?;
 
         let stock_action_iter = stmt.query_map([stock_id], |row| {
@@ -83,10 +83,10 @@ impl StockActionHandler {
                 stock_id: row.get(1)?,
                 current_price: row.get(2)?,
                 current_cost: row.get(3)?,
-                total_amount: row.get(4)?,
+                total_position: row.get(4)?,
                 total_fee: row.get(5)?,
                 transaction_price: row.get(6)?,
-                transaction_amount: row.get(7)?,
+                transaction_position: row.get(7)?,
                 transaction_commission_fee: row.get(8)?,
                 transaction_tax_fee: row.get(9)?,
                 transaction_regulatory_fee: row.get(10)?,
@@ -111,17 +111,17 @@ impl StockActionHandler {
     pub fn get_last_action(stock_id:i32) -> Result<StockActionRecord,rusqlite::Error> {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
-        let mut stmt = conn.prepare("SELECT stock_action_id, stock_id, current_price, current_cost, total_amount,total_fee, transaction_price, transaction_amount, transaction_commission_fee, transaction_tax_fee, transaction_regulatory_fee, transaction_brokerage_fee, transaction_transfer_fee, action, profit, profit_rate, created_at, updated_at FROM tb_stock_action WHERE stock_id = ? ORDER BY stock_action_id DESC LIMIT 1")?;
+        let mut stmt = conn.prepare("SELECT stock_action_id, stock_id, current_price, current_cost, total_position,total_fee, transaction_price, transaction_position, transaction_commission_fee, transaction_tax_fee, transaction_regulatory_fee, transaction_brokerage_fee, transaction_transfer_fee, action, profit, profit_rate, created_at, updated_at FROM tb_stock_action WHERE stock_id = ? ORDER BY stock_action_id DESC LIMIT 1")?;
         let stock_action = stmt.query_row([stock_id], |row| {
             Ok(StockActionRecord {
                 stock_action_id: row.get(0)?,   
                 stock_id: row.get(1)?,
                 current_price: row.get(2)?,
                 current_cost: row.get(3)?,
-                total_amount: row.get(4)?,
+                total_position: row.get(4)?,
                 total_fee: row.get(5)?,
                 transaction_price: row.get(6)?,
-                transaction_amount: row.get(7)?,
+                transaction_position: row.get(7)?,
                 transaction_commission_fee: row.get(8)?,
                 transaction_tax_fee: row.get(9)?,
                 transaction_regulatory_fee: row.get(10)?,

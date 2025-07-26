@@ -20,7 +20,7 @@ function App() {
     stockType: 1,
     currentPrice: "",
     transactionPrice: "",
-    transactionAmount: "",
+    transactionPosition: "",
   });
 
   /*******************生命周期*********************/
@@ -32,7 +32,7 @@ function App() {
   // 获取股票列表
   async function getStockList() {
     try {
-      const result = await invoke("get_all_stocks");
+      const result = await invoke("handle_get_all_stocks");
       setStockList(result);
     } catch (error) {
       console.error("Error getting stock list:", error);
@@ -71,7 +71,7 @@ function App() {
       stockType: 1,
       currentPrice: "",
       transactionPrice: "",
-      transactionAmount: "",
+      transactionPosition: "",
     });
   };
   const handleInputChange = (e) => {
@@ -88,18 +88,18 @@ function App() {
         !formData.stockName ||
         !formData.currentPrice ||
         !formData.transactionPrice ||
-        !formData.transactionAmount
+        !formData.transactionPosition
       ) {
         alert("请填写所有字段");
         return;
       }
 
-      await invoke("open_stock", {
+      await invoke("handle_open_position", {
         stockName: formData.stockName,
         stockType: formData.stockType,
         currentPrice: parseFloat(formData.currentPrice),
         transactionPrice: parseFloat(formData.transactionPrice),
-        transactionAmount: parseInt(formData.transactionAmount),
+        transactionPosition: parseInt(formData.transactionPosition),
       });
       getStockList();
       closeDialog();
@@ -274,8 +274,8 @@ function App() {
                 <label>数量:</label>
                 <input
                   type="number"
-                  name="transactionAmount"
-                  value={formData.transactionAmount}
+                  name="transactionPosition"
+                  value={formData.transactionPosition}
                   onChange={handleInputChange}
                   placeholder="请输入数量"
                   min="1"

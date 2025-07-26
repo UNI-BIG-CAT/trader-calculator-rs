@@ -12,7 +12,7 @@ function Detail({ stockId, stockName, onBack }) {
   const [addOrReduceFormData, setAddOrReduceFormData] = useState({
     currentPrice: "",
     transactionPrice: "",
-    transactionAmount: "",
+    transactionPosition: "",
   });
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [closeFormData, setCloseFormData] = useState({
@@ -31,9 +31,9 @@ function Detail({ stockId, stockName, onBack }) {
   // 获取详情
   const getActionList = async () => {
     try {
-      const stock = await invoke("get_stock_info", { stockId });
+      const stock = await invoke("handle_get_stock_info", { stockId });
       setStockStatus(stock.status);
-      const result = await invoke("get_action_list", { stockId });
+      const result = await invoke("handle_get_action_list", { stockId });
       setActionList(result);
     } catch (error) {
       console.error("Error getting action list:", error);
@@ -63,12 +63,12 @@ function Detail({ stockId, stockName, onBack }) {
 
   // 格式化百分比
   const formatPercent = (num) => {
-    return num.toFixed(2) * 100 + "%";
+    return (num * 100).toFixed(2) + "%";
   };
 
   // 计算交易市值
   const getTransactionValue = (action) => {
-    return action.transaction_price * action.transaction_amount;
+    return action.transaction_price * action.transaction_position;
   };
 
   // 计算此次支出
@@ -88,25 +88,23 @@ function Detail({ stockId, stockName, onBack }) {
   };
   // 总支出
   const getTotalExpenditure = (action) => {
-    const marketValue = getTransactionValue(action);
-    const totalFees = action.total_fee;
-    let totalExpenditure = marketValue + totalFees;
+    let totalExpenditure =
+      action.current_cost * action.total_position + action.total_fee;
     return totalExpenditure;
   };
   // 计算当前价清仓手续费
   const getCurrentClosingFees = (action) => {
-    const currentValue = action.current_price * action.total_amount;
+    const currentValue = action.current_price * action.total_position;
     // 估算清仓时的手续费（佣金+印花税+其他费用）
     return currentValue * (0.0001 + 0.001 + 0.00002 + 0.0000487 + 0.00001);
   };
 
   // 计算当前价清仓后纯收益
   const getNetProfit = (action) => {
-    if (action.total_amount > 0) {
-      return action.profit - getCurrentClosingFees(action);
-    } else {
-      return 0;
-    }
+    return (
+      action.current_price * action.total_position -
+      action.current_cost * action.total_position
+    );
   };
 
   /*************加仓减仓***************/
@@ -116,7 +114,7 @@ function Detail({ stockId, stockName, onBack }) {
     setAddOrReduceFormData({
       currentPrice: actionList[0]?.current_price || "",
       transactionPrice: "",
-      transactionAmount: "",
+      transactionPosition: "",
     });
     setShowAddOrReduceDialog(true);
   };
@@ -127,7 +125,7 @@ function Detail({ stockId, stockName, onBack }) {
     setAddOrReduceFormData({
       currentPrice: actionList[0]?.current_price || "",
       transactionPrice: "",
-      transactionAmount: "",
+      transactionPosition: "",
     });
     setShowAddOrReduceDialog(true);
   };
@@ -157,7 +155,7 @@ function Detail({ stockId, stockName, onBack }) {
     setAddOrReduceFormData({
       currentPrice: "",
       transactionPrice: "",
-      transactionAmount: "",
+      transactionPosition: "",
     });
   };
 
@@ -174,7 +172,7 @@ function Detail({ stockId, stockName, onBack }) {
     try {
       if (
         !addOrReduceFormData.transactionPrice ||
-        !addOrReduceFormData.transactionAmount
+        !addOrReduceFormData.transactionPosition
       ) {
         alert("请填写所有字段");
         return;
@@ -184,14 +182,18 @@ function Detail({ stockId, stockName, onBack }) {
           stockId,
           currentPrice: parseFloat(addOrReduceFormData.currentPrice),
           transactionPrice: parseFloat(addOrReduceFormData.transactionPrice),
-          transactionAmount: parseInt(addOrReduceFormData.transactionAmount),
+          transactionPosition: parseInt(
+            addOrReduceFormData.transactionPosition
+          ),
         });
       } else {
         await invoke("handle_reduce_position", {
           stockId,
           currentPrice: parseFloat(addOrReduceFormData.currentPrice),
           transactionPrice: parseFloat(addOrReduceFormData.transactionPrice),
-          transactionAmount: parseInt(addOrReduceFormData.transactionAmount),
+          transactionPosition: parseInt(
+            addOrReduceFormData.transactionPosition
+          ),
         });
       }
       // 重新获取数据
@@ -264,7 +266,7 @@ function Detail({ stockId, stockName, onBack }) {
                 </span>
                 <span className="detail-label">交易数量</span>
                 <span className="detail-value highlight">
-                  {formatNumber(action.transaction_amount, 0)}
+                  {formatNumber(action.transaction_position, 0)}
                 </span>
               </div>
 
@@ -297,7 +299,7 @@ function Detail({ stockId, stockName, onBack }) {
                 </span>
                 <span className="detail-label">股票余额</span>
                 <span className="detail-value">
-                  {formatNumber(action.total_amount, 0)}
+                  {formatNumber(action.total_position, 0)}
                 </span>
               </div>
 
@@ -323,7 +325,7 @@ function Detail({ stockId, stockName, onBack }) {
                 </span>
                 <span className="detail-label">当前价清仓手续费</span>
                 <span className="detail-value">
-                  {formatNumber(getCurrentClosingFees(action)) > 0
+                  {action.total_position > 0
                     ? formatNumber(getCurrentClosingFees(action))
                     : "-"}
                 </span>
@@ -345,7 +347,7 @@ function Detail({ stockId, stockName, onBack }) {
                     getNetProfit(action) >= 0 ? "profit" : "loss"
                   }`}
                 >
-                  {getNetProfit(action) > 0
+                  {action.total_position > 0
                     ? formatNumber(getNetProfit(action))
                     : "-"}
                 </span>
@@ -426,8 +428,8 @@ function Detail({ stockId, stockName, onBack }) {
                 <label>数量:</label>
                 <input
                   type="number"
-                  name="transactionAmount"
-                  value={addOrReduceFormData.transactionAmount}
+                  name="transactionPosition"
+                  value={addOrReduceFormData.transactionPosition}
                   onChange={handleAddOrReduceInputChange}
                   placeholder="请输入数量"
                   min="1"

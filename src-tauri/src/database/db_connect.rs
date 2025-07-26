@@ -50,10 +50,10 @@ fn create_tables(conn: &Connection) -> Result<()> {
             stock_id INTEGER NOT NULL,                             -- 股票ID
             current_price REAL NOT NULL,                           -- 当前价格
             current_cost REAL NOT NULL DEFAULT 0,                  -- 持仓成本
-            total_amount REAL NOT NULL,                            -- 总数量
+            total_position REAL NOT NULL,                            -- 总数量
             total_fee REAL NOT NULL DEFAULT 0,                     -- 到目前总手续费
             transaction_price REAL NOT NULL,                       -- 交易价格
-            transaction_amount REAL NOT NULL,                      -- 交易数量
+            transaction_position REAL NOT NULL,                      -- 交易数量
             transaction_commission_fee REAL NOT NULL DEFAULT 0,    -- 交易佣金费
             transaction_tax_fee REAL NOT NULL DEFAULT 0,           -- 交易印花税
             transaction_regulatory_fee REAL NOT NULL DEFAULT 0,    -- 交易证管费
