@@ -1,0 +1,165 @@
+
+/* 连板计算器输入区域样式 */
+.input-section {
+  padding: 20px;
+  background-color: #ffffff;
+  margin: 5px 10px;
+  border-radius: 8px;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 15px;
+}
+
+.input-row label {
+  min-width: 80px;
+  font-weight: 350;
+  color: #333;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.input-field {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #F1933C;
+  box-shadow: 0 0 0 2px rgba(216, 110, 17, 0.1);
+}
+
+.input-field::placeholder {
+  color: #999;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
+.change-btn {
+  padding: 6px 12px;
+  background-color: #fff;
+  border: 1px solid #F1933C;
+  color: #F1933C;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.change-btn:hover {
+  background-color: #F1933C;
+  color: #fff;
+}
+
+.change-btn.active {
+  background-color: #F1933C;
+  color: #fff;
+}
+
+/* 按钮容器 */
+.limit-btn-container {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.limit-btn {
+  margin-top: 10px;
+    background-color: #fff;
+    color:  #F1933C;
+    border: 1px solid #F1933C;
+    border-radius: 5px;
+    padding: 5px 20px;
+    margin-left: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.limit-btn:hover {
+  background-color: #F1933C;
+  color: #fff;
+}
+
+/* 结果表格样式 */
+.limit-result-container {
+  padding: 20px;
+  background-color: #ffffff;
+  margin: 5px 10px;
+  border-radius: 8px;
+}
+
+.limit-result-table {
+  overflow-x: auto;
+}
+
+.limit-result-table table {
+  width: 100%;
+  border-collapse: collapse;
+  backgroF1933Clor: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.limit-result-table thead {
+  background-color: #F1933C;
+  color: #ffffff;
+}
+
+.limit-result-table th {
+  padding: 12px 15px;
+  text-align: center;
+  font-weight: 350;
+  font-size: 0.9rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.limit-result-table tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.limit-result-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.limit-result-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.limit-result-table td {
+  padding: 12px 15px;
+  font-size: 0.85rem;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.limit-result-table td:first-child {
+  font-weight: 350;
+  color: #F1933C;
+}
+
+/* 正负值颜色 */
+.positive {
+  color: #e74c3c;
+  font-weight: 350;
+}
+
+.negative {
+  color: #27ae60;
+  font-weight: 350;
+}

@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./css/App.css";
 import Detail from "./Detail.jsx";
+import LimitCal from "./LimitCal.jsx";
 
 function App() {
   /*******************参数*********************/
   // 页面状态管理
-  const [currentPage, setCurrentPage] = useState("list"); // "list" 或 "detail"
+  const [currentPage, setCurrentPage] = useState("list"); // "list" 或 "detail" 或者 "limitCal"
   const [selectedStockId, setSelectedStockId] = useState(null);
   const [selectedStockName, setSelectedStockName] = useState(null);
 
@@ -60,6 +61,7 @@ function App() {
     return (rate * 100).toFixed(4) + "%";
   };
 
+  /*************建仓**************/
   // 建仓对话框
   const openDialog = () => {
     setShowDialog(true);
@@ -108,21 +110,14 @@ function App() {
       alert("建仓失败: " + error);
     }
   };
-  // 查看详情
+  /*************查看详情**************/
   const handleViewStock = async (stockId, stockName) => {
     setSelectedStockId(stockId);
     setSelectedStockName(stockName);
     setCurrentPage("detail");
   };
 
-  // 返回列表页
-  const handleBackToList = () => {
-    setCurrentPage("list");
-    setSelectedStockId(null);
-    setSelectedStockName(null);
-  };
-
-  // 删除股票
+  /*************删除股票**************/
   const handleDeleteStock = async (stockId) => {
     try {
       await invoke("handle_delete_stock", { stockId });
@@ -132,6 +127,18 @@ function App() {
     }
   };
 
+  /*************连板**************/
+  const handleOpenLimitCal = () => {
+    setCurrentPage("LimitCal");
+  };
+
+  /*************页面控制**************/
+  // 返回列表页
+  const handleBackToList = () => {
+    setCurrentPage("list");
+    setSelectedStockId(null);
+    setSelectedStockName(null);
+  };
   // 根据当前页面状态渲染不同内容
   if (currentPage === "detail") {
     return (
@@ -141,6 +148,8 @@ function App() {
         onBack={handleBackToList}
       />
     );
+  } else if (currentPage === "LimitCal") {
+    return <LimitCal onBack={handleBackToList} />;
   }
 
   return (
@@ -151,7 +160,7 @@ function App() {
           <button className="open-stock-btn" onClick={openDialog}>
             建仓
           </button>
-          <button className="open-stock-btn" onClick={openDialog}>
+          <button className="open-stock-btn" onClick={handleOpenLimitCal}>
             连板
           </button>
         </div>
