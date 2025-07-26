@@ -1,4 +1,5 @@
 // 操作类型
+#[allow(dead_code)]
 pub enum ActionType {
     Open = 1,           // 建仓
     Close = 2,          // 平仓

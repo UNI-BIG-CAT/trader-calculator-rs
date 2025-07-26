@@ -19,9 +19,11 @@ pub struct StockRecord {
 }
 
 // 操作记录处理
+#[allow(dead_code)]
 pub struct StockHandler;
 impl StockHandler {
     /// 插入股票数据
+    #[allow(dead_code)]
     pub fn insert_stock(
         stock_name: &str,
         stock_type: i32,
@@ -49,6 +51,7 @@ impl StockHandler {
     }
 
     /// 查询所有股票数据
+    #[allow(dead_code)]
     pub fn get_all_stocks() -> Result<Vec<StockRecord>> {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
@@ -80,6 +83,7 @@ impl StockHandler {
     }
 
     /// 根据ID查询股票
+    #[allow(dead_code)]
     pub fn get_stock_by_id(stock_id: i32) -> Result<Option<StockRecord>> {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
@@ -110,6 +114,7 @@ impl StockHandler {
     }
 
     // 修改股票状态
+    #[allow(dead_code)]
     pub fn update_stock_status(stock_id: i32, status: i32) -> Result<()> {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
@@ -121,6 +126,7 @@ impl StockHandler {
     }
 
     /// 删除股票数据
+    #[allow(dead_code)]
     pub fn delete_stock(stock_id: i32) -> Result<()> {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();

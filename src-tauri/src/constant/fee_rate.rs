@@ -2,6 +2,7 @@
 use crate::constant::action_type::ActionType;
 use crate::constant::stock_type::StockType;
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct FeeRates {
     pub commission: f64, // 佣金费率
@@ -13,6 +14,7 @@ pub struct FeeRates {
 
 impl FeeRates {
     // 为不同股票类型创建费率
+    #[allow(dead_code)]
     pub fn for_stock_type(stock_type: StockType, action_type: ActionType) -> Self {
         // 方法1：简洁的match判断
         let tax_rate = match action_type {
@@ -48,13 +50,6 @@ impl FeeRates {
                 regulatory: 0.00002,
                 brokerage: 0.0000487,
                 transfer: 0.00001,
-            },
-            _ => Self {
-                commission: 0.0,
-                tax: 0.0,
-                regulatory: 0.0,
-                brokerage: 0.0,
-                transfer: 0.0,
             },
         }
     }
