@@ -331,6 +331,7 @@ function App() {
                         brokerageFeeRate: 0.0000487,
                         stockType: 1,
                       });
+                      localStorage.setItem("brokerageFeeRate", 0.0000487);
                       setDefaultBrokerageFeeRate(0.0000487);
                     }}
                   >
@@ -348,6 +349,7 @@ function App() {
                         brokerageFeeRate: 0.0000341,
                         stockType: 2,
                       });
+                      localStorage.setItem("brokerageFeeRate", 0.0000341);
                       setDefaultBrokerageFeeRate(0.0000341);
                     }}
                   >
