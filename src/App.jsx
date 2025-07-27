@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import "./css/App.css";
 import Detail from "./Detail.jsx";
 import LimitCal from "./LimitCal.jsx";
+import { useToast, ToastContainer } from "./components/Toast.jsx";
 
 function App() {
   /*******************参数*********************/
@@ -15,6 +16,9 @@ function App() {
   const [stockList, setStockList] = useState([]);
   // 对话框显示状态
   const [showDialog, setShowDialog] = useState(false);
+
+  // Toast Hook
+  const { toasts, removeToast, showError, showSuccess } = useToast();
 
   // 从localStorage获取上次保存的手续费率，如果没有则使用默认值
   const getSavedCommissionFeeRate = () => {
@@ -45,6 +49,7 @@ function App() {
       setStockList(result);
     } catch (error) {
       console.error("Error getting stock list:", error);
+      showError("获取股票列表失败", 1000);
     }
   }
 
@@ -87,6 +92,11 @@ function App() {
   };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    if (name == "transactionPosition") {
+      if (value >= 1000000) {
+        value = 1000000;
+      }
+    }
     setFormData((prev) => {
       const newFormData = {
         ...prev,
@@ -110,7 +120,7 @@ function App() {
         !formData.transactionPrice ||
         !formData.transactionPosition
       ) {
-        alert("请填写所有字段");
+        showError("请填写所有字段", 1000);
         return;
       }
 
@@ -124,9 +134,10 @@ function App() {
       });
       getStockList();
       closeDialog();
+      showSuccess("建仓成功！");
     } catch (error) {
       console.error("Error opening stock:", error);
-      alert("建仓失败: " + error);
+      showError("建仓失败", 1000);
     }
   };
   /*************查看详情**************/
@@ -141,8 +152,10 @@ function App() {
     try {
       await invoke("handle_delete_stock", { stockId });
       getStockList();
+      showSuccess("删除成功！");
     } catch (error) {
       console.error("Error deleting stock:", error);
+      showError("删除失败", 1000);
     }
   };
 
@@ -285,6 +298,7 @@ function App() {
                   onChange={handleInputChange}
                   placeholder="请输入当前价格"
                   step="0.01"
+                  max="1000"
                 />
               </div>
               <div className="form-group">
@@ -296,6 +310,7 @@ function App() {
                   onChange={handleInputChange}
                   placeholder="请输入成本"
                   step="0.01"
+                  max="1000"
                 />
               </div>
               <div className="form-group">
@@ -307,6 +322,7 @@ function App() {
                   onChange={handleInputChange}
                   placeholder="请输入数量"
                   min="1"
+                  max="1000000"
                 />
               </div>
               <div className="form-group">
@@ -317,12 +333,21 @@ function App() {
                   value={formData.commissionFeeRate}
                   onChange={handleInputChange}
                   placeholder="请输入佣金比例"
-                  min="1"
+                  max="1"
                 />
               </div>
             </div>
             <div className="dialog-actions">
-              <button className="btn-confirm" onClick={handleConfirm}>
+              <button
+                className="btn-confirm"
+                disabled={
+                  !formData.stockName ||
+                  !formData.currentPrice ||
+                  !formData.transactionPrice ||
+                  !formData.transactionPosition
+                }
+                onClick={handleConfirm}
+              >
                 确认
               </button>
               <button className="btn-cancel" onClick={closeDialog}>
@@ -332,6 +357,9 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Toast容器 */}
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
     </main>
   );
 }

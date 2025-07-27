@@ -15,10 +15,9 @@ impl FeeRates {
     // 为不同股票类型创建费率
     #[allow(dead_code)]
     pub fn for_stock_type(stock_type: StockType, action_type: ActionType) -> Self {
-        // 方法1：简洁的match判断
         let tax_rate = match action_type {
-            ActionType::Close | ActionType::ReducePosition => 0.001, // 卖出时收印花税
-            _ => 0.0,                                                // 买入时不收印花税
+            ActionType::AddPosition => 0.0, // 买入时不收印花税
+            _ => 0.001, // 卖出时收印花税(开仓需要记录税率，先返回，后续判断不计算)
         };
 
         match stock_type {

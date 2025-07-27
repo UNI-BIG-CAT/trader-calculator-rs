@@ -70,7 +70,7 @@ pub fn handle_open_position(
         // 佣金最少5元
         transaction_commission_fee = 5.0;
     }
-    let transaction_tax_fee = transaction_value * fee_rates.tax;
+    let transaction_tax_fee = transaction_value * 0.0; // 买入时不收印花税
     let transaction_regulatory_fee = transaction_value * fee_rates.regulatory;
     let transaction_brokerage_fee = transaction_value * fee_rates.brokerage;
     let transaction_transfer_fee = transaction_value * fee_rates.transfer;

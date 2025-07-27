@@ -61,8 +61,8 @@
 }
 
 .change-btn:hover {
-  background-color: #F1933C;
-  color: #fff;
+  background-color: #e5e5e54c;
+  color: #F1933C;
 }
 
 .change-btn.active {
@@ -78,10 +78,10 @@
   margin-top: 20px;
 }
 
-.limit-btn {
+.limit-ok-btn {
   margin-top: 10px;
-    background-color: #fff;
-    color:  #F1933C;
+    background-color: #F1933C;
+    color:  #fff;
     border: 1px solid #F1933C;
     border-radius: 5px;
     padding: 5px 20px;
@@ -90,16 +90,41 @@
     transition: background-color 0.2s;
 }
 
-.limit-btn:hover {
+.limit-ok-btn:hover {
   background-color: #F1933C;
   color: #fff;
 }
 
+.limit-ok-btn:disabled {
+  background-color: #f1933c37;
+  border: none;
+  color: #ffffff;
+  cursor: not-allowed;
+}
+
+
+.limit-clear-btn {
+  margin-top: 10px;
+    background-color: #fff;
+    color:  #F1933C;
+    border: 1px solid #ed8727;
+    border-radius: 5px;
+    padding: 5px 20px;
+    margin-left: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.limit-clear-btn:hover {
+  background-color: #e5e5e54c;
+  color: #F1933C;
+}
+
 /* 结果表格样式 */
 .limit-result-container {
-  padding: 20px;
-  background-color: #ffffff;
-  margin: 5px 10px;
+  padding: 8px  9px;
+  /* background-color: #ffffff; */
+  /* margin: 5px 10px; */
   border-radius: 8px;
 }
 
@@ -110,7 +135,7 @@
 .limit-result-table table {
   width: 100%;
   border-collapse: collapse;
-  backgroF1933Clor: #ffffff;
+  background-color: #ffffff;
   border-radius: 8px;
   overflow: hidden;
 }

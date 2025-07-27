@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./css/App.css";
 import "./css/detail.css";
+import { useToast, ToastContainer } from "./components/Toast.jsx";
 
 function Detail({ stockId, stockName, onBack }) {
   /*******************参数*********************/
-  const [stockStatus, setStockStatus] = useState(1);
+  const [stock, setStock] = useState(1);
   const [actionList, setActionList] = useState([]);
   const [showAddOrReduceDialog, setShowAddOrReduceDialog] = useState(false);
   const [dialogType, setDialogType] = useState(""); // "add" 或 "reduce"
@@ -19,6 +20,9 @@ function Detail({ stockId, stockName, onBack }) {
     transactionPrice: "",
   });
 
+  // Toast Hook
+  const { toasts, removeToast, showError, showWarning, showSuccess } =
+    useToast();
   /*******************生命周期*********************/
   useEffect(() => {
     if (stockId) {
@@ -32,11 +36,11 @@ function Detail({ stockId, stockName, onBack }) {
   const getActionList = async () => {
     try {
       const stock = await invoke("handle_get_stock_info", { stockId });
-      setStockStatus(stock.status);
+      setStock(stock);
       const result = await invoke("handle_get_action_list", { stockId });
       setActionList(result);
     } catch (error) {
-      console.error("Error getting action list:", error);
+      showError("获取详情失败", 1000);
     }
   };
 
@@ -133,6 +137,10 @@ function Detail({ stockId, stockName, onBack }) {
   // 处理加减仓输入变化
   const handleAddOrReduceInputChange = (e) => {
     const { name, value } = e.target;
+    if (value >= actionList[actionList.length - 1]?.total_position) {
+      showError("请选择平仓操作", 1000);
+      return;
+    }
     setAddOrReduceFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -171,10 +179,11 @@ function Detail({ stockId, stockName, onBack }) {
   const handleAddOrReduceConfirm = async () => {
     try {
       if (
+        !addOrReduceFormData.currentPrice ||
         !addOrReduceFormData.transactionPrice ||
         !addOrReduceFormData.transactionPosition
       ) {
-        alert("请填写所有字段");
+        showError("请填写所有字段", 1000);
         return;
       }
       if (dialogType == "add") {
@@ -200,8 +209,7 @@ function Detail({ stockId, stockName, onBack }) {
       getActionList();
       closeAddOrReduceDialog();
     } catch (error) {
-      console.error("Error processing add/reduce:", error);
-      alert("操作失败: " + error);
+      showError("操作失败", 1000);
     }
   };
 
@@ -217,8 +225,8 @@ function Detail({ stockId, stockName, onBack }) {
   // 确认平仓
   const handleCloseConfirm = async () => {
     try {
-      if (!closeFormData.transactionPrice) {
-        alert("请填写平仓价格");
+      if (closeFormData.transactionPrice <= 0) {
+        showError("请填写平仓价格", 1000);
         return;
       }
       await invoke("handle_close_position", {
@@ -230,8 +238,7 @@ function Detail({ stockId, stockName, onBack }) {
       getActionList();
       closeCloseDialog();
     } catch (error) {
-      console.error("Error processing close:", error);
-      alert("平仓失败: " + error);
+      showError("平仓失败", 1000);
     }
   };
   /*************回退***************/
@@ -367,21 +374,21 @@ function Detail({ stockId, stockName, onBack }) {
         <div className="detail-action-btn-container">
           <button
             className="detail-action-btn"
-            disabled={stockStatus == 2}
+            disabled={stock.status == 2}
             onClick={addStock}
           >
             加仓
           </button>
           <button
             className="detail-action-btn"
-            disabled={stockStatus == 2}
+            disabled={stock.status == 2}
             onClick={reduceStock}
           >
             减仓
           </button>
           <button
             className="detail-action-btn"
-            disabled={stockStatus == 2}
+            disabled={stock.status == 2}
             onClick={closeStock}
           >
             平仓
@@ -413,6 +420,7 @@ function Detail({ stockId, stockName, onBack }) {
                   onChange={handleAddOrReduceInputChange}
                   placeholder="请输入当前价格"
                   step="0.01"
+                  max="1000"
                 />
               </div>
               <div className="form-group">
@@ -426,6 +434,7 @@ function Detail({ stockId, stockName, onBack }) {
                     dialogType === "add" ? "加仓" : "减仓"
                   }价格`}
                   step="0.01"
+                  max="1000"
                 />
               </div>
               <div className="form-group">
@@ -437,6 +446,7 @@ function Detail({ stockId, stockName, onBack }) {
                   onChange={handleAddOrReduceInputChange}
                   placeholder="请输入数量"
                   min="1"
+                  max="1000000"
                 />
               </div>
             </div>
@@ -446,6 +456,10 @@ function Detail({ stockId, stockName, onBack }) {
               </button>
               <button
                 className="btn-confirm"
+                disabled={
+                  !addOrReduceFormData.transactionPosition ||
+                  !addOrReduceFormData.transactionPrice
+                }
                 onClick={handleAddOrReduceConfirm}
               >
                 确定
@@ -479,13 +493,19 @@ function Detail({ stockId, stockName, onBack }) {
               <button className="btn-cancel" onClick={closeCloseDialog}>
                 取消
               </button>
-              <button className="btn-confirm" onClick={handleCloseConfirm}>
+              <button
+                className="btn-confirm"
+                disabled={!closeFormData.transactionPrice}
+                onClick={handleCloseConfirm}
+              >
                 确定
               </button>
             </div>
           </div>
         </div>
       )}
+      {/* Toast */}
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
     </main>
   );
 }
