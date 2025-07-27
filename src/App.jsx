@@ -15,6 +15,13 @@ function App() {
   const [stockList, setStockList] = useState([]);
   // 对话框显示状态
   const [showDialog, setShowDialog] = useState(false);
+
+  // 从localStorage获取上次保存的手续费率，如果没有则使用默认值
+  const getSavedCommissionFeeRate = () => {
+    const saved = localStorage.getItem("commissionFeeRate");
+    return saved ? parseFloat(saved) : 0.00025;
+  };
+
   // 表单数据状态
   const [formData, setFormData] = useState({
     stockName: "",
@@ -22,6 +29,7 @@ function App() {
     currentPrice: "",
     transactionPrice: "",
     transactionPosition: "",
+    commissionFeeRate: getSavedCommissionFeeRate(),
   });
 
   /*******************生命周期*********************/
@@ -74,14 +82,24 @@ function App() {
       currentPrice: "",
       transactionPrice: "",
       transactionPosition: "",
+      commissionFeeRate: getSavedCommissionFeeRate(),
     });
   };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => {
+      const newFormData = {
+        ...prev,
+        [name]: value,
+      };
+
+      // 如果修改的是手续费率，保存到localStorage
+      if (name === "commissionFeeRate") {
+        localStorage.setItem("commissionFeeRate", value);
+      }
+
+      return newFormData;
+    });
   };
   // 确认建仓
   const handleConfirm = async () => {
@@ -102,6 +120,7 @@ function App() {
         currentPrice: parseFloat(formData.currentPrice),
         transactionPrice: parseFloat(formData.transactionPrice),
         transactionPosition: parseInt(formData.transactionPosition),
+        commissionFeeRate: parseFloat(formData.commissionFeeRate),
       });
       getStockList();
       closeDialog();
@@ -287,6 +306,17 @@ function App() {
                   value={formData.transactionPosition}
                   onChange={handleInputChange}
                   placeholder="请输入数量"
+                  min="1"
+                />
+              </div>
+              <div className="form-group">
+                <label>佣金比例:</label>
+                <input
+                  type="number"
+                  name="commissionFeeRate"
+                  value={formData.commissionFeeRate}
+                  onChange={handleInputChange}
+                  placeholder="请输入佣金比例"
                   min="1"
                 />
               </div>

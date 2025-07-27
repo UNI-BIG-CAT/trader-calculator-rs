@@ -43,13 +43,14 @@ pub fn handle_open_position(
     current_price: f64,
     transaction_price: f64,
     transaction_position: i32,
+    commission_fee_rate: f64,
 ) -> Result<(), String> {
     // 插入股票及其费率
     let fee_rates = FeeRates::for_stock_type(StockType::from(stock_type), ActionType::Open);
     let stock_id = StockHandler::insert_stock(
         &stock_name,
         stock_type,
-        fee_rates.commission,
+        commission_fee_rate,
         fee_rates.tax,
         fee_rates.regulatory,
         fee_rates.brokerage,
@@ -64,7 +65,7 @@ pub fn handle_open_position(
     let transaction_value = transaction_price * transaction_position_f64;
 
     // 计算各种费用
-    let mut transaction_commission_fee = transaction_value * fee_rates.commission;
+    let mut transaction_commission_fee = transaction_value * commission_fee_rate;
     if transaction_commission_fee < 5.0 {
         // 佣金最少5元
         transaction_commission_fee = 5.0;
@@ -115,6 +116,9 @@ pub fn handle_add_position(
     transaction_position: i32,
 ) -> Result<(), String> {
     println!("add_stock:{stock_id},{current_price},{transaction_price},{transaction_position}");
+    let stock = StockHandler::get_stock_by_id(stock_id)
+        .map_err(|e| e.to_string())?
+        .ok_or("Stock not found")?;
     let last_action = StockActionHandler::get_last_action(stock_id).map_err(|e| e.to_string())?;
     //
     let action_type = ActionType::AddPosition as i32;
@@ -122,7 +126,7 @@ pub fn handle_add_position(
     let fee_rate =
         FeeRates::for_stock_type(StockType::from(last_action.action), ActionType::AddPosition);
     let mut transaction_commission_fee =
-        transaction_price * transaction_position as f64 * fee_rate.commission;
+        transaction_price * transaction_position as f64 * stock.commission_fee_rate;
     if transaction_commission_fee < 5.0 {
         // 佣金最少5元
         transaction_commission_fee = 5.0;
@@ -181,6 +185,9 @@ pub fn handle_reduce_position(
     transaction_position: i32,
 ) -> Result<(), String> {
     println!("reduce_stock:{stock_id},{current_price},{transaction_price},{transaction_position}");
+    let stock = StockHandler::get_stock_by_id(stock_id)
+        .map_err(|e| e.to_string())?
+        .ok_or("Stock not found")?;
     let last_action = StockActionHandler::get_last_action(stock_id).unwrap();
     if transaction_position >= last_action.total_position as i32 {
         return Err("请选择平仓".to_string());
@@ -193,7 +200,7 @@ pub fn handle_reduce_position(
         ActionType::ReducePosition,
     );
     let transaction_commission_fee =
-        transaction_price * transaction_position as f64 * fee_rate.commission;
+        transaction_price * transaction_position as f64 * stock.commission_fee_rate;
     let transaction_tax_fee = transaction_price * transaction_position as f64 * fee_rate.tax;
     let transaction_regulatory_fee =
         transaction_price * transaction_position as f64 * fee_rate.regulatory;
@@ -240,26 +247,20 @@ pub fn handle_reduce_position(
     Ok(())
 }
 
-// 回退
-#[tauri::command]
-pub fn handle_back_position(stock_id: i32) -> Result<(), String> {
-    StockActionHandler::delete_last_action(stock_id).map_err(|e| e.to_string())?;
-    StockHandler::update_stock_status(stock_id, StockStatus::OPEN as i32)
-        .map_err(|e| e.to_string())?;
-    Ok(())
-}
-
 // 平仓
 #[tauri::command]
 pub fn handle_close_position(stock_id: i32, current_price: f64) -> Result<(), String> {
     println!("close_stock:{stock_id},{current_price}");
+    let stock = StockHandler::get_stock_by_id(stock_id)
+        .map_err(|e| e.to_string())?
+        .ok_or("Stock not found")?;
     let last_action = StockActionHandler::get_last_action(stock_id).map_err(|e| e.to_string())?;
     //
     let action_type = ActionType::Close as i32;
     // 本次各项费用
     let fee_rate = FeeRates::for_stock_type(StockType::from(last_action.action), ActionType::Close);
     let transaction_commission_fee =
-        current_price * last_action.total_position as f64 * fee_rate.commission;
+        current_price * last_action.total_position as f64 * stock.commission_fee_rate;
     let transaction_tax_fee = current_price * last_action.total_position as f64 * fee_rate.tax;
     let transaction_regulatory_fee =
         current_price * last_action.total_position as f64 * fee_rate.regulatory;
@@ -298,6 +299,15 @@ pub fn handle_close_position(stock_id: i32, current_price: f64) -> Result<(), St
     )
     .map_err(|e| e.to_string())?;
     StockHandler::update_stock_status(stock_id, StockStatus::CLOSE as i32)
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+// 回退
+#[tauri::command]
+pub fn handle_back_position(stock_id: i32) -> Result<(), String> {
+    StockActionHandler::delete_last_action(stock_id).map_err(|e| e.to_string())?;
+    StockHandler::update_stock_status(stock_id, StockStatus::OPEN as i32)
         .map_err(|e| e.to_string())?;
     Ok(())
 }

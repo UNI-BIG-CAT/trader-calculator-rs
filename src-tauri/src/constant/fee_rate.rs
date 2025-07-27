@@ -5,7 +5,6 @@ use crate::constant::stock_type::StockType;
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct FeeRates {
-    pub commission: f64, // 佣金费率
     pub tax: f64,        // 印花税费率
     pub regulatory: f64, // 证管费费率
     pub brokerage: f64,  // 经手费费率
@@ -24,28 +23,24 @@ impl FeeRates {
 
         match stock_type {
             StockType::SH => Self {
-                commission: 0.0001,
                 tax: tax_rate,
                 regulatory: 0.00002,
                 brokerage: 0.0000487,
                 transfer: 0.00001,
             },
             StockType::SZ => Self {
-                commission: 0.0001,
                 tax: tax_rate,
                 regulatory: 0.00002,
-                brokerage: 0.0000487,
-                transfer: 0.00001,
+                brokerage: 0.0000341,
+                transfer: 0.0,
             },
             StockType::CYB => Self {
-                commission: 0.0001,
                 tax: tax_rate,
                 regulatory: 0.00002,
                 brokerage: 0.0000487,
                 transfer: 0.00001,
             },
             StockType::KCB => Self {
-                commission: 0.0001,
                 tax: tax_rate,
                 regulatory: 0.00002,
                 brokerage: 0.0000487,
