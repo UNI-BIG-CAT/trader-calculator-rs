@@ -1,6 +1,4 @@
-use crate::constant::{
-    action_type::ActionType, fee_rate::FeeRates, stock_status::StockStatus, stock_type::StockType,
-};
+use crate::constant::{action_type::ActionType, stock_status::StockStatus};
 use crate::database::stock::StockHandler;
 use crate::database::stock_action::{StockActionHandler, StockActionRecord};
 
@@ -35,17 +33,20 @@ pub fn handle_open_position(
     transaction_price: f64,
     transaction_position: i32,
     commission_fee_rate: f64,
+    tax_fee_rate: f64,
+    regulatory_fee_rate: f64,
+    brokerage_fee_rate: f64,
+    transfer_fee_rate: f64,
 ) -> Result<(), String> {
     // 插入股票及其费率
-    let fee_rates = FeeRates::for_stock_type(StockType::from(stock_type), ActionType::Open);
     let stock_id = StockHandler::insert_stock(
         &stock_name,
         stock_type,
         commission_fee_rate,
-        fee_rates.tax,
-        fee_rates.regulatory,
-        fee_rates.brokerage,
-        fee_rates.transfer,
+        tax_fee_rate,
+        regulatory_fee_rate,
+        brokerage_fee_rate,
+        transfer_fee_rate,
     )
     .map_err(|e| e.to_string())?;
 
@@ -62,9 +63,9 @@ pub fn handle_open_position(
         transaction_commission_fee = 5.0;
     }
     let transaction_tax_fee = transaction_value * 0.0; // 买入时不收印花税
-    let transaction_regulatory_fee = transaction_value * fee_rates.regulatory;
-    let transaction_brokerage_fee = transaction_value * fee_rates.brokerage;
-    let transaction_transfer_fee = transaction_value * fee_rates.transfer;
+    let transaction_regulatory_fee = transaction_value * regulatory_fee_rate;
+    let transaction_brokerage_fee = transaction_value * brokerage_fee_rate;
+    let transaction_transfer_fee = transaction_value * transfer_fee_rate;
     let total_fee = transaction_commission_fee
         + transaction_tax_fee
         + transaction_regulatory_fee
@@ -115,21 +116,19 @@ pub fn handle_add_position(
     //
     let action_type = ActionType::AddPosition as i32;
     // 本次各项费用
-    let fee_rate =
-        FeeRates::for_stock_type(StockType::from(last_action.action), ActionType::AddPosition);
     let mut transaction_commission_fee =
         transaction_price * transaction_position as f64 * stock.commission_fee_rate;
     if transaction_commission_fee < 5.0 {
         // 佣金最少5元
         transaction_commission_fee = 5.0;
     }
-    let transaction_tax_fee = transaction_price * transaction_position as f64 * fee_rate.tax;
+    let transaction_tax_fee = transaction_price * transaction_position as f64 * stock.tax_fee_rate;
     let transaction_regulatory_fee =
-        transaction_price * transaction_position as f64 * fee_rate.regulatory;
+        transaction_price * transaction_position as f64 * stock.regulatory_fee_rate;
     let transaction_brokerage_fee =
-        transaction_price * transaction_position as f64 * fee_rate.brokerage;
+        transaction_price * transaction_position as f64 * stock.brokerage_fee_rate;
     let transaction_transfer_fee =
-        transaction_price * transaction_position as f64 * fee_rate.transfer;
+        transaction_price * transaction_position as f64 * stock.transfer_fee_rate;
     let total_fee = last_action.total_fee
         + transaction_commission_fee
         + transaction_tax_fee
@@ -188,19 +187,19 @@ pub fn handle_reduce_position(
     //
     let action_type = ActionType::ReducePosition as i32;
     // 本次各项费用
-    let fee_rate = FeeRates::for_stock_type(
-        StockType::from(last_action.action),
-        ActionType::ReducePosition,
-    );
-    let transaction_commission_fee =
+    let mut transaction_commission_fee =
         transaction_price * transaction_position as f64 * stock.commission_fee_rate;
-    let transaction_tax_fee = transaction_price * transaction_position as f64 * fee_rate.tax;
+    if transaction_commission_fee < 5.0 {
+        // 佣金最少5元
+        transaction_commission_fee = 5.0;
+    }
+    let transaction_tax_fee = transaction_price * transaction_position as f64 * stock.tax_fee_rate;
     let transaction_regulatory_fee =
-        transaction_price * transaction_position as f64 * fee_rate.regulatory;
+        transaction_price * transaction_position as f64 * stock.regulatory_fee_rate;
     let transaction_brokerage_fee =
-        transaction_price * transaction_position as f64 * fee_rate.brokerage;
+        transaction_price * transaction_position as f64 * stock.brokerage_fee_rate;
     let transaction_transfer_fee =
-        transaction_price * transaction_position as f64 * fee_rate.transfer;
+        transaction_price * transaction_position as f64 * stock.transfer_fee_rate;
     let total_fee = last_action.total_fee
         + transaction_commission_fee
         + transaction_tax_fee
@@ -252,16 +251,20 @@ pub fn handle_close_position(stock_id: i32, current_price: f64) -> Result<(), St
     //
     let action_type = ActionType::Close as i32;
     // 本次各项费用
-    let fee_rate = FeeRates::for_stock_type(StockType::from(last_action.action), ActionType::Close);
-    let transaction_commission_fee =
+    let mut transaction_commission_fee =
         current_price * last_action.total_position as f64 * stock.commission_fee_rate;
-    let transaction_tax_fee = current_price * last_action.total_position as f64 * fee_rate.tax;
+    if transaction_commission_fee < 5.0 {
+        // 佣金最少5元
+        transaction_commission_fee = 5.0;
+    }
+    let transaction_tax_fee =
+        current_price * last_action.total_position as f64 * stock.tax_fee_rate;
     let transaction_regulatory_fee =
-        current_price * last_action.total_position as f64 * fee_rate.regulatory;
+        current_price * last_action.total_position as f64 * stock.regulatory_fee_rate;
     let transaction_brokerage_fee =
-        current_price * last_action.total_position as f64 * fee_rate.brokerage;
+        current_price * last_action.total_position as f64 * stock.brokerage_fee_rate;
     let transaction_transfer_fee =
-        current_price * last_action.total_position as f64 * fee_rate.transfer;
+        current_price * last_action.total_position as f64 * stock.transfer_fee_rate;
     let total_fee = last_action.total_fee
         + transaction_commission_fee
         + transaction_tax_fee

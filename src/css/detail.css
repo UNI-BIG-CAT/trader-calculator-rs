@@ -3,17 +3,41 @@
   padding: 5px 10px;
   min-width: 455px;
   display: flex;
-  flex-direction:column;
+  flex-direction: column;
   flex-shrink: 3;
 }
 
+/* 卡片网格布局 */
 .action-detail {
   background-color: #ffffff;
   border-radius: 8px;
-  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
-  margin-bottom: 5px;
-  padding:5px 20px;
+  padding: 15px 20px;
 }
+
+
+/* 响应式网格布局 */
+@media (min-width: 768px) {
+  .detail-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 8px;
+    align-items: start;
+  }
+}
+
+@media (min-width: 1200px) {
+  .detail-container {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+}
+
+@media (min-width: 1600px) {
+  .detail-container {
+    grid-template-columns: repeat(auto-fit, minmax(540px, 1fr));
+  }
+}
+
+
 
 .detail-grid {
   display: flex;
@@ -24,7 +48,7 @@
 .detail-row {
   display: grid;
   grid-template-columns: 1fr auto 1fr auto;
-  gap: 20px;
+  gap: 8px;
   padding: 6px 0;
   /* border-bottom: 1px solid #f0f0f0; */
   align-items: center;
@@ -80,12 +104,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-bottom: 10px;
+    padding: 15px 10px;
     border-radius: 8px;
+    grid-column: 1 / -1; /* 让按钮容器跨越所有列 */
 }
 
 .detail-action-btn {
-    margin-top: 10px;
     background-color: #fff;
     color:  #F1933C;
     border: 1px solid #F1933C;

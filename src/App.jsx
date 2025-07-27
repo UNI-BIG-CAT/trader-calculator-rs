@@ -20,10 +20,23 @@ function App() {
   // Toast Hook
   const { toasts, removeToast, showError, showSuccess } = useToast();
 
-  // 从localStorage获取上次保存的手续费率，如果没有则使用默认值
-  const getSavedCommissionFeeRate = () => {
-    const saved = localStorage.getItem("commissionFeeRate");
-    return saved ? parseFloat(saved) : 0.00025;
+  // 从localStorage获取上次保存的佣金率，如果没有则使用默认值
+  const [defaultBrokerageFeeRate, setDefaultBrokerageFeeRate] =
+    useState(0.0000487);
+  const getFeeRate = (key) => {
+    const saved = localStorage.getItem(key);
+    if (key === "commissionFeeRate") {
+      return saved ? parseFloat(saved) : 0.00025;
+    } else if (key === "taxFeeRate") {
+      return saved ? parseFloat(saved) : 0.001;
+    } else if (key === "regulatoryFeeRate") {
+      return saved ? parseFloat(saved) : 0.00002;
+    } else if (key === "brokerageFeeRate") {
+      return saved ? parseFloat(saved) : defaultBrokerageFeeRate;
+    } else if (key === "transferFeeRate") {
+      return saved ? parseFloat(saved) : 0.00001;
+    }
+    return 0.0;
   };
 
   // 表单数据状态
@@ -33,7 +46,11 @@ function App() {
     currentPrice: "",
     transactionPrice: "",
     transactionPosition: "",
-    commissionFeeRate: getSavedCommissionFeeRate(),
+    commissionFeeRate: getFeeRate("commissionFeeRate"),
+    taxFeeRate: getFeeRate("taxFeeRate"),
+    regulatoryFeeRate: getFeeRate("regulatoryFeeRate"),
+    brokerageFeeRate: getFeeRate("brokerageFeeRate"),
+    transferFeeRate: getFeeRate("transferFeeRate"),
   });
 
   /*******************生命周期*********************/
@@ -69,7 +86,7 @@ function App() {
     }
   };
 
-  // 格式化手续费率
+  // 格式化佣金费率
   const formatCommissionFee = (rate) => {
     return (rate * 100).toFixed(4) + "%";
   };
@@ -87,7 +104,11 @@ function App() {
       currentPrice: "",
       transactionPrice: "",
       transactionPosition: "",
-      commissionFeeRate: getSavedCommissionFeeRate(),
+      commissionFeeRate: getFeeRate("commissionFeeRate"),
+      taxFeeRate: getFeeRate("taxFeeRate"),
+      regulatoryFeeRate: getFeeRate("regulatoryFeeRate"),
+      brokerageFeeRate: getFeeRate("brokerageFeeRate"),
+      transferFeeRate: getFeeRate("transferFeeRate"),
     });
   };
   const handleInputChange = (e) => {
@@ -104,9 +125,24 @@ function App() {
         [name]: value,
       };
 
-      // 如果修改的是手续费率，保存到localStorage
+      // 如果修改的是佣金费率，保存到localStorage
       if (name === "commissionFeeRate") {
         localStorage.setItem("commissionFeeRate", value);
+      }
+      if (name === "taxFeeRate") {
+        // 印花税
+        localStorage.setItem("taxFeeRate", value);
+      }
+      if (name === "regulatoryFeeRate") {
+        // 证管费
+        localStorage.setItem("regulatoryFeeRate", value);
+      }
+      if (name === "brokerageFeeRate") {
+        // 经手费
+        localStorage.setItem("brokerageFeeRate", value);
+      }
+      if (name === "transferFeeRate") {
+        localStorage.setItem("transferFeeRate", value);
       }
 
       return newFormData;
@@ -124,7 +160,18 @@ function App() {
         showError("请填写所有字段", 1000);
         return;
       }
-
+      console.log({
+        stockName: formData.stockName,
+        stockType: formData.stockType,
+        currentPrice: parseFloat(formData.currentPrice),
+        transactionPrice: parseFloat(formData.transactionPrice),
+        transactionPosition: parseInt(formData.transactionPosition),
+        commissionFeeRate: parseFloat(formData.commissionFeeRate),
+        taxFeeRate: parseFloat(formData.taxFeeRate),
+        regulatoryFeeRate: parseFloat(formData.regulatoryFeeRate),
+        brokerageFeeRate: parseFloat(formData.brokerageFeeRate),
+        transferFeeRate: parseFloat(formData.transferFeeRate),
+      });
       await invoke("handle_open_position", {
         stockName: formData.stockName,
         stockType: formData.stockType,
@@ -132,6 +179,10 @@ function App() {
         transactionPrice: parseFloat(formData.transactionPrice),
         transactionPosition: parseInt(formData.transactionPosition),
         commissionFeeRate: parseFloat(formData.commissionFeeRate),
+        taxFeeRate: parseFloat(formData.taxFeeRate),
+        regulatoryFeeRate: parseFloat(formData.regulatoryFeeRate),
+        brokerageFeeRate: parseFloat(formData.brokerageFeeRate),
+        transferFeeRate: parseFloat(formData.transferFeeRate),
       });
       getStockList();
       closeDialog();
@@ -205,7 +256,7 @@ function App() {
             <tr>
               <th>股票名称</th>
               <th>类型</th>
-              <th>手续费率</th>
+              <th>佣金费率</th>
               <th>印花税率</th>
               <th>证管费率</th>
               <th>经手费率</th>
@@ -274,7 +325,14 @@ function App() {
                         ? "stock-type-button-active"
                         : "stock-type-button"
                     }
-                    onClick={() => setFormData({ ...formData, stockType: 1 })}
+                    onClick={() => {
+                      setFormData({
+                        ...formData,
+                        brokerageFeeRate: 0.0000487,
+                        stockType: 1,
+                      });
+                      setDefaultBrokerageFeeRate(0.0000487);
+                    }}
                   >
                     上海股(60开头)
                   </button>
@@ -284,7 +342,14 @@ function App() {
                         ? "stock-type-button-active"
                         : "stock-type-button"
                     }
-                    onClick={() => setFormData({ ...formData, stockType: 2 })}
+                    onClick={() => {
+                      setFormData({
+                        ...formData,
+                        brokerageFeeRate: 0.0000341,
+                        stockType: 2,
+                      });
+                      setDefaultBrokerageFeeRate(0.0000341);
+                    }}
                   >
                     深圳(00或30开头)
                   </button>
@@ -334,6 +399,50 @@ function App() {
                   value={formData.commissionFeeRate}
                   onChange={handleInputChange}
                   placeholder="请输入佣金比例"
+                  max="1"
+                />
+              </div>
+              <div className="form-group">
+                <label>印花税率:</label>
+                <input
+                  type="number"
+                  name="taxFeeRate"
+                  value={formData.taxFeeRate}
+                  onChange={handleInputChange}
+                  placeholder="请输入印花税比例"
+                  max="1"
+                />
+              </div>
+              <div className="form-group">
+                <label>证管费率:</label>
+                <input
+                  type="number"
+                  name="regulatoryFeeRate"
+                  value={formData.regulatoryFeeRate}
+                  onChange={handleInputChange}
+                  placeholder="请输入证管费比例"
+                  max="1"
+                />
+              </div>
+              <div className="form-group">
+                <label>经手费率:</label>
+                <input
+                  type="number"
+                  name="brokerageFeeRate"
+                  value={formData.brokerageFeeRate}
+                  onChange={handleInputChange}
+                  placeholder="请输入经手费比例"
+                  max="1"
+                />
+              </div>
+              <div className="form-group">
+                <label>过户费率:</label>
+                <input
+                  type="number"
+                  name="transferFeeRate"
+                  value={formData.transferFeeRate}
+                  onChange={handleInputChange}
+                  placeholder="请输入过户费比例"
                   max="1"
                 />
               </div>
