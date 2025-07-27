@@ -1,7 +1,7 @@
-# Tauri + React
+#股算神器
 
-This template should help get you started developing with Tauri and React in Vite.
-
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+### 作用
+```
+主要用来控制仓位，计算买卖成本和盈亏
+也可以计算连板盈亏
+```
