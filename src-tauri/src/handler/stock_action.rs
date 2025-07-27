@@ -274,6 +274,10 @@ pub fn handle_close_position(stock_id: i32, current_price: f64) -> Result<(), St
         + transaction_regulatory_fee
         + transaction_brokerage_fee
         + transaction_transfer_fee;
+    // 成本价
+    let current_cost = 0.0;
+    // 总持仓变成0
+    let total_position = 0.0;
     // 利润
     let profit = (current_price - last_action.current_cost) * last_action.total_position;
     let profit_rate =
@@ -283,8 +287,8 @@ pub fn handle_close_position(stock_id: i32, current_price: f64) -> Result<(), St
     StockActionHandler::insert_action(
         stock_id,
         current_price,
-        last_action.current_cost,
-        0.0,
+        current_cost,
+        total_position,
         total_fee,
         current_price,
         last_action.total_position,

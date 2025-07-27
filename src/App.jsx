@@ -94,7 +94,8 @@ function App() {
     const { name, value } = e.target;
     if (name == "transactionPosition") {
       if (value >= 1000000) {
-        value = 1000000;
+        showError("数量不能大于1000000", 1000);
+        return;
       }
     }
     setFormData((prev) => {
@@ -134,7 +135,7 @@ function App() {
       });
       getStockList();
       closeDialog();
-      showSuccess("建仓成功！");
+      // showSuccess("建仓成功！", 500);
     } catch (error) {
       console.error("Error opening stock:", error);
       showError("建仓失败", 1000);
@@ -152,7 +153,7 @@ function App() {
     try {
       await invoke("handle_delete_stock", { stockId });
       getStockList();
-      showSuccess("删除成功！");
+      // showSuccess("删除成功！", 500);
     } catch (error) {
       console.error("Error deleting stock:", error);
       showError("删除失败", 1000);
