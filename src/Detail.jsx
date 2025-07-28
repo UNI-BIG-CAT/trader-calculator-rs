@@ -29,7 +29,7 @@ function Detail({ stockId, stockName, onBack }) {
     actionInfo: "",
   });
   // 保留部分操作
-  const [lastActions, setLastActions] = useState(true);
+  const [lastActions, setLastActions] = useState(false);
   // Toast Hook
   const { toasts, removeToast, showError, showWarning, showSuccess } =
     useToast();
