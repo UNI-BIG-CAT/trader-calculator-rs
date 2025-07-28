@@ -3,7 +3,9 @@ mod constant;
 mod database;
 mod handler;
 //
-use crate::handler::stock::{handle_delete_stock, handle_get_all_stocks, handle_get_stock_info};
+use crate::handler::stock::{
+    handle_delete_stock, handle_get_all_stocks, handle_get_stock_info, handle_update_stock_sort,
+};
 use crate::handler::stock_action::{
     handle_add_position, handle_back_position, handle_close_position, handle_get_action_list,
     handle_open_position, handle_reduce_position,
@@ -18,6 +20,7 @@ pub fn run() {
             handle_get_all_stocks,
             handle_get_stock_info,
             handle_delete_stock,
+            handle_update_stock_sort,
             //
             handle_get_action_list,
             handle_open_position,

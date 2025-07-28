@@ -40,6 +40,7 @@ fn create_tables(conn: &Connection) -> Result<()> {
             brokerage_fee_rate REAL NOT NULL DEFAULT 0.0000487,  -- 经手费 沪市为0.00487% 深市为0.0341‰
             transfer_fee_rate REAL NOT NULL DEFAULT 0,         -- 过户费 沪市为0.001%(万0.1) 深市为0 
             status INTEGER NOT NULL DEFAULT 1,                 -- 状态 1-正常买卖中 2-已经平仓
+            sort INTEGER NOT NULL DEFAULT 0,                 -- 排序
             created_at DATETIME DEFAULT (datetime('now', 'localtime')),    -- 创建时间
             updated_at DATETIME DEFAULT (datetime('now', 'localtime'))     -- 更新时间（无法自动更新）
         );

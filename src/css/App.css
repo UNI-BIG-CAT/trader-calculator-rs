@@ -364,3 +364,35 @@
 .btn-cancel:active {
   opacity: 0.8;
 }
+
+/* 拖拽排序样式 */
+.stock-table tbody tr.dragging {
+  background-color: #f0f8ff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transform: rotate(2deg);
+  z-index: 1000;
+}
+
+.stock-table tbody tr {
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.stock-table tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* 拖拽手柄样式 */
+.stock-table td:first-child span {
+  user-select: none;
+  color: #999;
+  transition: color 0.2s;
+}
+
+.stock-table tbody tr:hover td:first-child span {
+  color: #F1933C;
+}
+
+/* 拖拽时的占位符样式 */
+.stock-table tbody tr.dragging + tr {
+  opacity: 0.5;
+}

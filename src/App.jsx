@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import "./css/App.css";
 import Detail from "./Detail.jsx";
 import LimitCal from "./LimitCal.jsx";
@@ -205,6 +206,32 @@ function App() {
     setCurrentPage("LimitCal");
   };
 
+  /*************拖拽排序**************/
+  const handleDragEnd = async (result) => {
+    if (!result.destination) {
+      return;
+    }
+
+    const items = Array.from(stockList);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setStockList(items);
+
+    // 提取stock_id列表，按照新的顺序
+    const stockIdList = items.map((stock) => stock.stock_id);
+
+    try {
+      await invoke("handle_update_stock_sort", { list: stockIdList });
+      showSuccess("排序更新成功！", 1000);
+    } catch (error) {
+      console.error("Error updating stock sort:", error);
+      showError("排序更新失败", 1000);
+      // 如果更新失败，重新获取列表
+      getStockList();
+    }
+  };
+
   /*************页面控制**************/
   // 返回列表页
   const handleBackToList = async () => {
@@ -245,66 +272,113 @@ function App() {
       </div>
       {/* 股票列表 */}
       <div className="stock-list">
-        <table className="stock-table">
-          <thead>
-            <tr>
-              <th>股票名称</th>
-              <th>类型</th>
-              <th>佣金费率</th>
-              <th>印花税率</th>
-              <th>证管费率</th>
-              <th>经手费率</th>
-              <th>过户费率</th>
-              <th>状态</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {stockList.length === 0 ? (
-              <tr>
-                <td colSpan="8" className="empty-message">
-                  请先建仓股票
-                </td>
-              </tr>
-            ) : (
-              stockList
-                .filter((stock) => {
-                  if (filter) {
-                    return stock.status == 1;
-                  }
-                  return true;
-                })
-                .map((stock) => (
-                  <tr key={stock.stock_id}>
-                    <td>{stock.stock_name}</td>
-                    <td>{getStockTypeText(stock.stock_type)}</td>
-                    <td>{formatCommissionFee(stock.commission_fee_rate)}</td>
-                    <td>{formatCommissionFee(stock.tax_fee_rate)}</td>
-                    <td>{formatCommissionFee(stock.regulatory_fee_rate)}</td>
-                    <td>{formatCommissionFee(stock.brokerage_fee_rate)}</td>
-                    <td>{formatCommissionFee(stock.transfer_fee_rate)}</td>
-                    <td>{stock.status == 1 ? "进行中" : "已平仓"}</td>
-                    <td>
-                      <button
-                        className="action-btn view-btn"
-                        onClick={() =>
-                          handleViewStock(stock.stock_id, stock.stock_name)
-                        }
-                      >
-                        查看
-                      </button>
-                      <button
-                        className="action-btn delete-btn"
-                        onClick={() => handleDeleteStock(stock.stock_id)}
-                      >
-                        删除
-                      </button>
-                    </td>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="stock-list">
+            {(provided) => (
+              <table
+                className="stock-table"
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
+                <thead>
+                  <tr>
+                    <th style={{ width: "50px" }}></th>
+                    <th>股票名称</th>
+                    <th>类型</th>
+                    <th>佣金费率</th>
+                    <th>印花税率</th>
+                    <th>证管费率</th>
+                    <th>经手费率</th>
+                    <th>过户费率</th>
+                    <th>状态</th>
+                    <th>操作</th>
                   </tr>
-                ))
+                </thead>
+                <tbody>
+                  {stockList.length === 0 ? (
+                    <tr>
+                      <td colSpan="9" className="empty-message">
+                        请先建仓股票
+                      </td>
+                    </tr>
+                  ) : (
+                    stockList
+                      .filter((stock) => {
+                        if (filter) {
+                          return stock.status == 1;
+                        }
+                        return true;
+                      })
+                      .map((stock, index) => (
+                        <Draggable
+                          key={stock.stock_id}
+                          draggableId={stock.stock_id.toString()}
+                          index={index}
+                        >
+                          {(provided, snapshot) => (
+                            <tr
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={snapshot.isDragging ? "dragging" : ""}
+                            >
+                              <td
+                                style={{ width: "50px", textAlign: "center" }}
+                              >
+                                <span
+                                  style={{ cursor: "grab", fontSize: "16px" }}
+                                >
+                                  ⋮⋮
+                                </span>
+                              </td>
+                              <td>{stock.stock_name}</td>
+                              <td>{getStockTypeText(stock.stock_type)}</td>
+                              <td>
+                                {formatCommissionFee(stock.commission_fee_rate)}
+                              </td>
+                              <td>{formatCommissionFee(stock.tax_fee_rate)}</td>
+                              <td>
+                                {formatCommissionFee(stock.regulatory_fee_rate)}
+                              </td>
+                              <td>
+                                {formatCommissionFee(stock.brokerage_fee_rate)}
+                              </td>
+                              <td>
+                                {formatCommissionFee(stock.transfer_fee_rate)}
+                              </td>
+                              <td>{stock.status == 1 ? "进行中" : "已平仓"}</td>
+                              <td>
+                                <button
+                                  className="action-btn view-btn"
+                                  onClick={() =>
+                                    handleViewStock(
+                                      stock.stock_id,
+                                      stock.stock_name
+                                    )
+                                  }
+                                >
+                                  查看
+                                </button>
+                                <button
+                                  className="action-btn delete-btn"
+                                  onClick={() =>
+                                    handleDeleteStock(stock.stock_id)
+                                  }
+                                >
+                                  删除
+                                </button>
+                              </td>
+                            </tr>
+                          )}
+                        </Draggable>
+                      ))
+                  )}
+                  {provided.placeholder}
+                </tbody>
+              </table>
             )}
-          </tbody>
-        </table>
+          </Droppable>
+        </DragDropContext>
       </div>
       {/* 对话框遮罩 */}
       {showDialog && (
