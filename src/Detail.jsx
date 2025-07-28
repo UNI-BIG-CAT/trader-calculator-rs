@@ -536,8 +536,9 @@ function Detail({ stockId, stockName, onBack }) {
                   value={addOrReduceFormData.transactionPosition}
                   onChange={handleAddOrReduceInputChange}
                   placeholder="请输入数量"
-                  min="1"
+                  min="100"
                   max="1000000"
+                  step={100}
                 />
               </div>
             </div>

@@ -47,7 +47,7 @@ function App() {
     stockType: 1,
     currentPrice: "",
     transactionPrice: "",
-    transactionPosition: "",
+    transactionPosition: 100,
     commissionFeeRate: getFeeRate("commissionFeeRate"),
     taxFeeRate: getFeeRate("taxFeeRate"),
     regulatoryFeeRate: getFeeRate("regulatoryFeeRate"),
@@ -94,6 +94,21 @@ function App() {
   };
 
   /*************建仓**************/
+  // 恢复默认值
+  const resetDefault = () => {
+    setFormData({
+      stockName: "",
+      stockType: 1,
+      currentPrice: "",
+      transactionPrice: "",
+      transactionPosition: 100,
+      commissionFeeRate: 0.00025,
+      taxFeeRate: 0.001,
+      regulatoryFeeRate: 0.00002,
+      brokerageFeeRate: defaultBrokerageFeeRate,
+      transferFeeRate: 0.00001,
+    });
+  };
   // 建仓对话框
   const openDialog = () => {
     setShowDialog(true);
@@ -471,7 +486,8 @@ function App() {
                   value={formData.transactionPosition}
                   onChange={handleInputChange}
                   placeholder="请输入数量"
-                  min="1"
+                  min="0"
+                  step={100}
                   max="1000000"
                 />
               </div>
@@ -483,6 +499,7 @@ function App() {
                   value={formData.commissionFeeRate}
                   onChange={handleInputChange}
                   placeholder="请输入佣金比例"
+                  step={0.00001}
                   max="1"
                 />
               </div>
@@ -494,6 +511,7 @@ function App() {
                   value={formData.taxFeeRate}
                   onChange={handleInputChange}
                   placeholder="请输入印花税比例"
+                  step={0.001}
                   max="1"
                 />
               </div>
@@ -505,6 +523,7 @@ function App() {
                   value={formData.regulatoryFeeRate}
                   onChange={handleInputChange}
                   placeholder="请输入证管费比例"
+                  step={0.00001}
                   max="1"
                 />
               </div>
@@ -516,6 +535,7 @@ function App() {
                   value={formData.brokerageFeeRate}
                   onChange={handleInputChange}
                   placeholder="请输入经手费比例"
+                  step={0.0000001}
                   max="1"
                 />
               </div>
@@ -527,11 +547,15 @@ function App() {
                   value={formData.transferFeeRate}
                   onChange={handleInputChange}
                   placeholder="请输入过户费比例"
+                  step={0.00001}
                   max="1"
                 />
               </div>
             </div>
             <div className="dialog-actions">
+              <button className="btn-cancel" onClick={resetDefault}>
+                恢复默认值
+              </button>
               <button
                 className="btn-confirm"
                 disabled={
@@ -544,6 +568,7 @@ function App() {
               >
                 确认
               </button>
+
               <button className="btn-cancel" onClick={closeDialog}>
                 取消
               </button>
