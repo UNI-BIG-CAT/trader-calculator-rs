@@ -11,7 +11,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState("list"); // "list" 或 "detail" 或者 "limitCal"
   const [selectedStockId, setSelectedStockId] = useState(null);
   const [selectedStockName, setSelectedStockName] = useState(null);
-  const [filter, setFilter] = useState(false); // 过滤平仓
+  const [filter, setFilter] = useState(true); // 过滤平仓
 
   // 股票列表状态
   const [stockList, setStockList] = useState([]);
@@ -219,7 +219,8 @@ function App() {
 
   /*************页面控制**************/
   // 返回列表页
-  const handleBackToList = () => {
+  const handleBackToList = async () => {
+    await getStockList();
     setCurrentPage("list");
     setSelectedStockId(null);
     setSelectedStockName(null);

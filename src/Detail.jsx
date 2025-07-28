@@ -48,6 +48,8 @@ function Detail({ stockId, stockName, onBack }) {
       const stock = await invoke("handle_get_stock_info", { stockId });
       setStock(stock);
       const result = await invoke("handle_get_action_list", { stockId });
+      console.log(result);
+
       setActionList(result);
     } catch (error) {
       showError("获取详情失败");
@@ -285,6 +287,18 @@ function Detail({ stockId, stockName, onBack }) {
     await getActionList();
     setShowActionInfoDialog(false);
   };
+  // 格式化日期时间用于 tooltip
+  const formatDateTimeForTooltip = (dateTimeString) => {
+    if (!dateTimeString) return "";
+    const date = new Date(dateTimeString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+  };
+
   // 移除原来的 handleActionInfoTimeChange 函数，因为现在使用 Ant Design DatePicker
   const handleActionInfoInputChange = (e) => {
     const { name, value } = e.target;
@@ -325,7 +339,10 @@ function Detail({ stockId, stockName, onBack }) {
             >
               {/* 操作信息标记 */}
               {action.action_info && action.action_info.trim() !== "" && (
-                <div className="action-info-indicator" title="有操作信息"></div>
+                <div
+                  className="action-info-indicator"
+                  title={formatDateTimeForTooltip(action.action_time)}
+                ></div>
               )}
               <div className="detail-grid">
                 <div className="detail-row">

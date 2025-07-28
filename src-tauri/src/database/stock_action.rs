@@ -76,7 +76,7 @@ pub struct StockActionRecord {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         let mut stmt = conn.prepare(
-            "SELECT stock_action_id, stock_id, current_price, current_cost, total_position, total_fee, transaction_price, transaction_position, transaction_commission_fee, transaction_tax_fee, transaction_regulatory_fee, transaction_brokerage_fee, transaction_transfer_fee, action, profit, profit_rate,action_time,action_info, created_at, updated_at FROM tb_stock_action WHERE stock_id = ? ORDER BY stock_action_id DESC"
+            "SELECT stock_action_id, stock_id, current_price, current_cost, total_position, total_fee, transaction_price, transaction_position, transaction_commission_fee, transaction_tax_fee, transaction_regulatory_fee, transaction_brokerage_fee, transaction_transfer_fee, action, profit, profit_rate,action_time,action_info, created_at, updated_at FROM tb_stock_action WHERE stock_id = ? ORDER BY stock_action_id ASC"
         )?;
 
         let stock_action_iter = stmt.query_map([stock_id], |row| {
@@ -155,9 +155,7 @@ pub struct StockActionRecord {
     pub fn delete_last_action(stock_id:i32) -> Result<(),rusqlite::Error> {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
-        let last_action = StockActionRecord::get_last_action(stock_id).map_err(|e| e.to_string()).unwrap();
-        conn.execute("DELETE FROM tb_stock_action WHERE stock_action_id = ?", [last_action.stock_action_id])?;
-        conn.execute("DELETE FROM tb_stock_action_info WHERE stock_action_id = ?", [last_action.stock_action_id])?;
+        conn.execute("DELETE FROM tb_stock_action WHERE stock_action_id = (SELECT MAX(stock_action_id) FROM tb_stock_action WHERE stock_id = ?)", [stock_id])?;
         Ok(())
     }
 }
