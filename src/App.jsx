@@ -58,6 +58,27 @@ function App() {
   /*******************生命周期*********************/
   useEffect(() => {
     getStockList();
+    // 记住上次主题
+    const cache = localStorage.getItem("theme");
+    if (cache) {
+      setTheme(
+        JSON.parse(cache).color,
+        JSON.parse(cache).hover,
+        JSON.parse(cache).shadow
+      );
+    }
+    // 添加键盘快捷键监听
+    const handleKeyPress = (event) => {
+      // Ctrl + T 切换主题
+      if (event.ctrlKey && event.key === "t") {
+        event.preventDefault();
+        toggleTheme();
+      }
+    };
+    document.addEventListener("keydown", handleKeyPress);
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+    };
   }, []);
 
   /*******************函数*********************/
@@ -254,6 +275,50 @@ function App() {
   // 清空搜索
   const clearSearch = () => {
     setSearchValue("");
+  };
+
+  /*******************主题切换*********************/
+  const setTheme = (color, hover, shadow) => {
+    const root = document.documentElement;
+    root.style.setProperty("--primary-color", color || "#F1933C");
+    root.style.setProperty("--primary-hover", hover || "#e0852e");
+    root.style.setProperty(
+      "--primary-shadow",
+      shadow || "rgba(216, 110, 17, 0.1)"
+    );
+  };
+  // 切换主题
+  const toggleTheme = () => {
+    const root = document.documentElement;
+    const currentColor = getComputedStyle(root)
+      .getPropertyValue("--primary-color")
+      .trim();
+
+    if (currentColor === "#F1933C") {
+      // 切换到蓝色主题
+      setTheme("#69b1ff", "#2563EB", "rgba(59, 130, 246, 0.1)");
+      localStorage.setItem(
+        "theme",
+        JSON.stringify({
+          color: "#69b1ff",
+          hover: "#2563EB",
+          shadow: "rgba(59, 130, 246, 0.1)",
+        })
+      );
+      showSuccess("已切换到蓝色主题", 1000);
+    } else {
+      // 切换回橙色主题
+      setTheme("#F1933C", "#e0852e", "rgba(216, 110, 17, 0.1)");
+      localStorage.setItem(
+        "theme",
+        JSON.stringify({
+          color: "#F1933C",
+          hover: "#e0852e",
+          shadow: "rgba(216, 110, 17, 0.1)",
+        })
+      );
+      showSuccess("已切换到橙色主题", 1000);
+    }
   };
   /*************页面控制**************/
   // 返回列表页

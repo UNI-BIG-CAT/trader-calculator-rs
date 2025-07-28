@@ -144,8 +144,8 @@
 
 .detail-action-btn {
     background-color: #fff;
-    color:  #F1933C;
-    border: 1px solid #F1933C;
+    color:  var(--primary-color);
+    border: 1px solid var(--primary-color);
     border-radius: 5px;
     padding: 5px 20px;
     margin-left: 20px;
@@ -154,14 +154,14 @@
 }
   
 .detail-action-btn:hover {
-    background-color: #F1933C;
+    background-color: var(--primary-color);
     color: #fff;
 }
 
 .detail-action-btn:disabled {
     background-color: #f6f6f6;
-    color:  #F1933C;
-    border: 1px solid #F1933C;
+    color:  var(--primary-color);
+    border: 1px solid var(--primary-color);
     opacity: 0.5;
     cursor: not-allowed;
 }
@@ -195,7 +195,7 @@
 
 .detail-container .form-group input:focus {
   outline: none;
-  border-color: #F1933C;
+  border-color: var(--primary-color);
 }
 
 .detail-container .form-group input::placeholder {
@@ -237,7 +237,7 @@
   margin-top: 8px;
   padding: 8px 12px;
   background-color: #f8f9fa;
-  border: 1px solid #F1933C;
+  border: 1px solid var(--primary-color);
   border-radius: 6px;
   font-size: 14px;
   color: #5c5e60;
@@ -252,7 +252,7 @@
   max-height: 200px;
   color: #5c5e60;
   padding: 12px;
-  border: 1px solid #F1933C;
+  border: 1px solid var(--primary-color);
   border-radius: 4px;
   font-size: 14px;
   font-family: inherit;
@@ -263,7 +263,7 @@
 
 .action-info-textarea:focus {
   outline: none;
-  border-color: #F1933C;
+  border-color: var(--primary-color);
 }
 
 .action-info-textarea::placeholder {

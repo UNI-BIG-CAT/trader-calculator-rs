@@ -34,7 +34,7 @@
 
 .input-field:focus {
   outline: none;
-  border-color: #F1933C;
+  border-color: var(--primary-color);
   box-shadow: 0 0 0 2px rgba(216, 110, 17, 0.1);
 }
 
@@ -51,8 +51,8 @@
 .change-btn {
   padding: 6px 12px;
   background-color: #fff;
-  border: 1px solid #F1933C;
-  color: #F1933C;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.85rem;
@@ -62,11 +62,11 @@
 
 .change-btn:hover {
   background-color: #e5e5e54c;
-  color: #F1933C;
+  color: var(--primary-color);
 }
 
 .change-btn.active {
-  background-color: #F1933C;
+  background-color: var(--primary-color);
   color: #fff;
 }
 
@@ -80,9 +80,9 @@
 
 .limit-ok-btn {
   margin-top: 10px;
-    background-color: #F1933C;
+    background-color: var(--primary-color);
     color:  #fff;
-    border: 1px solid #F1933C;
+    border: 1px solid var(--primary-color);
     border-radius: 5px;
     padding: 5px 20px;
     margin-left: 20px;
@@ -91,12 +91,12 @@
 }
 
 .limit-ok-btn:hover {
-  background-color: #F1933C;
+  background-color: var(--primary-color);
   color: #fff;
 }
 
 .limit-ok-btn:disabled {
-  background-color: #f1933c37;
+  background-color: var(--primary-shadow);
   border: none;
   color: #ffffff;
   cursor: not-allowed;
@@ -106,8 +106,8 @@
 .limit-clear-btn {
   margin-top: 10px;
     background-color: #fff;
-    color:  #F1933C;
-    border: 1px solid #ed8727;
+    color:  var(--primary-color);
+    border: 1px solid var(--primary-color);
     border-radius: 5px;
     padding: 5px 20px;
     margin-left: 20px;
@@ -117,7 +117,7 @@
 
 .limit-clear-btn:hover {
   background-color: #e5e5e54c;
-  color: #F1933C;
+  color: var(--primary-color);
 }
 
 /* 结果表格样式 */
@@ -141,7 +141,7 @@
 }
 
 .limit-result-table thead {
-  background-color: #F1933C;
+  background-color: var(--primary-color);
   color: #ffffff;
 }
 
@@ -175,7 +175,7 @@
 
 .limit-result-table td:first-child {
   font-weight: 350;
-  color: #F1933C;
+  color: var(--primary-color);
 }
 
 /* 正负值颜色 */

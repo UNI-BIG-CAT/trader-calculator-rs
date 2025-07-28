@@ -2,7 +2,7 @@
 
 /* 重置 Ant Design 组件的默认样式 */
 .ant-picker {
-  border: 1px solid #F1933C !important;
+  border: 1px solid  var(--primary-color) !important;
   font-family: inherit !important;
   font-size: inherit !important;
   line-height: inherit !important;
@@ -27,19 +27,19 @@
 
 /* 只针对我们的 DatePicker 组件 */
 .antd-datetime-picker .ant-picker {
-  border: 1px solid #F1933C !important;
+  border: 1px solid  var(--primary-color) !important;
   border-radius: 5px !important;
   background-color: #fafafa !important;
   transition: all 0.3s ease !important;
 }
 
 .antd-datetime-picker .ant-picker:hover {
-  border-color: #F1933C !important;
+  border-color:  var(--primary-color) !important;
   background-color: #fff !important;
 }
 
 .antd-datetime-picker .ant-picker-focused {
-  border-color: #F1933C !important;
+  border-color:  var(--primary-color) !important;
   box-shadow: 0 0 0 2px rgba(241, 147, 60, 0.2) !important;
 }
 
