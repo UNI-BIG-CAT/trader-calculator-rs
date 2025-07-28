@@ -48,8 +48,7 @@ function Detail({ stockId, stockName, onBack }) {
       const stock = await invoke("handle_get_stock_info", { stockId });
       setStock(stock);
       const result = await invoke("handle_get_action_list", { stockId });
-      console.log(result);
-
+      //
       setActionList(result);
     } catch (error) {
       showError("获取详情失败");
@@ -351,8 +350,16 @@ function Detail({ stockId, stockName, onBack }) {
                     {getActionTypeText(action.action)}
                   </span>
                   <span className="detail-label">交易数量</span>
-                  <span className="detail-value highlight">
-                    {formatNumber(action.transaction_position, 0)}
+                  <span
+                    className={`detail-value ${
+                      action.action == 1 || action.action == 3
+                        ? "profit"
+                        : "loss"
+                    }`}
+                  >
+                    {action.action == 1 || action.action == 3
+                      ? formatNumber(action.transaction_position, 0)
+                      : formatNumber(-action.transaction_position, 0)}
                   </span>
                 </div>
 
@@ -373,7 +380,13 @@ function Detail({ stockId, stockName, onBack }) {
                     {formatNumber(action.transaction_commission_fee)}
                   </span>
                   <span className="detail-label">此次支出</span>
-                  <span className="detail-value">
+                  <span
+                    className={`detail-value ${
+                      action.action == 1 || action.action == 3
+                        ? "profit"
+                        : "loss"
+                    }`}
+                  >
                     {formatNumber(getCurrentExpenditure(action))}
                   </span>
                 </div>

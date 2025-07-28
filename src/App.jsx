@@ -161,18 +161,6 @@ function App() {
         showError("请填写所有字段", 1000);
         return;
       }
-      console.log({
-        stockName: formData.stockName,
-        stockType: formData.stockType,
-        currentPrice: parseFloat(formData.currentPrice),
-        transactionPrice: parseFloat(formData.transactionPrice),
-        transactionPosition: parseInt(formData.transactionPosition),
-        commissionFeeRate: parseFloat(formData.commissionFeeRate),
-        taxFeeRate: parseFloat(formData.taxFeeRate),
-        regulatoryFeeRate: parseFloat(formData.regulatoryFeeRate),
-        brokerageFeeRate: parseFloat(formData.brokerageFeeRate),
-        transferFeeRate: parseFloat(formData.transferFeeRate),
-      });
       await invoke("handle_open_position", {
         stockName: formData.stockName,
         stockType: formData.stockType,

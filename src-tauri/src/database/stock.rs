@@ -126,10 +126,6 @@ impl StockRecord {
         let conn = db_conn.lock().unwrap();
         conn.execute("DELETE FROM tb_stock WHERE stock_id = ?", [stock_id])?;
         conn.execute("DELETE FROM tb_stock_action WHERE stock_id = ?", [stock_id])?;
-        conn.execute(
-            "DELETE FROM tb_stock_action_info WHERE stock_id = ?",
-            [stock_id],
-        )?;
         Ok(())
     }
 
