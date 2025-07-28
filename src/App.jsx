@@ -244,10 +244,13 @@ function App() {
 
   /*************拖拽排序**************/
   const handleDragEnd = async (result) => {
+    if (filter) {
+      showError("排序需要先显示平仓股票");
+      return;
+    }
     if (!result.destination) {
       return;
     }
-
     const items = Array.from(stockList);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
@@ -256,7 +259,6 @@ function App() {
 
     // 提取stock_id列表，按照新的顺序
     const stockIdList = items.map((stock) => stock.stock_id);
-
     try {
       await invoke("handle_update_stock_sort", { list: stockIdList });
       showSuccess("排序更新成功！", 1000);
