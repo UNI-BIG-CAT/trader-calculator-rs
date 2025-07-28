@@ -13,7 +13,7 @@ function App() {
   const [selectedStockId, setSelectedStockId] = useState(null);
   const [selectedStockName, setSelectedStockName] = useState(null);
   const [filter, setFilter] = useState(true); // 过滤平仓
-
+  const [searchValue, setSearchValue] = useState(""); // 搜索值
   // 股票列表状态
   const [stockList, setStockList] = useState([]);
   // 对话框显示状态
@@ -246,7 +246,15 @@ function App() {
       getStockList();
     }
   };
+  // 搜索
+  const handleSearchChange = (e) => {
+    setSearchValue(e.target.value);
+  };
 
+  // 清空搜索
+  const clearSearch = () => {
+    setSearchValue("");
+  };
   /*************页面控制**************/
   // 返回列表页
   const handleBackToList = async () => {
@@ -273,7 +281,25 @@ function App() {
       {/* Header */}
       <div className="header">
         <div className="header-title">盈亏计算器</div>
-        <div>
+        <div className="header-right-container">
+          <div className="search-container">
+            <input
+              className="header-search"
+              name="stockName"
+              value={searchValue}
+              onChange={handleSearchChange}
+              placeholder="搜索股票"
+            />
+            {searchValue && (
+              <button
+                className="clear-search-btn"
+                onClick={clearSearch}
+                title="清空搜索"
+              >
+                ×
+              </button>
+            )}
+          </div>
           <button className="open-stock-btn" onClick={openDialog}>
             建仓
           </button>
@@ -297,7 +323,7 @@ function App() {
               >
                 <thead>
                   <tr>
-                    <th style={{ width: "50px" }}></th>
+                    <th style={{ width: "20px" }}></th>
                     <th>股票名称</th>
                     <th>类型</th>
                     <th>佣金费率</th>
@@ -319,8 +345,15 @@ function App() {
                   ) : (
                     stockList
                       .filter((stock) => {
+                        // 首先根据状态过滤
                         if (filter) {
-                          return stock.status == 1;
+                          if (stock.status !== 1) return false;
+                        }
+                        // 然后根据搜索值过滤
+                        if (searchValue.trim()) {
+                          return stock.stock_name
+                            .toLowerCase()
+                            .includes(searchValue.toLowerCase());
                         }
                         return true;
                       })

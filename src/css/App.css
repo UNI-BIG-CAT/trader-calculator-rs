@@ -46,6 +46,65 @@
   font-size: 1.5rem;
   margin-left: 20px;
 }
+/* 头部右侧容器 */
+.header-right-container{
+  display: flex;
+  align-items: center;
+}
+
+/* 搜索容器 */
+.search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+}
+
+/* 头部搜索框 */
+.header-search {
+  padding: 6px 12px;
+  padding-right: 30px;
+  border: 1px solid #F1933C;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  width: 150px;
+}
+
+.header-search:focus {
+  outline: none;
+  border-color: #F1933C;
+  box-shadow: 0 0 0 2px rgba(216, 110, 17, 0.1);
+}
+
+.header-search::placeholder {
+  color: #999;
+}
+
+/* 清空搜索按钮 */
+.clear-search-btn {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.clear-search-btn:hover {
+  background-color: #f0f0f0;
+  color: #666;
+}
 
 /* 建仓按钮 */
 .open-stock-btn {
@@ -64,8 +123,8 @@
   color: #f6f6f6;
 }
 
-/* 回退按钮 */
 
+/* 回退按钮 */
 .back-btn {
   background-color: #fff;
   color:  #F1933C;
