@@ -10,6 +10,10 @@ pub struct DatabaseState {
 impl DatabaseState {
     pub fn new(db_path: &str) -> Result<Self> {
         let conn = Connection::open(db_path)?; // 打开数据库
+
+        // 设置时区为中国时区 (UTC+8)
+        conn.execute("PRAGMA timezone = '+08:00'", [])?;
+
         create_tables(&conn)?; // 创建表
         Ok(DatabaseState {
             db: Arc::new(Mutex::new(conn)),
@@ -36,8 +40,8 @@ fn create_tables(conn: &Connection) -> Result<()> {
             brokerage_fee_rate REAL NOT NULL DEFAULT 0.0000487,  -- 经手费 沪市为0.00487% 深市为0.0341‰
             transfer_fee_rate REAL NOT NULL DEFAULT 0,         -- 过户费 沪市为0.001%(万0.1) 深市为0 
             status INTEGER NOT NULL DEFAULT 1,                 -- 状态 1-正常买卖中 2-已经平仓
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,    -- 创建时间
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP     -- 更新时间（无法自动更新）
+            created_at DATETIME DEFAULT (datetime('now', 'localtime')),    -- 创建时间
+            updated_at DATETIME DEFAULT (datetime('now', 'localtime'))     -- 更新时间（无法自动更新）
         );
         ",
         [],
@@ -62,54 +66,35 @@ fn create_tables(conn: &Connection) -> Result<()> {
             action INTEGER NOT NULL DEFAULT 1,                     -- 操作类型 1-建仓 2-平仓 3-加仓 4-减仓
             profit REAL NOT NULL DEFAULT 0,                        -- 盈亏金额(忽略清仓手续费)
             profit_rate REAL NOT NULL DEFAULT 0,                   -- 盈亏比例(忽略清仓手续费)
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,         -- 创建时间
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP          -- 更新时间（需应用层更新）
+            action_time DATETIME NOT NULL DEFAULT '', -- 操作时间
+            action_info TEXT NOT NULL DEFAULT '',            -- 操作信息
+            created_at DATETIME DEFAULT (datetime('now', 'localtime')),         -- 创建时间
+            updated_at DATETIME DEFAULT (datetime('now', 'localtime'))          -- 更新时间（需应用层更新）
         );
         ",
         [],
     )?;
-
-    conn.execute(
-        "
-        CREATE TABLE IF NOT EXISTS tb_stock_action_info (
-            stock_action_info_id INTEGER PRIMARY KEY AUTOINCREMENT,     -- ID
-            stock_id INTEGER NOT NULL,                                  -- 股票ID
-            stock_action_id INTEGER NOT NULL,                           -- 操作ID
-            action_time DATETIME NOT NULL,                              -- 操作时间
-            action_info TEXT NOT NULL,                                  -- 操作信息
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,              -- 创建时间
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP               -- 更新时间（需应用层更新）
-        );
-        ",
-        [],
-    )?;
-
     // 创建索引
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_tb_stock_action_stock_id ON tb_stock_action(stock_id);",
         [],
     )?;
 
-    conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_tb_stock_action_info_stock_action_id ON tb_stock_action_info(stock_action_id);",
-        [],
-    )?;
-
     // 创建触发器来自动更新修改时间
     conn.execute(
-        "CREATE TRIGGER IF NOT EXISTS update_tb_stock_timestamp 
+                 "CREATE TRIGGER IF NOT EXISTS update_tb_stock_timestamp 
          AFTER UPDATE ON tb_stock
          BEGIN
-            UPDATE tb_stock SET updated_at = CURRENT_TIMESTAMP WHERE stock_id = NEW.stock_id;
+            UPDATE tb_stock SET updated_at = datetime('now', 'localtime') WHERE stock_id = NEW.stock_id;
          END",
         [],
     )?;
 
     conn.execute(
-        "CREATE TRIGGER IF NOT EXISTS update_tb_stock_action_timestamp 
+                 "CREATE TRIGGER IF NOT EXISTS update_tb_stock_action_timestamp 
          AFTER UPDATE ON tb_stock_action
          BEGIN
-            UPDATE tb_stock_action SET updated_at = CURRENT_TIMESTAMP WHERE stock_action_id = NEW.stock_action_id;
+            UPDATE tb_stock_action SET updated_at = datetime('now', 'localtime') WHERE stock_action_id = NEW.stock_action_id;
          END",
         [],
     )?;

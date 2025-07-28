@@ -20,6 +20,8 @@ pub struct StockActionRecord {
     pub action: i32,
     pub profit: f64,
     pub profit_rate: f64,
+    pub action_time: String,
+    pub action_info: String,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -74,7 +76,7 @@ pub struct StockActionRecord {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         let mut stmt = conn.prepare(
-            "SELECT stock_action_id, stock_id, current_price, current_cost, total_position, total_fee, transaction_price, transaction_position, transaction_commission_fee, transaction_tax_fee, transaction_regulatory_fee, transaction_brokerage_fee, transaction_transfer_fee, action, profit, profit_rate, created_at, updated_at FROM tb_stock_action WHERE stock_id = ? ORDER BY stock_action_id ASC"
+            "SELECT stock_action_id, stock_id, current_price, current_cost, total_position, total_fee, transaction_price, transaction_position, transaction_commission_fee, transaction_tax_fee, transaction_regulatory_fee, transaction_brokerage_fee, transaction_transfer_fee, action, profit, profit_rate,action_time,action_info, created_at, updated_at FROM tb_stock_action WHERE stock_id = ? ORDER BY stock_action_id DESC"
         )?;
 
         let stock_action_iter = stmt.query_map([stock_id], |row| {
@@ -95,8 +97,10 @@ pub struct StockActionRecord {
                 action: row.get(13)?,
                 profit: row.get(14)?,
                 profit_rate: row.get(15)?,
-                created_at: row.get(16)?,
-                updated_at: row.get(17)?,
+                action_time: row.get(16)?,
+                action_info: row.get(17)?,
+                created_at: row.get(18)?,
+                updated_at: row.get(19)?,
             })
         })?;
 
@@ -111,7 +115,7 @@ pub struct StockActionRecord {
     pub fn get_last_action(stock_id:i32) -> Result<StockActionRecord,rusqlite::Error> {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
-        let mut stmt = conn.prepare("SELECT stock_action_id, stock_id, current_price, current_cost, total_position,total_fee, transaction_price, transaction_position, transaction_commission_fee, transaction_tax_fee, transaction_regulatory_fee, transaction_brokerage_fee, transaction_transfer_fee, action, profit, profit_rate, created_at, updated_at FROM tb_stock_action WHERE stock_id = ? ORDER BY stock_action_id DESC LIMIT 1")?;
+        let mut stmt = conn.prepare("SELECT stock_action_id, stock_id, current_price, current_cost, total_position,total_fee, transaction_price, transaction_position, transaction_commission_fee, transaction_tax_fee, transaction_regulatory_fee, transaction_brokerage_fee, transaction_transfer_fee, action, profit, profit_rate,action_time,action_info, created_at, updated_at FROM tb_stock_action WHERE stock_id = ? ORDER BY stock_action_id DESC LIMIT 1")?;
         let stock_action = stmt.query_row([stock_id], |row| {
             Ok(StockActionRecord {
                 stock_action_id: row.get(0)?,   
@@ -130,12 +134,22 @@ pub struct StockActionRecord {
                 action: row.get(13)?,
                 profit: row.get(14)?,
                 profit_rate: row.get(15)?,
-                created_at: row.get(16)?,
-                updated_at: row.get(17)?,
+                action_time: row.get(16)?,
+                action_info: row.get(17)?,
+                created_at: row.get(18)?,
+                updated_at: row.get(19)?,
             })
         })?;
         Ok(stock_action)
     }   
+
+    /// 保存操作信息
+    pub fn save_stock_action_info(stock_action_id:i32,action_time:String,action_info:String) -> Result<(),rusqlite::Error> {
+        let db_conn = get_db_state();
+        let conn = db_conn.lock().unwrap();
+        conn.execute("UPDATE tb_stock_action SET action_time = ?, action_info = ? WHERE stock_action_id = ?", [action_time,action_info,stock_action_id.to_string()])?;
+        Ok(())
+    }
     
     /// 删除最后一条操作记录
     pub fn delete_last_action(stock_id:i32) -> Result<(),rusqlite::Error> {

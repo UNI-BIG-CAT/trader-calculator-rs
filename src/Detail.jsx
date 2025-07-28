@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { DatePicker } from "antd";
+import dayjs from "dayjs";
 import "./css/App.css";
 import "./css/detail.css";
+import "./css/antd-override.css";
 import { useToast, ToastContainer } from "./components/Toast.jsx";
 
 function Detail({ stockId, stockName, onBack }) {
@@ -9,6 +12,7 @@ function Detail({ stockId, stockName, onBack }) {
   const [stock, setStock] = useState(1);
   const [actionList, setActionList] = useState([]);
   const [showAddOrReduceDialog, setShowAddOrReduceDialog] = useState(false);
+  const [showActionInfoDialog, setShowActionInfoDialog] = useState(false);
   const [dialogType, setDialogType] = useState(""); // "add" 或 "reduce"
   const [addOrReduceFormData, setAddOrReduceFormData] = useState({
     currentPrice: "",
@@ -18,6 +22,11 @@ function Detail({ stockId, stockName, onBack }) {
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [closeFormData, setCloseFormData] = useState({
     transactionPrice: "",
+  });
+  // 操作信息
+  const [actionForm, setActionForm] = useState({
+    actionTime: "",
+    actionInfo: "",
   });
   // 保留部分操作
   const [lastActions, setLastActions] = useState(true);
@@ -251,6 +260,39 @@ function Detail({ stockId, stockName, onBack }) {
     getActionList();
   };
 
+  /*************操作记录***************/
+  const showActionInfo = async (action) => {
+    try {
+      const stock_action_id = action.stock_action_id;
+      // 先设置基本信息
+      setActionForm({
+        stockActionId: stock_action_id,
+        actionTime: action.action_time,
+        actionInfo: action.action_info,
+      });
+
+      setShowActionInfoDialog(true);
+    } catch (error) {
+      console.error("显示操作信息失败:", error);
+    }
+  };
+  const saveActionInfo = async () => {
+    await invoke("handle_save_action_info", {
+      stockActionId: actionForm.stockActionId,
+      actionTime: actionForm.actionTime,
+      actionInfo: actionForm.actionInfo,
+    });
+    await getActionList();
+    setShowActionInfoDialog(false);
+  };
+  // 移除原来的 handleActionInfoTimeChange 函数，因为现在使用 Ant Design DatePicker
+  const handleActionInfoInputChange = (e) => {
+    const { name, value } = e.target;
+    setActionForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
   /********************************************************/
   return (
     <main className="container">
@@ -276,7 +318,15 @@ function Detail({ stockId, stockName, onBack }) {
       <div className="detail-container">
         <div className="detail-list">
           {(lastActions ? actionList.slice(-4) : actionList).map((action) => (
-            <div className="action-detail" key={action.stock_action_id}>
+            <div
+              className="action-detail"
+              onClick={() => showActionInfo(action)}
+              key={action.stock_action_id}
+            >
+              {/* 操作信息标记 */}
+              {action.action_info && action.action_info.trim() !== "" && (
+                <div className="action-info-indicator" title="有操作信息"></div>
+              )}
               <div className="detail-grid">
                 <div className="detail-row">
                   <span className="detail-label">操作类型</span>
@@ -510,6 +560,67 @@ function Detail({ stockId, stockName, onBack }) {
                 onClick={handleCloseConfirm}
               >
                 确定
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* 操作详情对话框 */}
+      {showActionInfoDialog && (
+        <div className="dialog-overlay">
+          <div className="dialog">
+            <div className="dialog-header">
+              <h3>操作笔记</h3>
+            </div>
+            <div className="dialog-content">
+              <div className="time-input-container">
+                <DatePicker
+                  showTime
+                  format="YYYY年MM月DD日 HH:mm"
+                  placeholder="请选择日期和时间"
+                  value={
+                    actionForm.actionTime ? dayjs(actionForm.actionTime) : null
+                  }
+                  onChange={(date, dateString) => {
+                    setActionForm((prev) => ({
+                      ...prev,
+                      actionTime: date ? date.format("YYYY-MM-DDTHH:mm") : "",
+                    }));
+                  }}
+                  className="antd-datetime-picker"
+                />
+              </div>
+              <textarea
+                name="actionInfo"
+                value={actionForm.actionInfo}
+                onChange={handleActionInfoInputChange}
+                className="action-info-textarea"
+                rows="6"
+                cols="50"
+                placeholder="请输入操作信息..."
+              ></textarea>
+            </div>
+            <div className="dialog-actions">
+              <button className="btn-confirm" onClick={saveActionInfo}>
+                保存
+              </button>
+              <button
+                className="btn-cancel"
+                onClick={() => {
+                  setActionForm({
+                    stockActionId: actionForm.stockActionId,
+                    actionTime: "",
+                    actionInfo: "",
+                  });
+                }}
+              >
+                清空
+              </button>
+              <button
+                className="btn-cancel"
+                onClick={() => setShowActionInfoDialog(false)}
+              >
+                关闭
               </button>
             </div>
           </div>

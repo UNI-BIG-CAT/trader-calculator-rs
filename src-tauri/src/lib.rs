@@ -8,6 +8,7 @@ use crate::handler::stock_action::{
     handle_add_position, handle_back_position, handle_close_position, handle_get_action_list,
     handle_open_position, handle_reduce_position,
 };
+use crate::handler::stock_action_info::handle_save_action_info;
 //
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -25,6 +26,8 @@ pub fn run() {
             handle_reduce_position,
             handle_close_position,
             handle_delete_stock,
+            //
+            handle_save_action_info,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
