@@ -44,8 +44,8 @@
 }
 
 .antd-datetime-picker .ant-picker-input > input {
-  font-size: 16px !important;
-  color: #495057 !important;
+  font-size: 14px !important;
+  color: #5c5e60 !important;
 }
 
 /* 确保弹出面板样式正确 */

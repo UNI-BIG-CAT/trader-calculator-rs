@@ -221,8 +221,6 @@
   }
 }
 
-/* 移除旧的 time-input 样式，因为现在使用 Ant Design DatePicker */
-
 /* 时间输入容器 */
 .time-input-container {
   position: relative;
@@ -242,7 +240,7 @@
   border: 1px solid #F1933C;
   border-radius: 6px;
   font-size: 14px;
-  color: #495057;
+  color: #5c5e60;
   font-weight: 500;
   text-align: center;
   transition: all 0.3s ease;
@@ -252,7 +250,7 @@
   width: 100%;
   min-height: 200px;
   max-height: 200px;
-  color: #495057;
+  color: #5c5e60;
   padding: 12px;
   border: 1px solid #F1933C;
   border-radius: 4px;
