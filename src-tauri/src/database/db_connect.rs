@@ -69,6 +69,32 @@ fn create_tables(conn: &Connection) -> Result<()> {
         [],
     )?;
 
+    conn.execute(
+        "
+        CREATE TABLE IF NOT EXISTS tb_stock_action_info (
+            stock_action_info_id INTEGER PRIMARY KEY AUTOINCREMENT,     -- ID
+            stock_id INTEGER NOT NULL,                                  -- 股票ID
+            stock_action_id INTEGER NOT NULL,                           -- 操作ID
+            action_time DATETIME NOT NULL,                              -- 操作时间
+            action_info TEXT NOT NULL,                                  -- 操作信息
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,              -- 创建时间
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP               -- 更新时间（需应用层更新）
+        );
+        ",
+        [],
+    )?;
+
+    // 创建索引
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_tb_stock_action_stock_id ON tb_stock_action(stock_id);",
+        [],
+    )?;
+
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_tb_stock_action_info_stock_action_id ON tb_stock_action_info(stock_action_id);",
+        [],
+    )?;
+
     // 创建触发器来自动更新修改时间
     conn.execute(
         "CREATE TRIGGER IF NOT EXISTS update_tb_stock_timestamp 

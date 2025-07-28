@@ -20,10 +20,8 @@ pub struct StockRecord {
 
 // 操作记录处理
 #[allow(dead_code)]
-pub struct StockHandler;
-impl StockHandler {
+impl StockRecord {
     /// 插入股票数据
-    #[allow(dead_code)]
     pub fn insert_stock(
         stock_name: &str,
         stock_type: i32,
@@ -51,12 +49,11 @@ impl StockHandler {
     }
 
     /// 查询所有股票数据
-    #[allow(dead_code)]
     pub fn get_all_stocks() -> Result<Vec<StockRecord>> {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         let mut stmt = conn.prepare(
-            "SELECT stock_id, stock_name, type, commission_fee_rate, tax_fee_rate, regulatory_fee_rate, brokerage_fee_rate, transfer_fee_rate, status, created_at, updated_at FROM tb_stock ORDER BY stock_id DESC"
+            "SELECT stock_id, stock_name, type, commission_fee_rate, tax_fee_rate, regulatory_fee_rate, brokerage_fee_rate, transfer_fee_rate, status, created_at, updated_at FROM tb_stock ORDER BY stock_id DESC;"
         )?;
 
         let stock_iter = stmt.query_map([], |row| {
@@ -83,7 +80,6 @@ impl StockHandler {
     }
 
     /// 根据ID查询股票
-    #[allow(dead_code)]
     pub fn get_stock_by_id(stock_id: i32) -> Result<Option<StockRecord>> {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
@@ -114,7 +110,6 @@ impl StockHandler {
     }
 
     // 修改股票状态
-    #[allow(dead_code)]
     pub fn update_stock_status(stock_id: i32, status: i32) -> Result<()> {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
@@ -126,12 +121,15 @@ impl StockHandler {
     }
 
     /// 删除股票数据
-    #[allow(dead_code)]
     pub fn delete_stock(stock_id: i32) -> Result<()> {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         conn.execute("DELETE FROM tb_stock WHERE stock_id = ?", [stock_id])?;
         conn.execute("DELETE FROM tb_stock_action WHERE stock_id = ?", [stock_id])?;
+        conn.execute(
+            "DELETE FROM tb_stock_action_info WHERE stock_id = ?",
+            [stock_id],
+        )?;
         Ok(())
     }
 

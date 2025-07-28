@@ -1,42 +1,53 @@
 /* Detail页面样式 */
 .detail-container {
-  padding: 5px 10px;
+  margin-top: 60px; /* 为固定header留出空间 */
+  margin-bottom: 60px; /* 为固定header留出空间 */
+  /* padding: 5px 10px; */
   min-width: 455px;
   display: flex;
   flex-direction: column;
-  flex-shrink: 3;
+  /* flex-shrink: 3; */
+  height: calc(100vh - 132px); /* 减去header高度和padding */
+  overflow-y:scroll; /* 只让内容滚动 */
+  overflow-x: hidden;
 }
 
+.detail-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap:5px;
+  align-content: flex-start;
+}
 /* 卡片网格布局 */
 .action-detail {
   background-color: #ffffff;
   border-radius: 8px;
   padding: 15px 20px;
+  flex: 1 1 520px;
+  min-width: 520px;
 }
 
-
-/* 响应式网格布局 */
+/* 响应式布局 */
 @media (min-width: 768px) {
-  .detail-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 8px;
-    align-items: start;
+  .action-detail {
+    flex: 1 1 530px;
+    max-width: 700px;
   }
 }
 
 @media (min-width: 1200px) {
-  .detail-container {
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  .action-detail {
+    flex: 0 1 530px;
+    max-width: 530px;
   }
 }
 
-@media (min-width: 1600px) {
-  .detail-container {
-    grid-template-columns: repeat(auto-fit, minmax(540px, 1fr));
+@media (min-width: 1500px) {
+  .action-detail {
+    flex: 0 1 530px;
+    min-width: 672px;
   }
 }
-
 
 
 .detail-grid {
@@ -100,13 +111,17 @@
 
 /* 详情按钮 */
 .detail-action-btn-container {
+    position: fixed;
+    z-index: 1000;
+    bottom: 0px;
+    width: 100%;
+    margin-top: 1px;
     background-color: #fff;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 15px 10px;
     border-radius: 8px;
-    grid-column: 1 / -1; /* 让按钮容器跨越所有列 */
 }
 
 .detail-action-btn {
@@ -157,14 +172,12 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 0.9rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
   box-sizing: border-box;
 }
 
 .detail-container .form-group input:focus {
   outline: none;
   border-color: #F1933C;
-  box-shadow: 0 0 0 2px rgba(216, 110, 17, 0.1);
 }
 
 .detail-container .form-group input::placeholder {

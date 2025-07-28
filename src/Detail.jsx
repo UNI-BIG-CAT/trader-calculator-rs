@@ -19,7 +19,8 @@ function Detail({ stockId, stockName, onBack }) {
   const [closeFormData, setCloseFormData] = useState({
     transactionPrice: "",
   });
-
+  // 保留部分操作
+  const [lastActions, setLastActions] = useState(true);
   // Toast Hook
   const { toasts, removeToast, showError, showWarning, showSuccess } =
     useToast();
@@ -40,7 +41,7 @@ function Detail({ stockId, stockName, onBack }) {
       const result = await invoke("handle_get_action_list", { stockId });
       setActionList(result);
     } catch (error) {
-      showError("获取详情失败", 1000);
+      showError("获取详情失败");
     }
   };
 
@@ -139,7 +140,7 @@ function Detail({ stockId, stockName, onBack }) {
     const { name, value } = e.target;
     if (name == "transactionPosition" && dialogType == "reduce") {
       if (value >= actionList[actionList.length - 1]?.total_position) {
-        showError("减仓数量不能大于持仓数量,或者选择平仓", 1000);
+        showError("减仓数量不能大于持仓数量,或者选择平仓");
         return;
       }
     }
@@ -185,7 +186,7 @@ function Detail({ stockId, stockName, onBack }) {
         !addOrReduceFormData.transactionPrice ||
         !addOrReduceFormData.transactionPosition
       ) {
-        showError("请填写所有字段", 1000);
+        showError("请填写所有字段");
         return;
       }
       if (dialogType == "add") {
@@ -211,7 +212,7 @@ function Detail({ stockId, stockName, onBack }) {
       getActionList();
       closeAddOrReduceDialog();
     } catch (error) {
-      showError("操作失败", 1000);
+      showError("操作失败");
     }
   };
 
@@ -228,7 +229,7 @@ function Detail({ stockId, stockName, onBack }) {
   const handleCloseConfirm = async () => {
     try {
       if (closeFormData.transactionPrice <= 0) {
-        showError("请填写平仓价格", 1000);
+        showError("请填写平仓价格");
         return;
       }
       await invoke("handle_close_position", {
@@ -240,7 +241,7 @@ function Detail({ stockId, stockName, onBack }) {
       getActionList();
       closeCloseDialog();
     } catch (error) {
-      showError("平仓失败", 1000);
+      showError("平仓失败");
     }
   };
   /*************回退***************/
@@ -257,122 +258,127 @@ function Detail({ stockId, stockName, onBack }) {
       <div className="header">
         <div className="header-title">{stockName}-控仓</div>
         <div></div>
-        <div></div>
-        <button className="back-btn" onClick={onBack}>
-          返回
-        </button>
+        <div>
+          <button
+            hidden={actionList.length <= 4}
+            className="back-btn"
+            onClick={() => setLastActions(!lastActions)}
+          >
+            {lastActions ? "显示全部" : "隐藏部分"}
+          </button>
+          <button className="back-btn" onClick={onBack}>
+            返回
+          </button>
+        </div>
       </div>
 
       {/* 操作列表 */}
       <div className="detail-container">
-        {actionList.map((action) => (
-          <div className="action-detail" key={action.stock_action_id}>
-            <div className="detail-grid">
-              <div className="detail-row">
-                <span className="detail-label">操作类型</span>
-                <span className="detail-value">
-                  {getActionTypeText(action.action)}
-                </span>
-                <span className="detail-label">交易数量</span>
-                <span className="detail-value highlight">
-                  {formatNumber(action.transaction_position, 0)}
-                </span>
-              </div>
+        <div className="detail-list">
+          {(lastActions ? actionList.slice(-4) : actionList).map((action) => (
+            <div className="action-detail" key={action.stock_action_id}>
+              <div className="detail-grid">
+                <div className="detail-row">
+                  <span className="detail-label">操作类型</span>
+                  <span className="detail-value">
+                    {getActionTypeText(action.action)}
+                  </span>
+                  <span className="detail-label">交易数量</span>
+                  <span className="detail-value highlight">
+                    {formatNumber(action.transaction_position, 0)}
+                  </span>
+                </div>
 
-              <div className="detail-row">
-                <span className="detail-label">交易价格</span>
-                <span className="detail-value highlight">
-                  {formatNumber(action.transaction_price)}
-                </span>
-                <span className="detail-label">交易市值</span>
-                <span className="detail-value">
-                  {formatNumber(getTransactionValue(action))}
-                </span>
-              </div>
+                <div className="detail-row">
+                  <span className="detail-label">交易价格</span>
+                  <span className="detail-value highlight">
+                    {formatNumber(action.transaction_price)}
+                  </span>
+                  <span className="detail-label">交易市值</span>
+                  <span className="detail-value">
+                    {formatNumber(getTransactionValue(action))}
+                  </span>
+                </div>
 
-              <div className="detail-row">
-                <span className="detail-label">手续费</span>
-                <span className="detail-value">
-                  {formatNumber(action.transaction_commission_fee)}
-                </span>
-                <span className="detail-label">此次支出</span>
-                <span className="detail-value">
-                  {formatNumber(getCurrentExpenditure(action))}
-                </span>
-              </div>
+                <div className="detail-row">
+                  <span className="detail-label">手续费</span>
+                  <span className="detail-value">
+                    {formatNumber(action.transaction_commission_fee)}
+                  </span>
+                  <span className="detail-label">此次支出</span>
+                  <span className="detail-value">
+                    {formatNumber(getCurrentExpenditure(action))}
+                  </span>
+                </div>
 
-              <div className="detail-row">
-                <span className="detail-label">总计支出</span>
-                <span className="detail-value">
-                  {action.total_position > 0
-                    ? formatNumber(getTotalExpenditure(action))
-                    : "-"}
-                </span>
-                <span className="detail-label">股票余额</span>
-                <span className="detail-value">
-                  {formatNumber(action.total_position, 0)}
-                </span>
-              </div>
+                <div className="detail-row">
+                  <span className="detail-label">总计支出</span>
+                  <span className="detail-value">
+                    {action.total_position > 0
+                      ? formatNumber(getTotalExpenditure(action))
+                      : "-"}
+                  </span>
+                  <span className="detail-label">股票余额</span>
+                  <span className="detail-value">
+                    {formatNumber(action.total_position, 0)}
+                  </span>
+                </div>
 
-              <div className="detail-row">
-                <span className="detail-label">持仓成本</span>
-                <span className="detail-value highlight">
-                  {action.total_position > 0
-                    ? formatNumber(action.current_cost, 3)
-                    : "-"}
-                </span>
-                <span className="detail-label">当前价格(参考)</span>
-                <span className="detail-value highlight">
-                  {formatNumber(action.current_price)}
-                </span>
-              </div>
+                <div className="detail-row">
+                  <span className="detail-label">持仓成本</span>
+                  <span className="detail-value highlight">
+                    {action.total_position > 0
+                      ? formatNumber(action.current_cost, 3)
+                      : "-"}
+                  </span>
+                  <span className="detail-label">当前价格(参考)</span>
+                  <span className="detail-value highlight">
+                    {formatNumber(action.current_price)}
+                  </span>
+                </div>
 
-              <div className="detail-row">
-                <span className="detail-label">盈亏金额(忽略清仓手续费)</span>
-                <span
-                  className={`detail-value ${
-                    action.profit >= 0 ? "profit" : "loss"
-                  }`}
-                >
-                  {formatNumber(action.profit)}
-                </span>
-                <span className="detail-label">当前价清仓手续费</span>
-                <span className="detail-value">
-                  {action.total_position > 0
-                    ? formatNumber(getCurrentClosingFees(action))
-                    : "-"}
-                </span>
-              </div>
+                <div className="detail-row">
+                  <span className="detail-label">盈亏金额(忽略清仓手续费)</span>
+                  <span
+                    className={`detail-value ${
+                      action.profit >= 0 ? "profit" : "loss"
+                    }`}
+                  >
+                    {formatNumber(action.profit)}
+                  </span>
+                  <span className="detail-label">当前价清仓手续费</span>
+                  <span className="detail-value">
+                    {action.total_position > 0
+                      ? formatNumber(getCurrentClosingFees(action))
+                      : "-"}
+                  </span>
+                </div>
 
-              <div className="detail-row">
-                <span className="detail-label">盈亏比例(忽略清仓手续费)</span>
-                <span
-                  className={`detail-value ${
-                    action.profit >= 0 ? "profit" : "loss"
-                  }`}
-                >
-                  {formatPercent(action.profit_rate)}
-                </span>
+                <div className="detail-row">
+                  <span className="detail-label">盈亏比例(忽略清仓手续费)</span>
+                  <span
+                    className={`detail-value ${
+                      action.profit >= 0 ? "profit" : "loss"
+                    }`}
+                  >
+                    {formatPercent(action.profit_rate)}
+                  </span>
 
-                <span className="detail-label">当前价清仓后纯收益</span>
-                <span
-                  className={`detail-value ${
-                    getNetProfit(action) >= 0 ? "profit" : "loss"
-                  }`}
-                >
-                  {action.total_position > 0
-                    ? formatNumber(getNetProfit(action))
-                    : "-"}
-                </span>
+                  <span className="detail-label">当前价清仓后纯收益</span>
+                  <span
+                    className={`detail-value ${
+                      getNetProfit(action) >= 0 ? "profit" : "loss"
+                    }`}
+                  >
+                    {action.total_position > 0
+                      ? formatNumber(getNetProfit(action))
+                      : "-"}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-
-        {actionList.length === 0 && (
-          <div className="empty-message">暂无操作记录</div>
-        )}
-
+          ))}
+        </div>
         <div className="detail-action-btn-container">
           <button
             className="detail-action-btn"
@@ -403,6 +409,9 @@ function Detail({ stockId, stockName, onBack }) {
             回退
           </button>
         </div>
+        {actionList.length === 0 && (
+          <div className="empty-message">暂无操作记录</div>
+        )}
       </div>
 
       {/* 加减仓对话框 */}

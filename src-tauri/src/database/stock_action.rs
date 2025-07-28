@@ -2,7 +2,6 @@ use crate::database::db_connect::get_db_state;
 use serde::Serialize;
 
 // 数据结构定义
-#[allow(dead_code)]
 #[derive(Debug, Clone, Serialize)]
 pub struct StockActionRecord {
     pub stock_action_id: i32,
@@ -26,10 +25,9 @@ pub struct StockActionRecord {
 }
 
 // 操作记录处理
-pub struct StockActionHandler;
-impl StockActionHandler {
-    /// 插入股票操作数据
     #[allow(dead_code)]
+    impl StockActionRecord {
+    /// 插入股票操作数据
     pub fn insert_action(
         stock_id: i32, 
         current_price: f64, 
@@ -72,7 +70,6 @@ impl StockActionHandler {
         Ok(conn.last_insert_rowid())
     }
     /// 根据股票ID查询操作记录
-    #[allow(dead_code)]
     pub fn get_actions_by_stock_id( stock_id: i32) -> Result<Vec<StockActionRecord>,rusqlite::Error> {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
@@ -111,7 +108,6 @@ impl StockActionHandler {
     }
     
     // 获取最后一次操作
-    #[allow(dead_code)]
     pub fn get_last_action(stock_id:i32) -> Result<StockActionRecord,rusqlite::Error> {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
@@ -142,11 +138,12 @@ impl StockActionHandler {
     }   
     
     /// 删除最后一条操作记录
-    #[allow(dead_code)]
     pub fn delete_last_action(stock_id:i32) -> Result<(),rusqlite::Error> {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
-        conn.execute("DELETE FROM tb_stock_action WHERE stock_action_id = (SELECT MAX(stock_action_id) FROM tb_stock_action WHERE stock_id = ?)", [stock_id])?;
+        let last_action = StockActionRecord::get_last_action(stock_id).map_err(|e| e.to_string()).unwrap();
+        conn.execute("DELETE FROM tb_stock_action WHERE stock_action_id = ?", [last_action.stock_action_id])?;
+        conn.execute("DELETE FROM tb_stock_action_info WHERE stock_action_id = ?", [last_action.stock_action_id])?;
         Ok(())
     }
 }

@@ -11,6 +11,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState("list"); // "list" 或 "detail" 或者 "limitCal"
   const [selectedStockId, setSelectedStockId] = useState(null);
   const [selectedStockName, setSelectedStockName] = useState(null);
+  const [filter, setFilter] = useState(false); // 过滤平仓
 
   // 股票列表状态
   const [stockList, setStockList] = useState([]);
@@ -63,7 +64,7 @@ function App() {
   async function getStockList() {
     try {
       const result = await invoke("handle_get_all_stocks");
-      setStockList(result);
+      setStockList(result.sort((a, b) => a.stock_id - b.stock_id));
     } catch (error) {
       console.error("Error getting stock list:", error);
       showError("获取股票列表失败", 1000);
@@ -238,6 +239,7 @@ function App() {
 
   return (
     <main className="container">
+      {/* Header */}
       <div className="header">
         <div className="header-title">盈亏计算器</div>
         <div>
@@ -246,6 +248,9 @@ function App() {
           </button>
           <button className="open-stock-btn" onClick={handleOpenLimitCal}>
             连板
+          </button>
+          <button className="open-stock-btn" onClick={() => setFilter(!filter)}>
+            {filter ? "显示平仓" : "隐藏平仓"}
           </button>
         </div>
       </div>
@@ -261,42 +266,56 @@ function App() {
               <th>证管费率</th>
               <th>经手费率</th>
               <th>过户费率</th>
+              <th>状态</th>
               <th>操作</th>
             </tr>
           </thead>
           <tbody>
-            {stockList.map((stock) => (
-              <tr key={stock.stock_id}>
-                <td>{stock.stock_name}</td>
-                <td>{getStockTypeText(stock.stock_type)}</td>
-                <td>{formatCommissionFee(stock.commission_fee_rate)}</td>
-                <td>{formatCommissionFee(stock.tax_fee_rate)}</td>
-                <td>{formatCommissionFee(stock.regulatory_fee_rate)}</td>
-                <td>{formatCommissionFee(stock.brokerage_fee_rate)}</td>
-                <td>{formatCommissionFee(stock.transfer_fee_rate)}</td>
-                <td>
-                  <button
-                    className="action-btn view-btn"
-                    onClick={() =>
-                      handleViewStock(stock.stock_id, stock.stock_name)
-                    }
-                  >
-                    查看
-                  </button>
-                  <button
-                    className="action-btn delete-btn"
-                    onClick={() => handleDeleteStock(stock.stock_id)}
-                  >
-                    删除
-                  </button>
+            {stockList.length === 0 ? (
+              <tr>
+                <td colSpan="8" className="empty-message">
+                  请先建仓股票
                 </td>
               </tr>
-            ))}
+            ) : (
+              stockList
+                .filter((stock) => {
+                  if (filter) {
+                    return stock.status == 1;
+                  }
+                  return true;
+                })
+                .map((stock) => (
+                  <tr key={stock.stock_id}>
+                    <td>{stock.stock_name}</td>
+                    <td>{getStockTypeText(stock.stock_type)}</td>
+                    <td>{formatCommissionFee(stock.commission_fee_rate)}</td>
+                    <td>{formatCommissionFee(stock.tax_fee_rate)}</td>
+                    <td>{formatCommissionFee(stock.regulatory_fee_rate)}</td>
+                    <td>{formatCommissionFee(stock.brokerage_fee_rate)}</td>
+                    <td>{formatCommissionFee(stock.transfer_fee_rate)}</td>
+                    <td>{stock.status == 1 ? "进行中" : "已平仓"}</td>
+                    <td>
+                      <button
+                        className="action-btn view-btn"
+                        onClick={() =>
+                          handleViewStock(stock.stock_id, stock.stock_name)
+                        }
+                      >
+                        查看
+                      </button>
+                      <button
+                        className="action-btn delete-btn"
+                        onClick={() => handleDeleteStock(stock.stock_id)}
+                      >
+                        删除
+                      </button>
+                    </td>
+                  </tr>
+                ))
+            )}
           </tbody>
         </table>
-        {stockList.length === 0 && (
-          <div className="empty-message">请先建仓股票</div>
-        )}
       </div>
       {/* 对话框遮罩 */}
       {showDialog && (

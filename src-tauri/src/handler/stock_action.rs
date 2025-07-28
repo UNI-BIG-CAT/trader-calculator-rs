@@ -1,6 +1,6 @@
 use crate::constant::{action_type::ActionType, stock_status::StockStatus};
-use crate::database::stock::StockHandler;
-use crate::database::stock_action::{StockActionHandler, StockActionRecord};
+use crate::database::stock::StockRecord;
+use crate::database::stock_action::StockActionRecord;
 
 fn calculate_safe_profit_rate(profit: f64, cost: f64, position: f64, current_price: f64) -> f64 {
     println!("profit:{profit},cost:{cost},position:{position},current_price:{current_price}");
@@ -17,7 +17,7 @@ fn calculate_safe_profit_rate(profit: f64, cost: f64, position: f64, current_pri
 #[tauri::command]
 pub fn handle_get_action_list(stock_id: i32) -> Vec<StockActionRecord> {
     println!("get_action_list: stock_id={}", stock_id);
-    let list = StockActionHandler::get_actions_by_stock_id(stock_id).unwrap_or_else(|e| {
+    let list = StockActionRecord::get_actions_by_stock_id(stock_id).unwrap_or_else(|e| {
         println!("Error getting actions: {}", e);
         Vec::new()
     });
@@ -39,7 +39,7 @@ pub fn handle_open_position(
     transfer_fee_rate: f64,
 ) -> Result<(), String> {
     // 插入股票及其费率
-    let stock_id = StockHandler::insert_stock(
+    let stock_id = StockRecord::insert_stock(
         &stock_name,
         stock_type,
         commission_fee_rate,
@@ -79,7 +79,7 @@ pub fn handle_open_position(
     let profit_rate =
         calculate_safe_profit_rate(profit, current_cost, total_position, current_price);
 
-    StockActionHandler::insert_action(
+    StockActionRecord::insert_action(
         stock_id as i32,
         current_price,
         current_cost,
@@ -109,10 +109,10 @@ pub fn handle_add_position(
     transaction_position: i32,
 ) -> Result<(), String> {
     println!("add_stock:{stock_id},{current_price},{transaction_price},{transaction_position}");
-    let stock = StockHandler::get_stock_by_id(stock_id)
+    let stock = StockRecord::get_stock_by_id(stock_id)
         .map_err(|e| e.to_string())?
         .ok_or("Stock not found")?;
-    let last_action = StockActionHandler::get_last_action(stock_id).map_err(|e| e.to_string())?;
+    let last_action = StockActionRecord::get_last_action(stock_id).map_err(|e| e.to_string())?;
     //
     let action_type = ActionType::AddPosition as i32;
     // 本次各项费用
@@ -147,7 +147,7 @@ pub fn handle_add_position(
     let profit_rate =
         calculate_safe_profit_rate(profit, current_cost, total_position, current_price);
     // 插入操作记录
-    StockActionHandler::insert_action(
+    StockActionRecord::insert_action(
         stock_id,
         current_price,
         current_cost,
@@ -177,10 +177,10 @@ pub fn handle_reduce_position(
     transaction_position: i32,
 ) -> Result<(), String> {
     println!("reduce_stock:{stock_id},{current_price},{transaction_price},{transaction_position}");
-    let stock = StockHandler::get_stock_by_id(stock_id)
+    let stock = StockRecord::get_stock_by_id(stock_id)
         .map_err(|e| e.to_string())?
         .ok_or("Stock not found")?;
-    let last_action = StockActionHandler::get_last_action(stock_id).unwrap();
+    let last_action = StockActionRecord::get_last_action(stock_id).unwrap();
     if transaction_position >= last_action.total_position as i32 {
         return Err("请选择平仓".to_string());
     }
@@ -219,7 +219,7 @@ pub fn handle_reduce_position(
     let profit_rate =
         calculate_safe_profit_rate(profit, current_cost, total_position, current_price);
     // 插入操作记录
-    StockActionHandler::insert_action(
+    StockActionRecord::insert_action(
         stock_id,
         current_price,
         current_cost,
@@ -244,10 +244,10 @@ pub fn handle_reduce_position(
 #[tauri::command]
 pub fn handle_close_position(stock_id: i32, current_price: f64) -> Result<(), String> {
     println!("close_stock:{stock_id},{current_price}");
-    let stock = StockHandler::get_stock_by_id(stock_id)
+    let stock = StockRecord::get_stock_by_id(stock_id)
         .map_err(|e| e.to_string())?
         .ok_or("Stock not found")?;
-    let last_action = StockActionHandler::get_last_action(stock_id).map_err(|e| e.to_string())?;
+    let last_action = StockActionRecord::get_last_action(stock_id).map_err(|e| e.to_string())?;
     //
     let action_type = ActionType::Close as i32;
     // 本次各项费用
@@ -285,7 +285,7 @@ pub fn handle_close_position(stock_id: i32, current_price: f64) -> Result<(), St
     );
 
     // 插入操作记录
-    StockActionHandler::insert_action(
+    StockActionRecord::insert_action(
         stock_id,
         current_price,
         current_cost,
@@ -303,7 +303,7 @@ pub fn handle_close_position(stock_id: i32, current_price: f64) -> Result<(), St
         profit_rate,
     )
     .map_err(|e| e.to_string())?;
-    StockHandler::update_stock_status(stock_id, StockStatus::CLOSE as i32)
+    StockRecord::update_stock_status(stock_id, StockStatus::CLOSE as i32)
         .map_err(|e| e.to_string())?;
     Ok(())
 }
@@ -311,8 +311,8 @@ pub fn handle_close_position(stock_id: i32, current_price: f64) -> Result<(), St
 // 回退
 #[tauri::command]
 pub fn handle_back_position(stock_id: i32) -> Result<(), String> {
-    StockActionHandler::delete_last_action(stock_id).map_err(|e| e.to_string())?;
-    StockHandler::update_stock_status(stock_id, StockStatus::OPEN as i32)
+    StockActionRecord::delete_last_action(stock_id).map_err(|e| e.to_string())?;
+    StockRecord::update_stock_status(stock_id, StockStatus::OPEN as i32)
         .map_err(|e| e.to_string())?;
     Ok(())
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./Toast.css";
 
-const Toast = ({ message, type = "info", duration = 1000, onClose }) => {
+const Toast = ({ message, type = "info", duration = 1200, onClose }) => {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export const ToastContainer = ({ toasts, removeToast }) => {
 export const useToast = () => {
   const [toasts, setToasts] = useState([]);
 
-  const addToast = (message, type = "info", duration = 3000) => {
+  const addToast = (message, type = "info", duration = 1200) => {
     const id = Date.now() + Math.random();
     const newToast = { id, message, type, duration };
     setToasts((prev) => [...prev, newToast]);
