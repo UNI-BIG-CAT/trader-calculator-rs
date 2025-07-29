@@ -344,6 +344,7 @@ function ActionInfo({ stockId, stockName, onBack }) {
           </div>
         </div>
       )}
+
       {/* 操作详情对话框 */}
       {showActionInfoDialog && (
         <div className="dialog-overlay">

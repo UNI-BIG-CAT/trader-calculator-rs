@@ -229,11 +229,24 @@ function App() {
   };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name == "transactionPosition") {
-      if (value >= 1000000) {
-        showError("数量不能大于1000000", 1000);
-        return;
-      }
+    // 如果交易价格小于当前价格,则提示
+    if (name == "currentPrice" && value > 3000) {
+      showError("当前价格不能大于3000");
+      return;
+    }
+    // 如果交易数量小于100,则提示
+    if (name == "transactionPosition" && value < 100) {
+      showError("交易数量不能小于100");
+      return;
+    }
+    // 如果交易价格大于当前价格,则提示
+    if (name == "transactionPrice" && value > 3000) {
+      showError("成本价格不能大于3000");
+      return;
+    }
+    if (name == "transactionPosition" && value > 1000000) {
+      showError("交易数量不能大于1000000");
+      return;
     }
     setFormData((prev) => {
       const newFormData = {
