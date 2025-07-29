@@ -88,7 +88,7 @@ function App() {
     },
     {
       name: "青柠",
-      color: "#d3f261",
+      color: "#a0d911",
       hover: "#fcffe6",
       shadow: "rgba(187, 246, 59, 0.1)",
     },
@@ -112,8 +112,8 @@ function App() {
     },
     {
       name: "极客蓝",
-      color: "#85a5ff",
-      hover: "#f0f5ff",
+      color: "#2f54eb",
+      hover: "#2f54eb",
       shadow: "rgba(93, 138, 242, 0.1)",
     },
     {
