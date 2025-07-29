@@ -131,7 +131,7 @@ function App() {
   ];
   /*******************生命周期*********************/
   useEffect(() => {
-    getStockList();
+    getStockList(true);
     // 记住上次主题
     const cache = localStorage.getItem("theme");
     if (cache) {
@@ -157,9 +157,12 @@ function App() {
 
   /*******************函数*********************/
   // 获取股票列表
-  async function getStockList() {
+  async function getStockList(first = false) {
     try {
       const result = await invoke("handle_get_all_stocks");
+      if (first) {
+        setFilter(result.filter((stock) => stock.status !== 1).length > 0);
+      }
       setStockList(result.sort((a, b) => a.stock_id - b.stock_id));
     } catch (error) {
       console.error("Error getting stock list:", error);

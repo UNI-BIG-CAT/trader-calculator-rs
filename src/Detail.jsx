@@ -148,12 +148,21 @@ function Detail({ stockId, stockName, onBack }) {
   // 处理加减仓输入变化
   const handleAddOrReduceInputChange = (e) => {
     const { name, value } = e.target;
+    // 限制买卖数量
     if (name == "transactionPosition" && dialogType == "reduce") {
       if (value >= actionList[actionList.length - 1]?.total_position) {
         showError("减仓数量不能大于持仓数量,或者选择平仓");
         return;
       }
     }
+    // 更新当前价格的时候,更新交易价格
+    if (name === "currentPrice") {
+      setAddOrReduceFormData((prev) => ({
+        ...prev,
+        transactionPrice: value,
+      }));
+    }
+    // 设置其他字段
     setAddOrReduceFormData((prev) => ({
       ...prev,
       [name]: value,
