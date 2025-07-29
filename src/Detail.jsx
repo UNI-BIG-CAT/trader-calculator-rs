@@ -6,8 +6,10 @@ import "./css/App.css";
 import "./css/detail.css";
 import "./css/antd-override.css";
 import { useToast, ToastContainer } from "./components/Toast.jsx";
+import DetailCard from "./components/DetailCard.jsx";
+import ActionInfoDialog from "./components/ActionInfoDialog.jsx";
 
-function Detail({ stockId, stockName, onBack }) {
+function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
   /*******************参数*********************/
   const [stock, setStock] = useState(1);
   const [actionList, setActionList] = useState([]);
@@ -315,7 +317,7 @@ function Detail({ stockId, stockName, onBack }) {
       [name]: value,
     }));
   };
-  /********************************************************/
+  /*******************渲染*********************/
   return (
     <main className="container">
       {/* header */}
@@ -323,6 +325,12 @@ function Detail({ stockId, stockName, onBack }) {
         <div className="header-title">{stockName}-控仓</div>
         <div></div>
         <div>
+          <button
+            className="back-btn"
+            onClick={() => handleViewActionInfo(stockId, stockName)}
+          >
+            笔记管理
+          </button>
           <button
             hidden={actionList.length <= 4}
             className="back-btn"
@@ -340,132 +348,20 @@ function Detail({ stockId, stockName, onBack }) {
       <div className="detail-container">
         <div className="detail-list">
           {(lastActions ? actionList.slice(-4) : actionList).map((action) => (
-            <div
-              className="action-detail"
-              onClick={() => showActionInfo(action)}
+            <DetailCard
               key={action.stock_action_id}
-            >
-              {/* 操作信息标记 */}
-              {action.action_info && action.action_info.trim() !== "" && (
-                <div
-                  className="action-info-indicator"
-                  title={formatDateTimeForTooltip(action.action_time)}
-                ></div>
-              )}
-              <div className="detail-grid">
-                <div className="detail-row">
-                  <span className="detail-label">操作类型</span>
-                  <span className="detail-value">
-                    {getActionTypeText(action.action)}
-                  </span>
-                  <span className="detail-label">交易数量</span>
-                  <span
-                    className={`detail-value ${
-                      action.action == 1 || action.action == 3
-                        ? "profit"
-                        : "loss"
-                    }`}
-                  >
-                    {action.action == 1 || action.action == 3
-                      ? formatNumber(action.transaction_position, 0)
-                      : formatNumber(-action.transaction_position, 0)}
-                  </span>
-                </div>
-
-                <div className="detail-row">
-                  <span className="detail-label">交易价格</span>
-                  <span className="detail-value highlight">
-                    {formatNumber(action.transaction_price)}
-                  </span>
-                  <span className="detail-label">交易市值</span>
-                  <span className="detail-value">
-                    {formatNumber(getTransactionValue(action))}
-                  </span>
-                </div>
-
-                <div className="detail-row">
-                  <span className="detail-label">手续费</span>
-                  <span className="detail-value">
-                    {formatNumber(action.transaction_commission_fee)}
-                  </span>
-                  <span className="detail-label">此次支出</span>
-                  <span
-                    className={`detail-value ${
-                      action.action == 1 || action.action == 3
-                        ? "profit"
-                        : "loss"
-                    }`}
-                  >
-                    {formatNumber(getCurrentExpenditure(action))}
-                  </span>
-                </div>
-
-                <div className="detail-row">
-                  <span className="detail-label">总计支出</span>
-                  <span className="detail-value">
-                    {action.total_position > 0
-                      ? formatNumber(getTotalExpenditure(action))
-                      : "-"}
-                  </span>
-                  <span className="detail-label">股票余额</span>
-                  <span className="detail-value">
-                    {formatNumber(action.total_position, 0)}
-                  </span>
-                </div>
-
-                <div className="detail-row">
-                  <span className="detail-label">持仓成本</span>
-                  <span className="detail-value highlight">
-                    {action.total_position > 0
-                      ? formatNumber(action.current_cost, 3)
-                      : "-"}
-                  </span>
-                  <span className="detail-label">当前价格(参考)</span>
-                  <span className="detail-value highlight">
-                    {formatNumber(action.current_price)}
-                  </span>
-                </div>
-
-                <div className="detail-row">
-                  <span className="detail-label">盈亏金额(忽略清仓手续费)</span>
-                  <span
-                    className={`detail-value ${
-                      action.profit >= 0 ? "profit" : "loss"
-                    }`}
-                  >
-                    {formatNumber(action.profit)}
-                  </span>
-                  <span className="detail-label">当前价清仓手续费</span>
-                  <span className="detail-value">
-                    {action.total_position > 0
-                      ? formatNumber(getCurrentClosingFees(action))
-                      : "-"}
-                  </span>
-                </div>
-
-                <div className="detail-row">
-                  <span className="detail-label">盈亏比例(忽略清仓手续费)</span>
-                  <span
-                    className={`detail-value ${
-                      action.profit >= 0 ? "profit" : "loss"
-                    }`}
-                  >
-                    {formatPercent(action.profit_rate)}
-                  </span>
-
-                  <span className="detail-label">当前价清仓后纯收益</span>
-                  <span
-                    className={`detail-value ${
-                      getNetProfit(action) >= 0 ? "profit" : "loss"
-                    }`}
-                  >
-                    {action.total_position > 0
-                      ? formatNumber(getNetProfit(action))
-                      : "-"}
-                  </span>
-                </div>
-              </div>
-            </div>
+              action={action}
+              onClick={showActionInfo}
+              formatNumber={formatNumber}
+              formatPercent={formatPercent}
+              getActionTypeText={getActionTypeText}
+              getTransactionValue={getTransactionValue}
+              getCurrentExpenditure={getCurrentExpenditure}
+              getTotalExpenditure={getTotalExpenditure}
+              getCurrentClosingFees={getCurrentClosingFees}
+              getNetProfit={getNetProfit}
+              formatDateTimeForTooltip={formatDateTimeForTooltip}
+            />
           ))}
         </div>
         <div className="detail-action-btn-container">
@@ -605,67 +501,19 @@ function Detail({ stockId, stockName, onBack }) {
           </div>
         </div>
       )}
+
       {/* 操作详情对话框 */}
       {showActionInfoDialog && (
-        <div className="dialog-overlay">
-          <div className="dialog">
-            <div className="dialog-header">
-              <h3>操作笔记</h3>
-            </div>
-            <div className="dialog-content">
-              <div className="time-input-container">
-                <DatePicker
-                  showTime
-                  format="YYYY年MM月DD日 HH:mm"
-                  placeholder="请选择日期和时间"
-                  value={
-                    actionForm.actionTime ? dayjs(actionForm.actionTime) : null
-                  }
-                  onChange={(date, dateString) => {
-                    setActionForm((prev) => ({
-                      ...prev,
-                      actionTime: date ? date.format("YYYY-MM-DDTHH:mm") : "",
-                    }));
-                  }}
-                  className="antd-datetime-picker"
-                />
-              </div>
-              <textarea
-                name="actionInfo"
-                value={actionForm.actionInfo}
-                onChange={handleActionInfoInputChange}
-                className="action-info-textarea"
-                rows="6"
-                cols="50"
-                placeholder="请输入操作信息..."
-              ></textarea>
-            </div>
-            <div className="dialog-actions">
-              <button className="btn-confirm" onClick={saveActionInfo}>
-                保存
-              </button>
-              <button
-                className="btn-cancel"
-                onClick={() => {
-                  setActionForm({
-                    stockActionId: actionForm.stockActionId,
-                    actionTime: "",
-                    actionInfo: "",
-                  });
-                }}
-              >
-                清空
-              </button>
-              <button
-                className="btn-cancel"
-                onClick={() => setShowActionInfoDialog(false)}
-              >
-                关闭
-              </button>
-            </div>
-          </div>
-        </div>
+        <ActionInfoDialog
+          showActionInfoDialog={showActionInfoDialog}
+          actionForm={actionForm}
+          setActionForm={setActionForm}
+          handleActionInfoInputChange={handleActionInfoInputChange}
+          saveActionInfo={saveActionInfo}
+          setShowActionInfoDialog={setShowActionInfoDialog}
+        />
       )}
+
       {/* Toast */}
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </main>

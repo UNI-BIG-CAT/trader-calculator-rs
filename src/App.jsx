@@ -4,6 +4,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import "./css/App.css";
 import Detail from "./Detail.jsx";
 import LimitCal from "./LimitCal.jsx";
+import ActionInfo from "./ActionInfo.jsx";
 import { useToast, ToastContainer } from "./components/Toast.jsx";
 
 function App() {
@@ -295,12 +296,6 @@ function App() {
       showError("建仓失败", 1000);
     }
   };
-  /*************查看详情**************/
-  const handleViewStock = async (stockId, stockName) => {
-    setSelectedStockId(stockId);
-    setSelectedStockName(stockName);
-    setCurrentPage("detail");
-  };
 
   /*************删除股票**************/
   const handleDeleteStock = async (stockId) => {
@@ -312,11 +307,6 @@ function App() {
       console.error("Error deleting stock:", error);
       showError("删除失败", 1000);
     }
-  };
-
-  /*************连板**************/
-  const handleOpenLimitCal = () => {
-    setCurrentPage("LimitCal");
   };
 
   /*************拖拽排序**************/
@@ -388,12 +378,32 @@ function App() {
     showSuccess(`已切换到${colorList[nextIndex].name}主题`);
   };
   /*************页面控制**************/
+  // 查看股票操作列表
+  const handleViewStock = async (stockId, stockName) => {
+    setSelectedStockId(stockId);
+    setSelectedStockName(stockName);
+    setCurrentPage("detail");
+  };
+  // 查看股票操作笔记
+  const handleViewActionInfo = async (stockId, stockName) => {
+    setSelectedStockId(stockId);
+    setSelectedStockName(stockName);
+    setCurrentPage("ActionInfo");
+  };
+  // 去连板
+  const handleOpenLimitCal = () => {
+    setCurrentPage("LimitCal");
+  };
   // 返回列表页
-  const handleBackToList = async () => {
+  const handleBackToList = async (
+    page = "list",
+    stockId = null,
+    stockName = null
+  ) => {
     await getStockList();
-    setCurrentPage("list");
-    setSelectedStockId(null);
-    setSelectedStockName(null);
+    setCurrentPage(page);
+    setSelectedStockId(stockId);
+    setSelectedStockName(stockName);
   };
   // 根据当前页面状态渲染不同内容
   if (currentPage === "detail") {
@@ -402,12 +412,22 @@ function App() {
         stockId={selectedStockId}
         stockName={selectedStockName}
         onBack={handleBackToList}
+        handleViewActionInfo={handleViewActionInfo}
       />
     );
   } else if (currentPage === "LimitCal") {
     return <LimitCal onBack={handleBackToList} />;
+  } else if (currentPage === "ActionInfo") {
+    return (
+      <ActionInfo
+        stockId={selectedStockId}
+        stockName={selectedStockName}
+        onBack={handleBackToList}
+      />
+    );
   }
 
+  /*******************渲染*********************/
   return (
     <main className="container">
       {/* Header */}
@@ -443,6 +463,7 @@ function App() {
           </button>
         </div>
       </div>
+
       {/* 股票列表 */}
       <div className="stock-list">
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -560,7 +581,8 @@ function App() {
           </Droppable>
         </DragDropContext>
       </div>
-      {/* 对话框遮罩 */}
+
+      {/* 建仓对话框 */}
       {showDialog && (
         <div className="dialog-overlay">
           <div className="dialog">

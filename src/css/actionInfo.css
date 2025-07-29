@@ -1,0 +1,211 @@
+/* 股票列表样式 */
+.action-list {
+  margin-top: 60px; /* 为固定header留出空间 */
+  background-color: #ffffff;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+}
+
+.action-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  table-layout: fixed;
+}
+
+/* 第一列（操作类型）变窄 */
+.action-table th:first-child,
+.action-table td:first-child {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+}
+
+/* 笔记列变宽 */
+.action-table th:nth-child(5),
+.action-table td:nth-child(5) {
+  width: 200px;
+  min-width: 200px;
+}
+
+/* 操作按钮列 */
+.action-table th:last-child,
+.action-table td:last-child {
+  width: 120px;
+  min-width: 120px;
+}
+
+.action-table thead {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  flex-shrink: 0;
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.action-table th {
+  padding: 10px 15px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 0.9rem;
+  border-bottom: 2px solid #e0e0e0;
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+.action-table tbody {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* display:  block; */
+}
+
+.action-table tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.action-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.action-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.action-table td {
+  padding: 10px 0px;
+  font-size: 0.85rem;
+  color: #333;
+  vertical-align: middle;
+}
+
+.action-table td:first-child {
+  font-weight: 500;
+  color: var(--primary-color);
+}
+
+/* 笔记内容样式 */
+.note-content {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+/* 操作按钮容器 */
+.action-buttons {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+/* 对话框样式 */
+.dialog-detail-content {
+  margin: 1px; /* 为固定header留出空间 */
+  /* padding: 5px 10px; */
+  min-width: 455px;
+  display: flex;
+  flex-direction: column;
+  /* flex-shrink: 3; */
+  overflow-y: hidden; /* 只让内容滚动 */
+  overflow-x: hidden;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* 确认取消对话框 */
+.dialog-delete-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.dialog-delete {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px var(--primary-shadow);
+  width: 400px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 10px 10px;
+}
+
+.dialog-delete-header {
+  padding: 8px 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.dialog-delete-header h3 {
+  margin: 0;
+  color: var(--primary-color);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.delete-btn-container {
+  margin: 10px 80px;
+  display: flex;
+  justify-content: space-around;
+}
+
+/* 笔记详情对话框 */
+.dialog-detail-container {
+  background-color: #ffffff;
+  position: relative;
+  border-radius: 5px;
+}
+
+.detail-btn-container {
+  margin: 10px 80px;
+  display: flex;
+  justify-content: space-around;
+  padding: 15px 20px;
+}
+
+/* 响应式布局 */
+@media (min-width: 500px) {
+  .dialog-detail-container {
+    width: 400px !important;
+    max-width: 90vw !important;
+    max-height: 75vh !important;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .dialog-detail-content {
+    margin-left: 25px;
+    width: 300px !important;
+  }
+}
+
+@media (min-width: 700px) {
+  .dialog-detail-container {
+    width: 600px !important;
+    max-width: 90vw !important;
+    max-height: 75vh !important;
+    overflow: auto;
+  }
+  .dialog-detail-content {
+    margin-left: 25px;
+    width: 550px !important;
+  }
+}

@@ -8,14 +8,14 @@
   flex-direction: column;
   /* flex-shrink: 3; */
   height: calc(100vh - 132px); /* 减去header高度和padding */
-  overflow-y:scroll; /* 只让内容滚动 */
+  overflow-y: scroll; /* 只让内容滚动 */
   overflow-x: hidden;
 }
 
 .detail-list {
   display: flex;
   flex-wrap: wrap;
-  gap:5px;
+  gap: 5px;
   align-content: flex-start;
 }
 /* 卡片网格布局 */
@@ -44,29 +44,6 @@
   border-color: transparent var(--primary-color) transparent transparent;
   z-index: 10;
 }
-
-/* 响应式布局 */
-@media (min-width: 768px) {
-  .action-detail {
-    flex: 1 1 530px;
-    max-width: 700px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .action-detail {
-    flex: 0 1 530px;
-    max-width: 530px;
-  }
-}
-
-@media (min-width: 1500px) {
-  .action-detail {
-    flex: 0 1 530px;
-    min-width: 672px;
-  }
-}
-
 
 .detail-grid {
   display: flex;
@@ -113,7 +90,7 @@
 }
 
 .detail-value.loss {
-  color: #4CAF50;
+  color: #4caf50;
   /* font-weight: 600; */
 }
 
@@ -129,41 +106,41 @@
 
 /* 详情按钮 */
 .detail-action-btn-container {
-    position: fixed;
-    z-index: 1000;
-    bottom: 0px;
-    width: 100%;
-    margin-top: 1px;
-    background-color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 15px 10px;
-    border-radius: 8px;
+  position: fixed;
+  z-index: 1000;
+  bottom: 0px;
+  width: 100%;
+  margin-top: 1px;
+  background-color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px 10px;
+  border-radius: 8px;
 }
 
 .detail-action-btn {
-    background-color: #fff;
-    color:  var(--primary-color);
-    border: 1px solid var(--primary-color);
-    border-radius: 5px;
-    padding: 5px 20px;
-    margin-left: 20px;
-    cursor: pointer;
-    transition: background-color 0.2s;
+  background-color: #fff;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  border-radius: 5px;
+  padding: 5px 20px;
+  margin-left: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
-  
+
 .detail-action-btn:hover {
-    background-color: var(--primary-color);
-    color: #fff;
+  background-color: var(--primary-color);
+  color: #fff;
 }
 
 .detail-action-btn:disabled {
-    background-color: #f6f6f6;
-    color:  var(--primary-color);
-    border: 1px solid var(--primary-color);
-    opacity: 0.5;
-    cursor: not-allowed;
+  background-color: #f6f6f6;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* 详情页对话框表单样式 */
@@ -210,14 +187,14 @@
     grid-template-columns: 1fr;
     gap: 8px;
   }
-  
+
   .detail-row > span:nth-child(3),
   .detail-row > span:nth-child(4) {
     /* margin-top: 8px; */
     padding-top: 8px;
     border-top: 1px solid #f0f0f0;
   }
-  
+
   .detail-value {
     text-align: left;
   }
@@ -272,4 +249,32 @@
   color: #b9b8b8;
   font-weight: 300;
   font-size: 13px;
+}
+
+/* 响应式布局 */
+@media (min-width: 500px) {
+  .action-detail {
+    flex: 1 1 530px;
+    max-width: 700px;
+  }
+  .detail-action-btn-container {
+    width: 90% !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .action-detail {
+    flex: 0 1 530px;
+    max-width: 530px;
+  }
+  .detail-action-btn-container {
+    width: 100% !important;
+  }
+}
+
+@media (min-width: 1500px) {
+  .action-detail {
+    flex: 0 1 530px;
+    min-width: 672px;
+  }
 }
