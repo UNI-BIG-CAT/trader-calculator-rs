@@ -210,7 +210,17 @@ function ActionInfo({ stockId, stockName, onBack }) {
                     <td>{getActionTypeText(action.action)}</td>
                     <td>{action.transaction_position}</td>
                     <td>{action.transaction_price}</td>
-                    <td>{action.profit.toFixed(2) || "-"}</td>
+                    <td
+                      className={
+                        action.profit < 0
+                          ? "profit-negative"
+                          : action.profit >= 0
+                          ? "profit-positive"
+                          : ""
+                      }
+                    >
+                      {action.profit.toFixed(2) || "-"}
+                    </td>
                     <td>
                       <span className="note-content" title={action.action_info}>
                         {action.action_info}

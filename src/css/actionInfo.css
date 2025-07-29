@@ -97,6 +97,17 @@
   color: var(--primary-color);
 }
 
+/* 利润颜色样式 */
+.profit-positive {
+  color: #f44336 !important;
+  font-weight: 500;
+}
+
+.profit-negative {
+  color: #4caf50 !important;
+  font-weight: 500;
+}
+
 /* 笔记内容样式 */
 .note-content {
   max-width: 350px;
