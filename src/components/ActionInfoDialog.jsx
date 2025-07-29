@@ -16,7 +16,7 @@ function ActionInfoDialog({
       className="dialog-overlay"
       onClick={() => setShowActionInfoDialog(false)}
     >
-      <div className="dialog">
+      <div className="dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
           <h3>操作笔记</h3>
         </div>

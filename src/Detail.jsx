@@ -402,7 +402,7 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
       {/* 加减仓对话框 */}
       {showAddOrReduceDialog && (
         <div className="dialog-overlay" onClick={closeAddOrReduceDialog}>
-          <div className="dialog">
+          <div className="dialog" onClick={(e) => e.stopPropagation()}>
             <div className="dialog-header">
               <h3>{dialogType === "add" ? "加仓" : "减仓"}</h3>
             </div>
@@ -448,9 +448,6 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
               </div>
             </div>
             <div className="dialog-actions">
-              <button className="btn-cancel" onClick={closeAddOrReduceDialog}>
-                取消
-              </button>
               <button
                 className="btn-confirm"
                 disabled={
@@ -461,6 +458,9 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
               >
                 确定
               </button>
+              <button className="btn-cancel" onClick={closeAddOrReduceDialog}>
+                取消
+              </button>
             </div>
           </div>
         </div>
@@ -469,7 +469,7 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
       {/* 平仓对话框 */}
       {showCloseDialog && (
         <div className="dialog-overlay" onClick={closeCloseDialog}>
-          <div className="dialog">
+          <div className="dialog" onClick={(e) => e.stopPropagation()}>
             <div className="dialog-header">
               <h3>平仓</h3>
             </div>
@@ -487,15 +487,15 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
               </div>
             </div>
             <div className="dialog-actions">
-              <button className="btn-cancel" onClick={closeCloseDialog}>
-                取消
-              </button>
               <button
                 className="btn-confirm"
                 disabled={!closeFormData.transactionPrice}
                 onClick={handleCloseConfirm}
               >
                 确定
+              </button>
+              <button className="btn-cancel" onClick={closeCloseDialog}>
+                取消
               </button>
             </div>
           </div>
