@@ -309,7 +309,7 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
     return `${year}-${month}-${day} ${hours}:${minutes}`;
   };
 
-  // 移除原来的 handleActionInfoTimeChange 函数，因为现在使用 Ant Design DatePicker
+  // 处理操作信息变化
   const handleActionInfoInputChange = (e) => {
     const { name, value } = e.target;
     setActionForm((prev) => ({
@@ -401,7 +401,7 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
 
       {/* 加减仓对话框 */}
       {showAddOrReduceDialog && (
-        <div className="dialog-overlay">
+        <div className="dialog-overlay" onClick={closeAddOrReduceDialog}>
           <div className="dialog">
             <div className="dialog-header">
               <h3>{dialogType === "add" ? "加仓" : "减仓"}</h3>
@@ -468,7 +468,7 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
 
       {/* 平仓对话框 */}
       {showCloseDialog && (
-        <div className="dialog-overlay">
+        <div className="dialog-overlay" onClick={closeCloseDialog}>
           <div className="dialog">
             <div className="dialog-header">
               <h3>平仓</h3>

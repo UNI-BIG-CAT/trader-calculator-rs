@@ -584,7 +584,7 @@ function App() {
 
       {/* 建仓对话框 */}
       {showDialog && (
-        <div className="dialog-overlay">
+        <div className="dialog-overlay" onClick={closeDialog}>
           <div className="dialog">
             <div className="dialog-header">
               <h3>股票建仓</h3>

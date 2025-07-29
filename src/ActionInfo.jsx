@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import dayjs from "dayjs";
+import { DatePicker } from "antd";
 import "./css/App.css";
 import "./css/actionInfo.css";
 import { useToast, ToastContainer } from "./components/Toast.jsx";
@@ -31,7 +32,6 @@ function ActionInfo({ stockId, stockName, onBack }) {
     try {
       const result = await invoke("handle_get_action_list", { stockId });
       setActionList(result);
-      console.log(result);
     } catch (error) {
       showError("获取详情失败");
     }
@@ -58,6 +58,11 @@ function ActionInfo({ stockId, stockName, onBack }) {
   const handleViewNote = (action) => {
     setSelectedAction(action);
     setShowModal(true);
+    setActionForm({
+      stockActionId: action.stock_action_id,
+      actionTime: action.action_time,
+      actionInfo: action.action_info,
+    });
   };
 
   // 删除操作
@@ -75,6 +80,25 @@ function ActionInfo({ stockId, stockName, onBack }) {
     }
   };
 
+  // 处理操作信息变化
+  const handleActionInfoInputChange = (e) => {
+    const { name, value } = e.target;
+    setActionForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // 保存新的笔记
+  const handleSaveAction = async () => {
+    await invoke("handle_save_action_info", {
+      stockActionId: actionForm.stockActionId,
+      actionTime: actionForm.actionTime,
+      actionInfo: actionForm.actionInfo,
+    });
+    await getActionList();
+    closeModal();
+  };
   // 关闭对话框
   const closeModal = () => {
     setShowModal(false);
@@ -254,12 +278,42 @@ function ActionInfo({ stockId, stockName, onBack }) {
               getNetProfit={getNetProfit}
               formatDateTimeForTooltip={formatDateTimeForTooltip}
             />
+            <div className="dialog-content">
+              <div className="time-input-container">
+                <DatePicker
+                  showTime
+                  format="YYYY年MM月DD日 HH:mm"
+                  placeholder="请选择日期和时间"
+                  value={
+                    actionForm.actionTime
+                      ? dayjs(actionForm.actionTime)
+                      : dayjs(actionForm.actionTime)
+                  }
+                  onChange={(date, dateString) => {
+                    setActionForm((prev) => ({
+                      ...prev,
+                      actionTime: date ? date.format("YYYY-MM-DDTHH:mm") : "",
+                    }));
+                  }}
+                  className="antd-datetime-picker"
+                />
+              </div>
+              <textarea
+                name="actionInfo"
+                value={actionForm.actionInfo}
+                onChange={handleActionInfoInputChange}
+                className="action-info-textarea"
+                rows="6"
+                cols="50"
+                placeholder="请输入操作信息..."
+              ></textarea>
+            </div>
             <div className="detail-btn-container">
               <button
                 className="btn-confirm"
-                onClick={() => handleDeleteAction()}
+                onClick={() => handleSaveAction()}
               >
-                编辑
+                保存
               </button>
               <button className="btn-cancel" onClick={() => closeModal()}>
                 取消
@@ -271,7 +325,7 @@ function ActionInfo({ stockId, stockName, onBack }) {
 
       {/* 删除确认对话框 */}
       {showDeleteDialog && (
-        <div className="dialog-delete-overlay">
+        <div className="dialog-delete-overlay" onClick={closeModal}>
           <div className="dialog-delete">
             <div className="dialog-delete-header">
               <h3>你确定要删除这个笔记吗？</h3>

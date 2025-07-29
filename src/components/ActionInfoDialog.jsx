@@ -12,7 +12,10 @@ function ActionInfoDialog({
   if (!showActionInfoDialog) return null;
 
   return (
-    <div className="dialog-overlay">
+    <div
+      className="dialog-overlay"
+      onClick={() => setShowActionInfoDialog(false)}
+    >
       <div className="dialog">
         <div className="dialog-header">
           <h3>操作笔记</h3>
