@@ -39,7 +39,9 @@
 }
 
 .input-field::placeholder {
-  color: #999;
+  color: #b9b8b8;
+  font-weight: 300;
+  font-size: 13px;
 }
 
 .button-group {
@@ -98,7 +100,8 @@
 .limit-ok-btn:disabled {
   background-color: var(--primary-shadow);
   border: none;
-  color: #ffffff;
+  color: var(--primary-color);
+  /* color: #ffffff; */
   cursor: not-allowed;
 }
 

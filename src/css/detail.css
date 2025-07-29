@@ -199,7 +199,9 @@
 }
 
 .detail-container .form-group input::placeholder {
-  color: #999;
+  color: #b9b8b8;
+  font-weight: 300;
+  font-size: 13px;
 }
 
 /* 响应式设计 */
@@ -267,5 +269,7 @@
 }
 
 .action-info-textarea::placeholder {
-  color: #999;
+  color: #b9b8b8;
+  font-weight: 300;
+  font-size: 13px;
 }

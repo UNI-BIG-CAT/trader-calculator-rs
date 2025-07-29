@@ -88,6 +88,7 @@ function LimitCal({ onBack }) {
             onChange={(e) => setStockQuantity(e.target.value)}
             placeholder="请输入股票数量"
             className="input-field"
+            step={100}
             max="1000000"
           />
         </div>

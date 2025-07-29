@@ -15,6 +15,12 @@
   line-height: inherit !important;
 }
 
+.ant-picker-input > input::placeholder{
+  color: #b9b8b8 !important;
+  font-weight: 300 !important;
+  font-size: 13px !important;
+}
+
 /* 确保 DatePicker 不影响其他按钮样式 */
 .ant-btn {
   font-family: inherit !important;
@@ -22,7 +28,8 @@
   line-height: inherit !important;
   border: inherit !important;
   background: inherit !important;
-  color: inherit !important;
+  /* color: inherit !important; */
+  color:  var(--primary-color) !important;
 }
 
 /* 只针对我们的 DatePicker 组件 */

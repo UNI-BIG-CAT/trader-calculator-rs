@@ -54,7 +54,81 @@ function App() {
     brokerageFeeRate: getFeeRate("brokerageFeeRate"),
     transferFeeRate: getFeeRate("transferFeeRate"),
   });
-
+  // 颜色列表
+  const colorList = [
+    {
+      name: "默认",
+      color: "#F1933C",
+      hover: "#e0852e",
+      shadow: "rgba(216, 110, 17, 0.1)",
+    },
+    {
+      name: "薄暮",
+      color: "#ff7875",
+      hover: "#fff1f0",
+      shadow: "rgba(246, 65, 59, 0.1)",
+    },
+    {
+      name: "火山",
+      color: "#ff9c6e",
+      hover: "#fff2e8",
+      shadow: "rgba(246, 121, 59, 0.1)",
+    },
+    {
+      name: "金盏花",
+      color: "#ffd666",
+      hover: "#fffbe6",
+      shadow: "rgba(246, 218, 59, 0.1)",
+    },
+    {
+      name: "日出",
+      color: "#fadb14",
+      hover: "#feffe6",
+      shadow: "rgba(240, 246, 59, 0.1)",
+    },
+    {
+      name: "青柠",
+      color: "#d3f261",
+      hover: "#fcffe6",
+      shadow: "rgba(187, 246, 59, 0.1)",
+    },
+    {
+      name: "极光绿",
+      color: "#95de64",
+      hover: "#f6ffed",
+      shadow: "rgba(134, 246, 59, 0.1)",
+    },
+    {
+      name: "明青",
+      color: "#5cdbd3",
+      hover: "#e6fffb",
+      shadow: "rgba(59, 130, 246, 0.1)",
+    },
+    {
+      name: "拂晓蓝",
+      color: "#69b1ff",
+      hover: "#e6f4ff",
+      shadow: "rgba(59, 209, 246, 0.1)",
+    },
+    {
+      name: "极客蓝",
+      color: "#85a5ff",
+      hover: "#f0f5ff",
+      shadow: "rgba(93, 138, 242, 0.1)",
+    },
+    {
+      name: "酱紫",
+      color: "#b37feb",
+      hover: "#f9f0ff",
+      shadow: "rgba(177, 93, 242, 0.1)",
+    },
+    {
+      name: "法式洋红",
+      color: "#ff85c0",
+      hover: "#fff0f6",
+      shadow: "rgba(222, 93, 242, 0.1)",
+    },
+  ];
   /*******************生命周期*********************/
   useEffect(() => {
     getStockList();
@@ -261,10 +335,10 @@ function App() {
     const stockIdList = items.map((stock) => stock.stock_id);
     try {
       await invoke("handle_update_stock_sort", { list: stockIdList });
-      showSuccess("排序更新成功！", 1000);
+      showSuccess("排序更新成功！");
     } catch (error) {
       console.error("Error updating stock sort:", error);
-      showError("排序更新失败", 1000);
+      showError("排序更新失败");
       // 如果更新失败，重新获取列表
       getStockList();
     }
@@ -282,12 +356,9 @@ function App() {
   /*******************主题切换*********************/
   const setTheme = (color, hover, shadow) => {
     const root = document.documentElement;
-    root.style.setProperty("--primary-color", color || "#F1933C");
-    root.style.setProperty("--primary-hover", hover || "#e0852e");
-    root.style.setProperty(
-      "--primary-shadow",
-      shadow || "rgba(216, 110, 17, 0.1)"
-    );
+    root.style.setProperty("--primary-color", color || colorList[0].color);
+    root.style.setProperty("--primary-hover", hover || colorList[0].hover);
+    root.style.setProperty("--primary-shadow", shadow || colorList[0].shadow);
   };
   // 切换主题
   const toggleTheme = () => {
@@ -295,32 +366,23 @@ function App() {
     const currentColor = getComputedStyle(root)
       .getPropertyValue("--primary-color")
       .trim();
-
-    if (currentColor === "#F1933C") {
-      // 切换到蓝色主题
-      setTheme("#69b1ff", "#2563EB", "rgba(59, 130, 246, 0.1)");
-      localStorage.setItem(
-        "theme",
-        JSON.stringify({
-          color: "#69b1ff",
-          hover: "#2563EB",
-          shadow: "rgba(59, 130, 246, 0.1)",
-        })
-      );
-      showSuccess("已切换到蓝色主题", 1000);
-    } else {
-      // 切换回橙色主题
-      setTheme("#F1933C", "#e0852e", "rgba(216, 110, 17, 0.1)");
-      localStorage.setItem(
-        "theme",
-        JSON.stringify({
-          color: "#F1933C",
-          hover: "#e0852e",
-          shadow: "rgba(216, 110, 17, 0.1)",
-        })
-      );
-      showSuccess("已切换到橙色主题", 1000);
-    }
+    const currentIndex = colorList.findIndex(
+      (item) => item.color === currentColor
+    );
+    const nextIndex = (currentIndex + 1) % colorList.length;
+    const nextColor = colorList[nextIndex].color;
+    const nextHover = colorList[nextIndex].hover;
+    const nextShadow = colorList[nextIndex].shadow;
+    setTheme(nextColor, nextHover, nextShadow);
+    localStorage.setItem(
+      "theme",
+      JSON.stringify({
+        color: nextColor,
+        hover: nextHover,
+        shadow: nextShadow,
+      })
+    );
+    showSuccess(`已切换到${colorList[nextIndex].name}主题`);
   };
   /*************页面控制**************/
   // 返回列表页
