@@ -234,11 +234,6 @@ function App() {
       showError("当前价格不能大于3000");
       return;
     }
-    // 如果交易数量小于100,则提示
-    if (name == "transactionPosition" && value < 100) {
-      showError("交易数量不能小于100");
-      return;
-    }
     // 如果交易价格大于当前价格,则提示
     if (name == "transactionPrice" && value > 3000) {
       showError("成本价格不能大于3000");
@@ -663,7 +658,7 @@ function App() {
                   onChange={handleInputChange}
                   placeholder="请输入当前价格"
                   step="0.01"
-                  max="1000"
+                  max="3001"
                 />
               </div>
               <div className="form-group">
@@ -675,7 +670,7 @@ function App() {
                   onChange={handleInputChange}
                   placeholder="请输入成本"
                   step="0.01"
-                  max="1000"
+                  max="3001"
                 />
               </div>
               <div className="form-group">
@@ -688,7 +683,7 @@ function App() {
                   placeholder="请输入数量"
                   min="0"
                   step={100}
-                  max="1000000"
+                  max="1000100"
                 />
               </div>
               <div className="form-group">

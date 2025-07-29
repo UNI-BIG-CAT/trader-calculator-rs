@@ -129,7 +129,7 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
   const addStock = () => {
     setDialogType("add");
     setAddOrReduceFormData({
-      currentPrice: actionList[0]?.current_price || "",
+      currentPrice: actionList[actionList.length - 1]?.current_price || "",
       transactionPrice: "",
       transactionPosition: "",
     });
@@ -140,11 +140,22 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
   const reduceStock = () => {
     setDialogType("reduce");
     setAddOrReduceFormData({
-      currentPrice: actionList[0]?.current_price || "",
+      currentPrice: actionList[actionList.length - 1]?.current_price || "",
       transactionPrice: "",
       transactionPosition: "",
     });
     setShowAddOrReduceDialog(true);
+  };
+
+  // 关闭加减仓对话框
+  const closeAddOrReduceDialog = () => {
+    setShowAddOrReduceDialog(false);
+    setDialogType("");
+    setAddOrReduceFormData({
+      currentPrice: "",
+      transactionPrice: "",
+      transactionPosition: "",
+    });
   };
 
   // 处理加减仓输入变化
@@ -160,11 +171,6 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
     // 如果交易价格小于当前价格,则提示
     if (name == "currentPrice" && value > 3000) {
       showError("当前价格不能大于3000");
-      return;
-    }
-    // 如果交易数量小于100,则提示
-    if (name == "transactionPosition" && value < 100) {
-      showError("交易数量不能小于100");
       return;
     }
     // 如果交易价格大于当前价格,则提示
@@ -201,17 +207,6 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
       ...prev,
       [name]: value,
     }));
-  };
-
-  // 关闭加减仓对话框
-  const closeAddOrReduceDialog = () => {
-    setShowAddOrReduceDialog(false);
-    setDialogType("");
-    setAddOrReduceFormData({
-      currentPrice: "",
-      transactionPrice: "",
-      transactionPosition: "",
-    });
   };
 
   // 关闭平仓对话框
@@ -264,7 +259,7 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
   // 平仓
   const closeStock = () => {
     setCloseFormData({
-      transactionPrice: actionList[0]?.current_price || "",
+      transactionPrice: actionList[actionList.length - 1]?.current_price || "",
     });
     setShowCloseDialog(true);
   };
@@ -439,7 +434,7 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
                   onChange={handleAddOrReduceInputChange}
                   placeholder="请输入当前价格"
                   step="0.01"
-                  max="1000"
+                  max="3001"
                 />
               </div>
               <div className="form-group">
@@ -453,7 +448,7 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
                     dialogType === "add" ? "加仓" : "减仓"
                   }价格`}
                   step="0.01"
-                  max="1000"
+                  max="3001"
                 />
               </div>
               <div className="form-group">
@@ -465,7 +460,7 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
                   onChange={handleAddOrReduceInputChange}
                   placeholder="请输入数量"
                   min="100"
-                  max="1000000"
+                  max="1000100"
                   step={100}
                 />
               </div>
@@ -505,6 +500,7 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
                   value={closeFormData.transactionPrice}
                   onChange={handleCloseInputChange}
                   placeholder="请输入平仓价格"
+                  max="3001"
                   step="0.01"
                 />
               </div>

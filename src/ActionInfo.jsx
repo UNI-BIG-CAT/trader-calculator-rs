@@ -38,8 +38,6 @@ function ActionInfo({ stockId, stockName, onBack }) {
   };
   // 操作类型转换
   const getActionTypeText = (actionType) => {
-    console.log(actionType);
-
     switch (actionType) {
       case 1:
         return "建仓";
@@ -105,12 +103,6 @@ function ActionInfo({ stockId, stockName, onBack }) {
     setShowDeleteDialog(false);
     setSelectedAction(null);
     setDeleteActionId(null);
-  };
-
-  // 截取笔记前10个字符
-  const truncateNote = (note) => {
-    if (!note) return "-";
-    return note.length > 10 ? note.substring(0, 10) + "..." : note;
   };
 
   // 格式化数字
@@ -194,9 +186,9 @@ function ActionInfo({ stockId, stockName, onBack }) {
         <table className="action-table">
           <thead>
             <tr>
-              <th>操作类型</th>
-              <th>操作数量</th>
-              <th>操作价格</th>
+              <th>类型</th>
+              <th>数量</th>
+              <th>价格</th>
               <th>利润</th>
               <th>笔记</th>
               <th>操作时间</th>
@@ -221,7 +213,7 @@ function ActionInfo({ stockId, stockName, onBack }) {
                     <td>{action.profit.toFixed(2) || "-"}</td>
                     <td>
                       <span className="note-content" title={action.action_info}>
-                        {truncateNote(action.action_info)}
+                        {action.action_info}
                       </span>
                     </td>
                     <td>

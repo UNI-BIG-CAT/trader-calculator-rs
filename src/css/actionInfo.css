@@ -19,22 +19,23 @@
   display: flex;
   flex-direction: column;
   table-layout: fixed;
+  text-align: center;
 }
 
 /* 第一列（操作类型）变窄 */
-.action-table th:first-child,
+/* .action-table th:first-child,
 .action-table td:first-child {
   width: 80px;
   min-width: 80px;
   max-width: 80px;
-}
+} */
 
 /* 笔记列变宽 */
-.action-table th:nth-child(5),
+/* .action-table th:nth-child(5),
 .action-table td:nth-child(5) {
   width: 200px;
   min-width: 200px;
-}
+} */
 
 /* 操作按钮列 */
 .action-table th:last-child,
@@ -72,7 +73,7 @@
 .action-table tbody tr {
   border-bottom: 1px solid #f0f0f0;
   display: table;
-  width: 100%;
+  width: 98%;
   table-layout: fixed;
 }
 
@@ -98,7 +99,7 @@
 
 /* 笔记内容样式 */
 .note-content {
-  max-width: 180px;
+  max-width: 350px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -182,6 +183,7 @@
   display: flex;
   justify-content: space-around;
   padding: 15px 20px;
+  border-top: 1px solid #f0f0f0;
 }
 
 /* 响应式布局 */
@@ -192,6 +194,9 @@
     max-height: 85vh !important;
     overflow-y: auto;
     overflow-x: hidden;
+  }
+  .action-table tbody tr {
+    width: 97% !important;
   }
   .dialog-detail-content {
     margin-left: 25px;
@@ -206,8 +211,17 @@
     max-height: 110vh !important;
     overflow: auto;
   }
+  .action-table tbody tr {
+    width: 98% !important;
+  }
   .dialog-detail-content {
     margin-left: 25px;
     width: 550px !important;
+  }
+}
+
+@media (min-width: 1500px) {
+  .action-table tbody tr {
+    width: 99% !important;
   }
 }
