@@ -26,9 +26,8 @@ function DetailCard({
       onClick={() => onClick(action)}
       style={{
         backgroundColor: hasCustomBackground
-          ? "rgba(255, 255, 255, 0.3)"
+          ? "rgba(255, 255, 255, 0)"
           : undefined,
-        backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
       }}
       key={action.stock_action_id}
     >

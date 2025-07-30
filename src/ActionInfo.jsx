@@ -189,9 +189,8 @@ function ActionInfo({ stockId, stockName, onBack }) {
         className="header"
         style={{
           backgroundColor: hasCustomBackground
-            ? "rgba(255, 255, 255, 0.2)"
+            ? "rgba(255, 255, 255, 0)"
             : undefined,
-          backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
         }}
       >
         <div className="header-title">{stockName}-笔记</div>
@@ -201,9 +200,8 @@ function ActionInfo({ stockId, stockName, onBack }) {
             className="back-btn"
             style={{
               backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0.2)"
+                ? "rgba(255, 255, 255, 0)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
             }}
             onClick={() => onBack("detail", stockId, stockName)}
           >
@@ -217,18 +215,16 @@ function ActionInfo({ stockId, stockName, onBack }) {
         className="action-list"
         style={{
           backgroundColor: hasCustomBackground
-            ? "rgba(255, 255, 255, 0.2)"
+            ? "rgba(255, 255, 255, 0)"
             : undefined,
-          backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
         }}
       >
         <table
           className="action-table"
           style={{
             backgroundColor: hasCustomBackground
-              ? "rgba(255, 255, 255, 0.2)"
+              ? "rgba(255, 255, 255, 0)"
               : undefined,
-            backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
           }}
         >
           <thead>
@@ -312,7 +308,6 @@ function ActionInfo({ stockId, stockName, onBack }) {
               backgroundColor: hasCustomBackground
                 ? "rgba(255, 255, 255, 0.95)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
             }}
             className="dialog-detail-container"
             onClick={(e) => e.stopPropagation()}
@@ -400,7 +395,6 @@ function ActionInfo({ stockId, stockName, onBack }) {
               backgroundColor: hasCustomBackground
                 ? "rgba(255, 255, 255, 0.95)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
             }}
           >
             <div className="dialog-delete-header">
@@ -436,7 +430,6 @@ function ActionInfo({ stockId, stockName, onBack }) {
               backgroundColor: hasCustomBackground
                 ? "rgba(255, 255, 255, 0.95)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
             }}
           >
             <div className="dialog-header">
