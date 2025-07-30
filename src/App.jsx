@@ -19,7 +19,8 @@ function App() {
   const [stockList, setStockList] = useState([]);
   // 对话框显示状态
   const [showDialog, setShowDialog] = useState(false);
-
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteStockId, setDeleteStockId] = useState(null);
   // Toast Hook
   const { toasts, removeToast, showError, showSuccess } = useToast();
 
@@ -155,6 +156,30 @@ function App() {
       document.removeEventListener("keydown", handleKeyPress);
     };
   }, []);
+
+  // 建仓对话框显示时自动获得焦点
+  useEffect(() => {
+    if (showDialog) {
+      setTimeout(() => {
+        const dialogElement = document.querySelector(".dialog");
+        if (dialogElement) {
+          dialogElement.focus();
+        }
+      }, 0);
+    }
+  }, [showDialog]);
+
+  // 删除确认对话框显示时自动获得焦点
+  useEffect(() => {
+    if (showDeleteDialog) {
+      setTimeout(() => {
+        const dialogElement = document.querySelector(".dialog-delete");
+        if (dialogElement) {
+          dialogElement.focus();
+        }
+      }, 0);
+    }
+  }, [showDeleteDialog]);
 
   /*******************函数*********************/
   // 获取股票列表
@@ -310,6 +335,8 @@ function App() {
     try {
       await invoke("handle_delete_stock", { stockId });
       getStockList();
+      setShowDeleteDialog(false);
+      setDeleteStockId(null);
       // showSuccess("删除成功！", 500);
     } catch (error) {
       console.error("Error deleting stock:", error);
@@ -570,9 +597,10 @@ function App() {
                                 </button>
                                 <button
                                   className="action-btn delete-btn"
-                                  onClick={() =>
-                                    handleDeleteStock(stock.stock_id)
-                                  }
+                                  onClick={() => {
+                                    setShowDeleteDialog(true);
+                                    setDeleteStockId(stock.stock_id);
+                                  }}
                                 >
                                   删除
                                 </button>
@@ -593,7 +621,22 @@ function App() {
       {/* 建仓对话框 */}
       {showDialog && (
         <div className="dialog-overlay" onClick={closeDialog}>
-          <div className="dialog" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="dialog"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              if (
+                e.key === "Enter" &&
+                formData.stockName &&
+                formData.currentPrice &&
+                formData.transactionPrice &&
+                formData.transactionPosition
+              ) {
+                handleConfirm();
+              }
+            }}
+            tabIndex={0}
+          >
             <div className="dialog-header">
               <h3>股票建仓</h3>
             </div>
@@ -765,6 +808,42 @@ function App() {
               </button>
 
               <button className="btn-cancel" onClick={closeDialog}>
+                取消
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 删除确认对话框 */}
+      {showDeleteDialog && (
+        <div
+          className="dialog-delete-overlay"
+          onClick={() => setShowDeleteDialog(false)}
+        >
+          <div
+            className="dialog-delete"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleDeleteStock(deleteStockId);
+              }
+            }}
+            tabIndex={0}
+          >
+            <div className="dialog-delete-header">
+              <h3>你确定要删除这个股票吗？</h3>
+            </div>
+            <div className="delete-btn-container">
+              <button
+                className="btn-confirm"
+                onClick={() => handleDeleteStock(deleteStockId)}
+              >
+                确定
+              </button>
+              <button
+                className="btn-cancel"
+                onClick={() => setShowDeleteDialog(false)}
+              >
                 取消
               </button>
             </div>

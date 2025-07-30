@@ -1,5 +1,6 @@
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
+import { useEffect } from "react";
 
 function ActionInfoDialog({
   showActionInfoDialog,
@@ -11,12 +12,33 @@ function ActionInfoDialog({
 }) {
   if (!showActionInfoDialog) return null;
 
+  // 对话框显示时自动获得焦点
+  // useEffect(() => {
+  //   if (showActionInfoDialog) {
+  //     setTimeout(() => {
+  //       const dialogElement = document.querySelector(".dialog");
+  //       if (dialogElement) {
+  //         dialogElement.focus();
+  //       }
+  //     }, 0);
+  //   }
+  // }, [showActionInfoDialog]);
+
   return (
     <div
       className="dialog-overlay"
       onClick={() => setShowActionInfoDialog(false)}
     >
-      <div className="dialog" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="dialog"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            saveActionInfo();
+          }
+        }}
+        tabIndex={0}
+      >
         <div className="dialog-header">
           <h3>操作笔记</h3>
         </div>

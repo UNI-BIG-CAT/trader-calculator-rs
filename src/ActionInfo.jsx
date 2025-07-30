@@ -26,6 +26,19 @@ function ActionInfo({ stockId, stockName, onBack }) {
   useEffect(() => {
     getActionList();
   }, []);
+
+  // 删除确认对话框显示时自动获得焦点
+  useEffect(() => {
+    if (showDeleteDialog) {
+      // 使用setTimeout确保DOM已经渲染
+      setTimeout(() => {
+        const dialogElement = document.querySelector(".dialog-delete");
+        if (dialogElement) {
+          dialogElement.focus();
+        }
+      }, 0);
+    }
+  }, [showDeleteDialog]);
   /*******************函数*********************/
   // 获取详情
   const getActionList = async () => {
@@ -263,6 +276,11 @@ function ActionInfo({ stockId, stockName, onBack }) {
           <div
             className="dialog-detail-container"
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSaveAction();
+              }
+            }}
           >
             <div className="dialog-header">
               <h3>笔记详情</h3>
@@ -330,7 +348,15 @@ function ActionInfo({ stockId, stockName, onBack }) {
       {/* 删除确认对话框 */}
       {showDeleteDialog && (
         <div className="dialog-delete-overlay" onClick={closeModal}>
-          <div className="dialog-delete">
+          <div
+            className="dialog-delete"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleDeleteAction();
+              }
+            }}
+            tabIndex={0}
+          >
             <div className="dialog-delete-header">
               <h3>你确定要删除这个笔记吗？</h3>
             </div>
@@ -352,7 +378,15 @@ function ActionInfo({ stockId, stockName, onBack }) {
       {/* 操作详情对话框 */}
       {showActionInfoDialog && (
         <div className="dialog-overlay">
-          <div className="dialog">
+          <div
+            className="dialog"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && actionForm.actionInfo.trim()) {
+                saveActionInfo();
+              }
+            }}
+            tabIndex={0}
+          >
             <div className="dialog-header">
               <h3>操作笔记</h3>
             </div>

@@ -43,6 +43,40 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
     }
   }, [stockId]);
 
+  // 对话框显示时自动获得焦点
+  useEffect(() => {
+    if (showAddOrReduceDialog) {
+      setTimeout(() => {
+        const dialogElement = document.querySelector(".dialog");
+        if (dialogElement) {
+          dialogElement.focus();
+        }
+      }, 0);
+    }
+  }, [showAddOrReduceDialog]);
+
+  useEffect(() => {
+    if (showCloseDialog) {
+      setTimeout(() => {
+        const dialogElement = document.querySelector(".dialog");
+        if (dialogElement) {
+          dialogElement.focus();
+        }
+      }, 0);
+    }
+  }, [showCloseDialog]);
+
+  useEffect(() => {
+    if (showBackConfirmDialog) {
+      setTimeout(() => {
+        const dialogElement = document.querySelector(".dialog-delete");
+        if (dialogElement) {
+          dialogElement.focus();
+        }
+      }, 0);
+    }
+  }, [showBackConfirmDialog]);
+
   /*******************函数*********************/
   /*************获取列表***************/
   // 获取详情
@@ -427,7 +461,20 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
       {/* 加减仓对话框 */}
       {showAddOrReduceDialog && (
         <div className="dialog-overlay" onClick={closeAddOrReduceDialog}>
-          <div className="dialog" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="dialog"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              if (
+                e.key === "Enter" &&
+                addOrReduceFormData.transactionPosition &&
+                addOrReduceFormData.transactionPrice
+              ) {
+                handleAddOrReduceConfirm();
+              }
+            }}
+            tabIndex={0}
+          >
             <div className="dialog-header">
               <h3>{dialogType === "add" ? "加仓" : "减仓"}</h3>
             </div>
@@ -494,7 +541,16 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
       {/* 平仓对话框 */}
       {showCloseDialog && (
         <div className="dialog-overlay" onClick={closeCloseDialog}>
-          <div className="dialog" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="dialog"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && closeFormData.transactionPrice) {
+                handleCloseConfirm();
+              }
+            }}
+            tabIndex={0}
+          >
             <div className="dialog-header">
               <h3>平仓</h3>
             </div>
@@ -546,7 +602,15 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
           className="dialog-delete-overlay"
           onClick={() => setShowBackConfirmDialog(false)}
         >
-          <div className="dialog-delete">
+          <div
+            className="dialog-delete"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                backStock();
+              }
+            }}
+            tabIndex={0}
+          >
             <div className="dialog-delete-header">
               <h3>你确定要回退这个操作吗?</h3>
             </div>

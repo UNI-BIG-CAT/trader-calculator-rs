@@ -12,6 +12,14 @@ function LimitCal({ onBack }) {
   // Toast Hook
   const { toasts, removeToast, showError, showSuccess } = useToast();
 
+  // 组件加载时自动获得焦点
+  useEffect(() => {
+    const inputSection = document.querySelector(".input-section");
+    if (inputSection) {
+      inputSection.focus();
+    }
+  }, []);
+
   const handleSubmit = () => {
     if (startPrice <= 0 || startPrice > 1000) {
       showError("起始价格不能小于等于0或大于1000", 1000);
@@ -67,7 +75,15 @@ function LimitCal({ onBack }) {
       </div>
 
       {/* 输入区域 */}
-      <div className="input-section">
+      <div
+        className="input-section"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && startPrice && stockQuantity && boardCount) {
+            handleSubmit();
+          }
+        }}
+        tabIndex={0}
+      >
         <div className="input-row">
           <label>起始价格:</label>
           <input
