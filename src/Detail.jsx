@@ -8,6 +8,7 @@ import "./css/antd-override.css";
 import { useToast, ToastContainer } from "./components/Toast.jsx";
 import DetailCard from "./components/DetailCard.jsx";
 import ActionInfoDialog from "./components/ActionInfoDialog.jsx";
+import BackgroundManager from "./components/BackgroundManager.jsx";
 
 function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
   /*******************参数*********************/
@@ -33,6 +34,8 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
   });
   // 保留部分操作
   const [lastActions, setLastActions] = useState(false);
+  // 背景状态
+  const [hasCustomBackground, setHasCustomBackground] = useState(false);
   // Toast Hook
   const { toasts, removeToast, showError, showWarning, showSuccess } =
     useToast();
@@ -373,13 +376,28 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
   /*******************渲染*********************/
   return (
     <main className="container">
+      <BackgroundManager onBackgroundChange={setHasCustomBackground} />
       {/* header */}
-      <div className="header">
+      <div
+        className="header"
+        style={{
+          backgroundColor: hasCustomBackground
+            ? "rgba(255, 255, 255, 0.2)"
+            : undefined,
+          backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+        }}
+      >
         <div className="header-title">{stockName}-控仓</div>
         <div></div>
         <div>
           <button
             className="back-btn"
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.2)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+            }}
             onClick={() => handleViewActionInfo(stockId, stockName)}
           >
             笔记管理
@@ -387,11 +405,26 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
           <button
             hidden={actionList.length <= 4}
             className="back-btn"
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.2)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+            }}
             onClick={() => setLastActions(!lastActions)}
           >
             {lastActions ? "显示全部" : "隐藏部分"}
           </button>
-          <button className="back-btn" onClick={onBack}>
+          <button
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.2)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+            }}
+            className="back-btn"
+            onClick={onBack}
+          >
             返回
           </button>
         </div>
@@ -405,6 +438,7 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
               key={action.stock_action_id}
               action={action}
               onClick={showActionInfo}
+              hasCustomBackground={hasCustomBackground}
               formatNumber={formatNumber}
               formatPercent={formatPercent}
               getActionTypeText={getActionTypeText}
@@ -417,9 +451,23 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
             />
           ))}
         </div>
-        <div className="detail-action-btn-container">
+        <div
+          className="detail-action-btn-container"
+          style={{
+            backgroundColor: hasCustomBackground
+              ? "rgba(255, 255, 255, 0.2)"
+              : undefined,
+            backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
+          }}
+        >
           <button
             className="detail-action-btn"
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.2)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
+            }}
             disabled={stock.status == 2}
             onClick={addStock}
           >
@@ -427,6 +475,12 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
           </button>
           <button
             className="detail-action-btn"
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.2)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
+            }}
             disabled={stock.status == 2}
             onClick={reduceStock}
           >
@@ -434,12 +488,24 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
           </button>
           <button
             className="detail-action-btn"
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.2)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
+            }}
             disabled={stock.status == 2}
             onClick={closeStock}
           >
             平仓
           </button>
           <button
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.2)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
+            }}
             className="detail-action-btn"
             disabled={actionList.length <= 1}
             onClick={() => {
@@ -474,6 +540,12 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
               }
             }}
             tabIndex={0}
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.95)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
+            }}
           >
             <div className="dialog-header">
               <h3>{dialogType === "add" ? "加仓" : "减仓"}</h3>
@@ -550,6 +622,12 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
               }
             }}
             tabIndex={0}
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.95)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
+            }}
           >
             <div className="dialog-header">
               <h3>平仓</h3>
@@ -588,6 +666,7 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
       {showActionInfoDialog && (
         <ActionInfoDialog
           showActionInfoDialog={showActionInfoDialog}
+          hasCustomBackground={hasCustomBackground}
           actionForm={actionForm}
           setActionForm={setActionForm}
           handleActionInfoInputChange={handleActionInfoInputChange}
@@ -610,6 +689,12 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
               }
             }}
             tabIndex={0}
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.95)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
+            }}
           >
             <div className="dialog-delete-header">
               <h3>你确定要回退这个操作吗?</h3>

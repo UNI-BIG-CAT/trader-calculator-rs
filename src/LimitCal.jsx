@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useToast, ToastContainer } from "./components/Toast.jsx";
 import "./css/limitCal.css";
+import BackgroundManager from "./components/BackgroundManager.jsx";
 
 function LimitCal({ onBack }) {
   const [startPrice, setStartPrice] = useState("");
@@ -8,6 +9,8 @@ function LimitCal({ onBack }) {
   const [dailyChange, setDailyChange] = useState(10);
   const [boardCount, setBoardCount] = useState("");
   const [limitResult, setLimitResult] = useState([]);
+  // 背景状态
+  const [hasCustomBackground, setHasCustomBackground] = useState(false);
 
   // Toast Hook
   const { toasts, removeToast, showError, showSuccess } = useToast();
@@ -64,12 +67,30 @@ function LimitCal({ onBack }) {
 
   return (
     <main className="container">
+      <BackgroundManager onBackgroundChange={setHasCustomBackground} />
       {/* header */}
-      <div className="header">
+      <div
+        className="header"
+        style={{
+          backgroundColor: hasCustomBackground
+            ? "rgba(255, 255, 255, 0.2)"
+            : undefined,
+          backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+        }}
+      >
         <div className="header-title">连板计算器</div>
         <div></div>
         <div></div>
-        <button className="back-btn" onClick={onBack}>
+        <button
+          className="back-btn"
+          style={{
+            backgroundColor: hasCustomBackground
+              ? "rgba(255, 255, 255, 0.2)"
+              : undefined,
+            backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+          }}
+          onClick={onBack}
+        >
           返回
         </button>
       </div>
@@ -83,10 +104,22 @@ function LimitCal({ onBack }) {
           }
         }}
         tabIndex={0}
+        style={{
+          backgroundColor: hasCustomBackground
+            ? "rgba(255, 255, 255, 0.2)"
+            : undefined,
+          backdropFilter: hasCustomBackground ? "blur(8px)" : undefined,
+        }}
       >
         <div className="input-row">
           <label>起始价格:</label>
           <input
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.3)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+            }}
             type="number"
             value={startPrice}
             onChange={(e) => setStartPrice(e.target.value)}
@@ -99,6 +132,12 @@ function LimitCal({ onBack }) {
         <div className="input-row">
           <label>股票数量:</label>
           <input
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.3)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+            }}
             type="number"
             value={stockQuantity}
             onChange={(e) => setStockQuantity(e.target.value)}
@@ -114,23 +153,51 @@ function LimitCal({ onBack }) {
           <div className="button-group">
             <button
               className={`change-btn ${dailyChange === 10 ? "active" : ""}`}
+              style={{
+                backgroundColor:
+                  dailyChange != 10 && hasCustomBackground
+                    ? "rgba(255, 255, 255, 0.5)"
+                    : undefined,
+                backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+              }}
               onClick={() => setDailyChange(10)}
             >
               10%
             </button>
             <button
               className={`change-btn ${dailyChange === 5 ? "active" : ""}`}
+              style={{
+                backgroundColor:
+                  dailyChange != 5 && hasCustomBackground
+                    ? "rgba(255, 255, 255, 0.5)"
+                    : undefined,
+                backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+              }}
               onClick={() => setDailyChange(5)}
             >
               5%
             </button>
             <button
               className={`change-btn ${dailyChange === -5 ? "active" : ""}`}
+              style={{
+                backgroundColor:
+                  dailyChange != -5 && hasCustomBackground
+                    ? "rgba(255, 255, 255, 0.5)"
+                    : undefined,
+                backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+              }}
               onClick={() => setDailyChange(-5)}
             >
               -5%
             </button>
             <button
+              style={{
+                backgroundColor:
+                  dailyChange != -10 && hasCustomBackground
+                    ? "rgba(255, 255, 255, 0.5)"
+                    : undefined,
+                backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+              }}
               className={`change-btn ${dailyChange === -10 ? "active" : ""}`}
               onClick={() => setDailyChange(-10)}
             >
@@ -142,6 +209,12 @@ function LimitCal({ onBack }) {
         <div className="input-row">
           <label>板数:</label>
           <input
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.3)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+            }}
             type="number"
             value={boardCount}
             onChange={(e) => setBoardCount(e.target.value)}

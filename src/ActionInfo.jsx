@@ -6,6 +6,7 @@ import "./css/App.css";
 import "./css/actionInfo.css";
 import { useToast, ToastContainer } from "./components/Toast.jsx";
 import DetailCard from "./components/DetailCard.jsx";
+import BackgroundManager from "./components/BackgroundManager.jsx";
 
 function ActionInfo({ stockId, stockName, onBack }) {
   /*******************参数*********************/
@@ -20,6 +21,8 @@ function ActionInfo({ stockId, stockName, onBack }) {
     actionInfo: "",
   });
   const [deleteActionId, setDeleteActionId] = useState(null);
+  // 背景状态
+  const [hasCustomBackground, setHasCustomBackground] = useState(false);
   const { showError, showSuccess } = useToast();
 
   /*******************生命周期*********************/
@@ -101,7 +104,7 @@ function ActionInfo({ stockId, stockName, onBack }) {
   };
 
   // 保存新的笔记
-  const handleSaveAction = async () => {
+  const handleSaveActionInfo = async () => {
     await invoke("handle_save_action_info", {
       stockActionId: actionForm.stockActionId,
       actionTime: actionForm.actionTime,
@@ -180,13 +183,28 @@ function ActionInfo({ stockId, stockName, onBack }) {
   /*******************渲染*********************/
   return (
     <main className="container">
+      <BackgroundManager onBackgroundChange={setHasCustomBackground} />
       {/* header */}
-      <div className="header">
+      <div
+        className="header"
+        style={{
+          backgroundColor: hasCustomBackground
+            ? "rgba(255, 255, 255, 0.2)"
+            : undefined,
+          backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+        }}
+      >
         <div className="header-title">{stockName}-笔记</div>
         <div></div>
         <div>
           <button
             className="back-btn"
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.2)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+            }}
             onClick={() => onBack("detail", stockId, stockName)}
           >
             返回
@@ -195,8 +213,24 @@ function ActionInfo({ stockId, stockName, onBack }) {
       </div>
 
       {/* 笔记表格 */}
-      <div className="action-list">
-        <table className="action-table">
+      <div
+        className="action-list"
+        style={{
+          backgroundColor: hasCustomBackground
+            ? "rgba(255, 255, 255, 0.2)"
+            : undefined,
+          backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+        }}
+      >
+        <table
+          className="action-table"
+          style={{
+            backgroundColor: hasCustomBackground
+              ? "rgba(255, 255, 255, 0.2)"
+              : undefined,
+            backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+          }}
+        >
           <thead>
             <tr>
               <th>类型</th>
@@ -274,11 +308,17 @@ function ActionInfo({ stockId, stockName, onBack }) {
       {showModal && selectedAction && (
         <div className="dialog-overlay" onClick={closeModal}>
           <div
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.95)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
+            }}
             className="dialog-detail-container"
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                handleSaveAction();
+                handleSaveActionInfo();
               }
             }}
           >
@@ -333,7 +373,7 @@ function ActionInfo({ stockId, stockName, onBack }) {
             <div className="detail-btn-container">
               <button
                 className="btn-confirm"
-                onClick={() => handleSaveAction()}
+                onClick={() => handleSaveActionInfo()}
               >
                 保存
               </button>
@@ -356,6 +396,12 @@ function ActionInfo({ stockId, stockName, onBack }) {
               }
             }}
             tabIndex={0}
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.95)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
+            }}
           >
             <div className="dialog-delete-header">
               <h3>你确定要删除这个笔记吗？</h3>
@@ -382,10 +428,16 @@ function ActionInfo({ stockId, stockName, onBack }) {
             className="dialog"
             onKeyDown={(e) => {
               if (e.key === "Enter" && actionForm.actionInfo.trim()) {
-                saveActionInfo();
+                handleSaveActionInfo();
               }
             }}
             tabIndex={0}
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.95)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
+            }}
           >
             <div className="dialog-header">
               <h3>操作笔记</h3>
@@ -419,7 +471,7 @@ function ActionInfo({ stockId, stockName, onBack }) {
               ></textarea>
             </div>
             <div className="dialog-actions">
-              <button className="btn-confirm" onClick={saveActionInfo}>
+              <button className="btn-confirm" onClick={handleSaveActionInfo}>
                 保存
               </button>
               <button

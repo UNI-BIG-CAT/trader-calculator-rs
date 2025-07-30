@@ -6,6 +6,7 @@ import Detail from "./Detail.jsx";
 import LimitCal from "./LimitCal.jsx";
 import ActionInfo from "./ActionInfo.jsx";
 import { useToast, ToastContainer } from "./components/Toast.jsx";
+import BackgroundManager from "./components/BackgroundManager.jsx";
 
 function App() {
   /*******************参数*********************/
@@ -21,6 +22,8 @@ function App() {
   const [showDialog, setShowDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteStockId, setDeleteStockId] = useState(null);
+  // 背景状态
+  const [hasCustomBackground, setHasCustomBackground] = useState(false);
   // Toast Hook
   const { toasts, removeToast, showError, showSuccess } = useToast();
 
@@ -465,8 +468,17 @@ function App() {
   /*******************渲染*********************/
   return (
     <main className="container">
+      <BackgroundManager onBackgroundChange={setHasCustomBackground} />
       {/* Header */}
-      <div className="header">
+      <div
+        className="header"
+        style={{
+          backgroundColor: hasCustomBackground
+            ? "rgba(255, 255, 255, 0.2)"
+            : undefined,
+          backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+        }}
+      >
         <div className="header-title">盈亏计算器</div>
         <div className="header-right-container">
           <div className="search-container">
@@ -487,20 +499,55 @@ function App() {
               </button>
             )}
           </div>
-          <button className="open-stock-btn" onClick={openDialog}>
+          <button
+            className="open-stock-btn"
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.2)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
+            }}
+            onClick={openDialog}
+          >
             建仓
           </button>
-          <button className="open-stock-btn" onClick={handleOpenLimitCal}>
+          <button
+            className="open-stock-btn"
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.2)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
+            }}
+            onClick={handleOpenLimitCal}
+          >
             连板
           </button>
-          <button className="open-stock-btn" onClick={() => setFilter(!filter)}>
+          <button
+            className="open-stock-btn"
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.2)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
+            }}
+            onClick={() => setFilter(!filter)}
+          >
             {filter ? "显示平仓" : "隐藏平仓"}
           </button>
         </div>
       </div>
 
       {/* 股票列表 */}
-      <div className="stock-list">
+      <div
+        className="stock-list"
+        style={{
+          backgroundColor: hasCustomBackground
+            ? "rgba(255, 255, 255, 0.2)"
+            : undefined,
+          backdropFilter: hasCustomBackground ? "blur(8px)" : undefined,
+        }}
+      >
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="stock-list">
             {(provided) => (
@@ -508,6 +555,11 @@ function App() {
                 className="stock-table"
                 ref={provided.innerRef}
                 {...provided.droppableProps}
+                style={{
+                  backgroundColor: hasCustomBackground
+                    ? "rgba(255, 255, 255, 0.2)"
+                    : undefined,
+                }}
               >
                 <thead>
                   <tr>
@@ -636,6 +688,12 @@ function App() {
               }
             }}
             tabIndex={0}
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.95)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
+            }}
           >
             <div className="dialog-header">
               <h3>股票建仓</h3>
@@ -829,6 +887,12 @@ function App() {
               }
             }}
             tabIndex={0}
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.95)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
+            }}
           >
             <div className="dialog-delete-header">
               <h3>你确定要删除这个股票吗？</h3>

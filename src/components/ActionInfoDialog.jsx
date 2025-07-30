@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { useEffect } from "react";
 
 function ActionInfoDialog({
+  hasCustomBackground = false,
   showActionInfoDialog,
   actionForm,
   setActionForm,
@@ -36,6 +37,12 @@ function ActionInfoDialog({
           if (e.key === "Enter") {
             saveActionInfo();
           }
+        }}
+        style={{
+          backgroundColor: hasCustomBackground
+            ? "rgba(255, 255, 255, 0.95)"
+            : undefined,
+          backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
         }}
         tabIndex={0}
       >

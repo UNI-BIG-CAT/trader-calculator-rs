@@ -1,6 +1,7 @@
 function DetailCard({
   showIndicator = true,
   isDialog = false,
+  hasCustomBackground = false,
   action,
   onClick,
   formatNumber,
@@ -13,6 +14,7 @@ function DetailCard({
   getNetProfit,
   formatDateTimeForTooltip,
 }) {
+  // 背景状态
   // 添加空值检查
   if (!action) {
     return null;
@@ -22,6 +24,12 @@ function DetailCard({
     <div
       className={`${isDialog ? "dialog-detail-content" : "action-detail"}`}
       onClick={() => onClick(action)}
+      style={{
+        backgroundColor: hasCustomBackground
+          ? "rgba(255, 255, 255, 0.3)"
+          : undefined,
+        backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+      }}
       key={action.stock_action_id}
     >
       {/* 操作信息标记 */}

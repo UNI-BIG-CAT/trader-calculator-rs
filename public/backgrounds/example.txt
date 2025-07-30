@@ -1,0 +1,16 @@
+这是一个示例文件，告诉你如何设置自定义背景：
+
+1. 将你想要的照片重命名为以下任一格式：
+   - custom-background.jpg
+   - custom-background.jpeg
+   - custom-background.png
+   - custom-background.gif
+   - custom-background.webp
+
+2. 将图片放在这个文件夹中（public/backgrounds/）
+
+3. 重启应用程序
+
+4. 如果设置成功，你会看到背景图片以30%的透明度显示
+
+注意：删除这个example.txt文件，它只是用来说明的。 
