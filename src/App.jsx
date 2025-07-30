@@ -164,6 +164,7 @@ function App() {
       if (first) {
         setFilter(result.filter((stock) => stock.status !== 1).length > 0);
       }
+      setStockList(result);
     } catch (error) {
       console.error("Error getting stock list:", error);
       showError("获取股票列表失败", 1000);

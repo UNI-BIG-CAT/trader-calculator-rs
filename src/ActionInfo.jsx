@@ -189,6 +189,7 @@ function ActionInfo({ stockId, stockName, onBack }) {
               <th>类型</th>
               <th>数量</th>
               <th>价格</th>
+              <th>成本</th>
               <th>利润</th>
               <th>笔记</th>
               <th>操作时间</th>
@@ -210,6 +211,7 @@ function ActionInfo({ stockId, stockName, onBack }) {
                     <td>{getActionTypeText(action.action)}</td>
                     <td>{action.transaction_position}</td>
                     <td>{action.transaction_price}</td>
+                    <td>{action.transaction_cost}</td>
                     <td
                       className={
                         action.profit < 0
