@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { invoke } from "@tauri-apps/api/core";
 
 function BackgroundManager({ onBackgroundChange }) {
   const [backgroundImage, setBackgroundImage] = useState(null);
@@ -10,41 +11,29 @@ function BackgroundManager({ onBackgroundChange }) {
     checkAndLoadBackground();
   }, []);
 
-  const checkAndLoadBackground = () => {
+  const checkAndLoadBackground = async () => {
     setIsLoading(true);
 
-    // 支持的图片格式
-    const imageFormats = ["jpg", "jpeg", "png", "gif", "webp"];
-    let currentFormatIndex = 0;
-
-    const tryLoadImage = () => {
-      if (currentFormatIndex >= imageFormats.length) {
+    try {
+      // 使用Tauri的文件系统API检查背景图片
+      const result = await invoke("check_background_image");
+      if (result.exists) {
+        // 如果图片存在，使用base64数据
+        setBackgroundImage(result.data);
+        setIsLoading(false);
+        onBackgroundChange && onBackgroundChange(true);
+      } else {
         // 没有找到图片
         setBackgroundImage(null);
         setIsLoading(false);
         onBackgroundChange && onBackgroundChange(false);
-        return;
       }
-
-      const format = imageFormats[currentFormatIndex];
-      const backgroundPath = `/backgrounds/custom-background.${format}`;
-
-      const img = new Image();
-      img.onload = () => {
-        setBackgroundImage(img.src);
-        setIsLoading(false);
-        onBackgroundChange && onBackgroundChange(true);
-      };
-      img.onerror = () => {
-        // 尝试下一个格式
-        currentFormatIndex++;
-        tryLoadImage();
-      };
-
-      img.src = backgroundPath;
-    };
-
-    tryLoadImage();
+    } catch (error) {
+      console.error("Error checking background image:", error);
+      setBackgroundImage(null);
+      setIsLoading(false);
+      onBackgroundChange && onBackgroundChange(false);
+    }
   };
 
   // 如果正在加载，显示加载状态

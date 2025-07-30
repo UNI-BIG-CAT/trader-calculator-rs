@@ -3,6 +3,7 @@ mod constant;
 mod database;
 mod handler;
 //
+use crate::handler::background::check_background_image;
 use crate::handler::stock::{
     handle_delete_stock, handle_get_all_stocks, handle_get_stock_info, handle_update_stock_sort,
 };
@@ -31,6 +32,7 @@ pub fn run() {
             handle_delete_stock,
             //
             handle_save_action_info,
+            check_background_image,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
