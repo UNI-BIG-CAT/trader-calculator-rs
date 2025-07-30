@@ -240,7 +240,15 @@ function LimitCal({ onBack }) {
       <div className="limit-result-container">
         {limitResult.length > 0 && (
           <div className="limit-result-table">
-            <table>
+            <table
+              style={{
+                backgroundColor:
+                  dailyChange != -10 && hasCustomBackground
+                    ? "rgba(255, 255, 255, 0.4)"
+                    : undefined,
+                backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
+              }}
+            >
               <thead>
                 <tr>
                   <th>板数</th>

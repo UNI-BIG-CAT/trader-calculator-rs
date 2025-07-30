@@ -155,6 +155,7 @@
   display: flex;
   flex-direction: column;
   padding: 10px 12px;
+  height: calc(100vh - 132px); /* 设置固定高度，减去header和padding */
 }
 
 .stock-table {
@@ -203,7 +204,26 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  /* display:  block; */
+  display: block; /* 启用block显示模式以支持滚动 */
+}
+
+/* 滚动栏样式 */
+.stock-table tbody::-webkit-scrollbar {
+  width: 8px;
+}
+
+.stock-table tbody::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.stock-table tbody::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.stock-table tbody::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .stock-table tbody tr {

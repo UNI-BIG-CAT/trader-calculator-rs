@@ -1,10 +1,10 @@
-
 /* 连板计算器输入区域样式 */
 .input-section {
   padding: 10px;
   background-color: #ffffff;
   margin-top: 60px;
   border-radius: 8px;
+  margin-bottom: 8px; /* 为结果区域留出空间 */
 }
 
 .input-row {
@@ -82,14 +82,14 @@
 
 .limit-ok-btn {
   margin-top: 10px;
-    background-color: var(--primary-color);
-    color:  #fff;
-    border: 1px solid var(--primary-color);
-    border-radius: 5px;
-    padding: 5px 20px;
-    margin-left: 20px;
-    cursor: pointer;
-    transition: background-color 0.2s;
+  background-color: var(--primary-color);
+  color: #fff;
+  border: 1px solid var(--primary-color);
+  border-radius: 5px;
+  padding: 5px 20px;
+  margin-left: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .limit-ok-btn:hover {
@@ -105,17 +105,16 @@
   cursor: not-allowed;
 }
 
-
 .limit-clear-btn {
   margin-top: 10px;
-    background-color: #fff;
-    color:  var(--primary-color);
-    border: 1px solid var(--primary-color);
-    border-radius: 5px;
-    padding: 5px 20px;
-    margin-left: 20px;
-    cursor: pointer;
-    transition: background-color 0.2s;
+  background-color: #fff;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  border-radius: 5px;
+  padding: 5px 20px;
+  margin-left: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .limit-clear-btn:hover {
@@ -125,27 +124,33 @@
 
 /* 结果表格样式 */
 .limit-result-container {
-  padding: 6px  0px;
+  /* padding: 6px 0px; */
   /* background-color: #ffffff; */
   /* margin: 5px 10px; */
-  border-radius: 8px;
+  height: calc(100vh - 350px); /* 设置固定高度，确保有足够的滚动空间 */
 }
 
 .limit-result-table {
-  overflow-x: auto;
+  height: 100%; /* 占满父容器高度 */
 }
 
 .limit-result-table table {
   width: 100%;
   border-collapse: collapse;
   background-color: #ffffff;
-  border-radius: 8px;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .limit-result-table thead {
   background-color: var(--primary-color);
   color: #ffffff;
+  flex-shrink: 0;
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  border-radius: 5px 5px 0px 0px;
 }
 
 .limit-result-table th {
@@ -156,9 +161,38 @@
   border-bottom: 2px solid #e0e0e0;
 }
 
+.limit-result-table tbody {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: block;
+}
+
+/* 滚动栏样式 */
+.limit-result-table tbody::-webkit-scrollbar {
+  width: 8px;
+}
+
+.limit-result-table tbody::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.limit-result-table tbody::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.limit-result-table tbody::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
 .limit-result-table tbody tr {
   border-bottom: 1px solid #f0f0f0;
   transition: background-color 0.2s;
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }
 
 .limit-result-table tbody tr:hover {
