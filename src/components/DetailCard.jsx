@@ -53,7 +53,11 @@ function DetailCard({
 
         <div className="detail-row">
           <span className="detail-label">交易价格</span>
-          <span className="detail-value highlight">
+          <span
+            className={`detail-value ${
+              action.action == 1 || action.action == 3 ? "profit" : "loss"
+            }`}
+          >
             {formatNumber(action.transaction_price)}
           </span>
           <span className="detail-label">交易市值</span>
