@@ -22,6 +22,7 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
     transactionPosition: "",
   });
   const [showCloseDialog, setShowCloseDialog] = useState(false);
+  const [showBackConfirmDialog, setShowBackConfirmDialog] = useState(false);
   const [closeFormData, setCloseFormData] = useState({
     transactionPrice: "",
   });
@@ -285,9 +286,9 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
   };
   /*************回退***************/
   const backStock = async () => {
-    console.log("回退");
     await invoke("handle_back_position", { stockId });
     getActionList();
+    setShowBackConfirmDialog(false);
   };
 
   /*************操作记录***************/
@@ -407,7 +408,13 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
           <button
             className="detail-action-btn"
             disabled={actionList.length <= 1}
-            onClick={backStock}
+            onClick={() => {
+              if (actionList[actionList.length - 1].action_info) {
+                setShowBackConfirmDialog(true);
+                return;
+              }
+              backStock();
+            }}
           >
             回退
           </button>
@@ -533,6 +540,30 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
         />
       )}
 
+      {/* 回退确认框 */}
+      {showBackConfirmDialog && (
+        <div
+          className="dialog-delete-overlay"
+          onClick={() => setShowBackConfirmDialog(false)}
+        >
+          <div className="dialog-delete">
+            <div className="dialog-delete-header">
+              <h3>你确定要回退这个操作吗?</h3>
+            </div>
+            <div className="delete-btn-container">
+              <button className="btn-confirm" onClick={() => backStock()}>
+                确定
+              </button>
+              <button
+                className="btn-cancel"
+                onClick={() => setShowBackConfirmDialog(false)}
+              >
+                取消
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Toast */}
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </main>
