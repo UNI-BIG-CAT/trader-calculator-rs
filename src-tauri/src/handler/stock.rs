@@ -2,11 +2,11 @@ use crate::database::stock::StockRecord;
 
 /// 获取所有股票 - 适配Tauri
 #[tauri::command]
-pub fn handle_get_all_stocks() -> Vec<StockRecord> {
+pub fn handle_get_all_stocks() -> Result<Vec<StockRecord>, String> {
     println!("get_all_stocks");
-    let list = StockRecord::get_all_stocks().unwrap();
+    let list = StockRecord::get_all_stocks().map_err(|e| e.to_string())?;
     println!("list: {:?}", list);
-    list
+    Ok(list)
 }
 
 /// 获取股票信息

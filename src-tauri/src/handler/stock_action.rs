@@ -180,7 +180,7 @@ pub fn handle_reduce_position(
     let stock = StockRecord::get_stock_by_id(stock_id)
         .map_err(|e| e.to_string())?
         .ok_or("Stock not found")?;
-    let last_action = StockActionRecord::get_last_action(stock_id).unwrap();
+    let last_action = StockActionRecord::get_last_action(stock_id).map_err(|e| e.to_string())?;
     if transaction_position >= last_action.total_position as i32 {
         return Err("请选择平仓".to_string());
     }
