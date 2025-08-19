@@ -47,7 +47,6 @@ function ActionInfo({ stockId, stockName, onBack }) {
 	const getActionList = async () => {
 		try {
 			const result = await invoke('handle_get_action_list', { stockId });
-			console.log('获取笔记列表:', result);
 			setActionList(result);
 		} catch (error) {
 			showError('获取详情失败');
@@ -301,7 +300,7 @@ function ActionInfo({ stockId, stockName, onBack }) {
 						className="dialog-detail-container"
 						onClick={(e) => e.stopPropagation()}
 						onKeyDown={(e) => {
-							if (e.key === 'Enter') {
+							if (e.ctrlKey && e.key === 'Enter') {
 								handleSaveActionInfo();
 							}
 						}}

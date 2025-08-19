@@ -198,16 +198,7 @@ function App() {
 				setFilter(result.filter((stock) => stock.status !== 1).length > 0);
 			}
 			setStockList(result);
-
-			result = await invoke('handle_stock_fee');
-			setDefaultFeeData({
-				stockType: 3,
-				commissionFeeRate: result.commission_fee_rate,
-				taxFeeRate: result.tax_fee_rate,
-				regulatoryFeeRate: result.regulatory_fee_rate,
-				brokerageFeeRate: result.brokerage_fee_rate,
-				transferFeeRate: result.transfer_fee_rate,
-			});
+			await getDefaultFeeRate();
 		} catch (error) {
 			console.error('Error getting stock list:', error);
 			showError('获取股票列表失败', 1000);
@@ -248,6 +239,17 @@ function App() {
 		});
 	};
 
+	const getDefaultFeeRate = async () => {
+		const result = await invoke('handle_stock_fee');
+		setDefaultFeeData({
+			stockType: 3,
+			commissionFeeRate: result.commission_fee_rate,
+			taxFeeRate: result.tax_fee_rate,
+			regulatoryFeeRate: result.regulatory_fee_rate,
+			brokerageFeeRate: result.brokerage_fee_rate,
+			transferFeeRate: result.transfer_fee_rate,
+		});
+	};
 	const handleDefaultInputChange = (e) => {
 		const { name, value } = e.target;
 		setDefaultFeeData((prev) => {
@@ -1063,7 +1065,13 @@ function App() {
 								确认
 							</button>
 
-							<button className="btn-cancel" onClick={() => setShowDefaultFeeDialog(false)}>
+							<button
+								className="btn-cancel"
+								onClick={() => {
+									setShowDefaultFeeDialog(false);
+									getDefaultFeeRate();
+								}}
+							>
 								取消
 							</button>
 						</div>
