@@ -47,7 +47,7 @@ fn create_tables(conn: &Connection) -> Result<()> {
 
     conn.execute(
         "
-         insert into tb_stock_fee (stock_fee_id, stock_fee_name, commission_fee_rate, tax_fee_rate, regulatory_fee_rate, brokerage_fee_rate, transfer_fee_rate) values (1,'默认费率', 0.00025, 0.001, 0.00002, 0.0000487, 0);
+         insert into tb_stock_fee (stock_fee_id, stock_fee_name, commission_fee_rate, tax_fee_rate, regulatory_fee_rate, brokerage_fee_rate, transfer_fee_rate) values (1,'默认费率', 0.00025, 0.001, 0.00002, 0.0000341, 0);
         ",
         [],
     ).ok(); // 忽略错误，可能已经存在

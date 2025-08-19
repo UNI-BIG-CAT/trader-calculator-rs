@@ -27,13 +27,13 @@ impl StockFeeRate {
             Ok(StockFeeRate {
                 stock_fee_id: row.get(0)?,
                 stock_fee_name: row.get(1)?,
-                commission_fee_rate: row.get(3)?,
-                tax_fee_rate: row.get(4)?,
-                regulatory_fee_rate: row.get(5)?,
-                brokerage_fee_rate: row.get(6)?,
-                transfer_fee_rate: row.get(7)?,
-                created_at: row.get(10)?,
-                updated_at: row.get(11)?,
+                commission_fee_rate: row.get(2)?,
+                tax_fee_rate: row.get(3)?,
+                regulatory_fee_rate: row.get(4)?,
+                brokerage_fee_rate: row.get(5)?,
+                transfer_fee_rate: row.get(6)?,
+                created_at: row.get(7)?,
+                updated_at: row.get(8)?,
             })
         })?;
 
@@ -63,8 +63,6 @@ impl StockFeeRate {
         Ok(conn.last_insert_rowid())
     }
     pub fn update(
-        stock_fee_id: i32,
-        stock_fee_name: &str,
         commission_fee_rate: f64,
         tax_fee_rate: f64,
         regulatory_fee_rate: f64,
@@ -74,15 +72,13 @@ impl StockFeeRate {
         let db_conn = get_db_state();
         let conn = db_conn.lock().unwrap();
         conn.execute(
-            "UPDATE tb_stock_fee SET stock_fee_name = ?1, commission_fee_rate = ?2, tax_fee_rate = ?3, regulatory_fee_rate = ?4, brokerage_fee_rate = ?5, transfer_fee_rate = ?6 WHERE stock_fee_id = ?7",
+            "UPDATE tb_stock_fee SET commission_fee_rate = ?1, tax_fee_rate = ?2, regulatory_fee_rate = ?3, brokerage_fee_rate = ?4, transfer_fee_rate = ?5 WHERE stock_fee_id = 1",
             [
-                stock_fee_name,
                 &commission_fee_rate.to_string(),
                 &tax_fee_rate.to_string(),
                 &regulatory_fee_rate.to_string(),
                 &brokerage_fee_rate.to_string(),
                 &transfer_fee_rate.to_string(),
-                stock_fee_id.to_string().as_str(),
             ],
         )?;
         Ok(())

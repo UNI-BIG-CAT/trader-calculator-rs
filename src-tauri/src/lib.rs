@@ -12,12 +12,16 @@ use crate::handler::stock_action::{
     handle_open_position, handle_reduce_position,
 };
 use crate::handler::stock_action_info::handle_save_action_info;
+use crate::handler::stock_fee::{handle_stock_fee, handle_stock_fee_update};
 //
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
+            handle_stock_fee,
+            handle_stock_fee_update,
+            //
             handle_get_all_stocks,
             handle_get_stock_info,
             handle_delete_stock,

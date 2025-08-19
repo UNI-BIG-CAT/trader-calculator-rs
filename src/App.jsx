@@ -1,930 +1,1080 @@
-import { useState, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import "./css/App.css";
-import Detail from "./Detail.jsx";
-import LimitCal from "./LimitCal.jsx";
-import ActionInfo from "./ActionInfo.jsx";
-import { useToast, ToastContainer } from "./components/Toast.jsx";
-import BackgroundManager from "./components/BackgroundManager.jsx";
+import { useState, useEffect } from 'react';
+import { invoke } from '@tauri-apps/api/core';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import './css/App.css';
+import Detail from './Detail.jsx';
+import LimitCal from './LimitCal.jsx';
+import ActionInfo from './ActionInfo.jsx';
+import { useToast, ToastContainer } from './components/Toast.jsx';
+import BackgroundManager from './components/BackgroundManager.jsx';
 
 function App() {
-  /*******************参数*********************/
-  // 页面状态管理
-  const [currentPage, setCurrentPage] = useState("list"); // "list" 或 "detail" 或者 "limitCal"
-  const [selectedStockId, setSelectedStockId] = useState(null);
-  const [selectedStockName, setSelectedStockName] = useState(null);
-  const [filter, setFilter] = useState(true); // 过滤平仓
-  const [searchValue, setSearchValue] = useState(""); // 搜索值
-  // 股票列表状态
-  const [stockList, setStockList] = useState([]);
-  // 对话框显示状态
-  const [showDialog, setShowDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [deleteStockId, setDeleteStockId] = useState(null);
-  // 背景状态
-  const [hasCustomBackground, setHasCustomBackground] = useState(false);
-  // Toast Hook
-  const { toasts, removeToast, showError, showSuccess } = useToast();
+	/*******************参数*********************/
+	// 页面状态管理
+	const [currentPage, setCurrentPage] = useState('list'); // "list" 或 "detail" 或者 "limitCal"
+	const [selectedStockId, setSelectedStockId] = useState(null);
+	const [selectedStockName, setSelectedStockName] = useState(null);
+	const [filter, setFilter] = useState(true); // 过滤平仓
+	const [searchValue, setSearchValue] = useState(''); // 搜索值
+	// 股票列表状态
+	const [stockList, setStockList] = useState([]);
+	// 对话框显示状态
+	const [showDialog, setShowDialog] = useState(false);
+	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+	const [showDefaultFeeDialog, setShowDefaultFeeDialog] = useState(false);
+	const [deleteStockId, setDeleteStockId] = useState(null);
+	// 背景状态
+	const [hasCustomBackground, setHasCustomBackground] = useState(false);
+	// Toast Hook
+	const { toasts, removeToast, showError, showSuccess } = useToast();
 
-  // 从localStorage获取上次保存的佣金率，如果没有则使用默认值
-  const [defaultBrokerageFeeRate, setDefaultBrokerageFeeRate] =
-    useState(0.0000487);
-  const getFeeRate = (key) => {
-    const saved = localStorage.getItem(key);
-    if (key === "commissionFeeRate") {
-      return saved ? parseFloat(saved) : 0.00025;
-    } else if (key === "taxFeeRate") {
-      return saved ? parseFloat(saved) : 0.001;
-    } else if (key === "regulatoryFeeRate") {
-      return saved ? parseFloat(saved) : 0.00002;
-    } else if (key === "brokerageFeeRate") {
-      return saved ? parseFloat(saved) : defaultBrokerageFeeRate;
-    } else if (key === "transferFeeRate") {
-      return saved ? parseFloat(saved) : 0.00001;
-    }
-    return 0.0;
-  };
+	// 从localStorage获取上次保存的佣金率，如果没有则使用默认值
+	const [defaultBrokerageFeeRate, setDefaultBrokerageFeeRate] = useState(0.0000487);
+	const getFeeRate = (key) => {
+		const saved = localStorage.getItem(key);
+		if (key === 'commissionFeeRate') {
+			return saved ? parseFloat(saved) : 0.00025;
+		} else if (key === 'taxFeeRate') {
+			return saved ? parseFloat(saved) : 0.001;
+		} else if (key === 'regulatoryFeeRate') {
+			return saved ? parseFloat(saved) : 0.00002;
+		} else if (key === 'brokerageFeeRate') {
+			return saved ? parseFloat(saved) : defaultBrokerageFeeRate;
+		} else if (key === 'transferFeeRate') {
+			return saved ? parseFloat(saved) : 0.00001;
+		}
+		return 0.0;
+	};
 
-  // 表单数据状态
-  const [formData, setFormData] = useState({
-    stockName: "",
-    stockType: 1,
-    currentPrice: "",
-    transactionPrice: "",
-    transactionPosition: 100,
-    commissionFeeRate: getFeeRate("commissionFeeRate"),
-    taxFeeRate: getFeeRate("taxFeeRate"),
-    regulatoryFeeRate: getFeeRate("regulatoryFeeRate"),
-    brokerageFeeRate: getFeeRate("brokerageFeeRate"),
-    transferFeeRate: getFeeRate("transferFeeRate"),
-  });
-  // 颜色列表
-  const colorList = [
-    {
-      name: "默认",
-      color: "#F1933C",
-      hover: "#e0852e",
-      shadow: "rgba(216, 110, 17, 0)",
-    },
-    {
-      name: "薄暮",
-      color: "#ff7875",
-      hover: "#fff1f0",
-      shadow: "rgba(246, 65, 59, 0)",
-    },
-    {
-      name: "火山",
-      color: "#ff9c6e",
-      hover: "#fff2e8",
-      shadow: "rgba(246, 121, 59, 0)",
-    },
-    {
-      name: "金盏花",
-      color: "#ffd666",
-      hover: "#fffbe6",
-      shadow: "rgba(246, 218, 59, 0)",
-    },
-    {
-      name: "日出",
-      color: "#fadb14",
-      hover: "#feffe6",
-      shadow: "rgba(240, 246, 59, 0)",
-    },
-    {
-      name: "青柠",
-      color: "#a0d911",
-      hover: "#fcffe6",
-      shadow: "rgba(187, 246, 59, 0)",
-    },
-    {
-      name: "极光绿",
-      color: "#95de64",
-      hover: "#f6ffed",
-      shadow: "rgba(134, 246, 59, 0)",
-    },
-    {
-      name: "明青",
-      color: "#5cdbd3",
-      hover: "#e6fffb",
-      shadow: "rgba(59, 130, 246, 0)",
-    },
-    {
-      name: "拂晓蓝",
-      color: "#69b1ff",
-      hover: "#e6f4ff",
-      shadow: "rgba(59, 209, 246, 0)",
-    },
-    {
-      name: "极客蓝",
-      color: "#2f54eb",
-      hover: "#2f54eb",
-      shadow: "rgba(93, 138, 242, 0)",
-    },
-    {
-      name: "酱紫",
-      color: "#b37feb",
-      hover: "#f9f0ff",
-      shadow: "rgba(177, 93, 242, 0)",
-    },
-    {
-      name: "法式洋红",
-      color: "#ff85c0",
-      hover: "#fff0f6",
-      shadow: "rgba(222, 93, 242, 0)",
-    },
-  ];
-  /*******************生命周期*********************/
-  useEffect(() => {
-    getStockList(true);
-    // 记住上次主题
-    const cache = localStorage.getItem("theme");
-    if (cache) {
-      setTheme(
-        JSON.parse(cache).color,
-        JSON.parse(cache).hover,
-        JSON.parse(cache).shadow
-      );
-    }
-    // 添加键盘快捷键监听
-    const handleKeyPress = (event) => {
-      // Ctrl + T 切换主题
-      if (event.ctrlKey && event.key === "t") {
-        event.preventDefault();
-        toggleTheme();
-      }
-    };
-    document.addEventListener("keydown", handleKeyPress);
-    return () => {
-      document.removeEventListener("keydown", handleKeyPress);
-    };
-  }, []);
+	// 默认费用数据
+	const [defaultFeeData, setDefaultFeeData] = useState({
+		stockType: 1,
+		commissionFeeRate: 0,
+		taxFeeRate: 0,
+		regulatoryFeeRate: 0,
+		brokerageFeeRate: 0,
+		transferFeeRate: 0,
+	});
+	// 表单数据状态
+	const [formData, setFormData] = useState({
+		stockName: '',
+		stockType: 1,
+		currentPrice: '',
+		transactionPrice: '',
+		transactionPosition: 100,
+		commissionFeeRate: getFeeRate('commissionFeeRate'),
+		taxFeeRate: getFeeRate('taxFeeRate'),
+		regulatoryFeeRate: getFeeRate('regulatoryFeeRate'),
+		brokerageFeeRate: getFeeRate('brokerageFeeRate'),
+		transferFeeRate: getFeeRate('transferFeeRate'),
+	});
+	// 颜色列表
+	const colorList = [
+		{
+			name: '默认',
+			color: '#F1933C',
+			hover: '#e0852e',
+			shadow: 'rgba(216, 110, 17, 0)',
+		},
+		{
+			name: '薄暮',
+			color: '#ff7875',
+			hover: '#fff1f0',
+			shadow: 'rgba(246, 65, 59, 0)',
+		},
+		{
+			name: '火山',
+			color: '#ff9c6e',
+			hover: '#fff2e8',
+			shadow: 'rgba(246, 121, 59, 0)',
+		},
+		{
+			name: '金盏花',
+			color: '#ffd666',
+			hover: '#fffbe6',
+			shadow: 'rgba(246, 218, 59, 0)',
+		},
+		{
+			name: '日出',
+			color: '#fadb14',
+			hover: '#feffe6',
+			shadow: 'rgba(240, 246, 59, 0)',
+		},
+		{
+			name: '青柠',
+			color: '#a0d911',
+			hover: '#fcffe6',
+			shadow: 'rgba(187, 246, 59, 0)',
+		},
+		{
+			name: '极光绿',
+			color: '#95de64',
+			hover: '#f6ffed',
+			shadow: 'rgba(134, 246, 59, 0)',
+		},
+		{
+			name: '明青',
+			color: '#5cdbd3',
+			hover: '#e6fffb',
+			shadow: 'rgba(59, 130, 246, 0)',
+		},
+		{
+			name: '拂晓蓝',
+			color: '#69b1ff',
+			hover: '#e6f4ff',
+			shadow: 'rgba(59, 209, 246, 0)',
+		},
+		{
+			name: '极客蓝',
+			color: '#2f54eb',
+			hover: '#2f54eb',
+			shadow: 'rgba(93, 138, 242, 0)',
+		},
+		{
+			name: '酱紫',
+			color: '#b37feb',
+			hover: '#f9f0ff',
+			shadow: 'rgba(177, 93, 242, 0)',
+		},
+		{
+			name: '法式洋红',
+			color: '#ff85c0',
+			hover: '#fff0f6',
+			shadow: 'rgba(222, 93, 242, 0)',
+		},
+	];
+	/*******************生命周期*********************/
+	useEffect(() => {
+		getStockList(true);
+		// 记住上次主题
+		const cache = localStorage.getItem('theme');
+		if (cache) {
+			setTheme(JSON.parse(cache).color, JSON.parse(cache).hover, JSON.parse(cache).shadow);
+		}
+		// 添加键盘快捷键监听
+		const handleKeyPress = (event) => {
+			// Ctrl + T 切换主题
+			if (event.ctrlKey && event.key === 't') {
+				event.preventDefault();
+				toggleTheme();
+			}
+		};
+		document.addEventListener('keydown', handleKeyPress);
+		return () => {
+			document.removeEventListener('keydown', handleKeyPress);
+		};
+	}, []);
 
-  // 建仓对话框显示时自动获得焦点
-  useEffect(() => {
-    if (showDialog) {
-      setTimeout(() => {
-        const dialogElement = document.querySelector(".dialog");
-        if (dialogElement) {
-          dialogElement.focus();
-        }
-      }, 0);
-    }
-  }, [showDialog]);
+	// 建仓对话框显示时自动获得焦点
+	useEffect(() => {
+		if (showDialog) {
+			setTimeout(() => {
+				const dialogElement = document.querySelector('.dialog');
+				if (dialogElement) {
+					dialogElement.focus();
+				}
+			}, 0);
+		}
+	}, [showDialog]);
 
-  // 删除确认对话框显示时自动获得焦点
-  useEffect(() => {
-    if (showDeleteDialog) {
-      setTimeout(() => {
-        const dialogElement = document.querySelector(".dialog-delete");
-        if (dialogElement) {
-          dialogElement.focus();
-        }
-      }, 0);
-    }
-  }, [showDeleteDialog]);
+	// 删除确认对话框显示时自动获得焦点
+	useEffect(() => {
+		if (showDeleteDialog) {
+			setTimeout(() => {
+				const dialogElement = document.querySelector('.dialog-delete');
+				if (dialogElement) {
+					dialogElement.focus();
+				}
+			}, 0);
+		}
+	}, [showDeleteDialog]);
 
-  /*******************函数*********************/
-  // 获取股票列表
-  async function getStockList(first = false) {
-    try {
-      const result = await invoke("handle_get_all_stocks");
-      if (first) {
-        setFilter(result.filter((stock) => stock.status !== 1).length > 0);
-      }
-      setStockList(result);
-    } catch (error) {
-      console.error("Error getting stock list:", error);
-      showError("获取股票列表失败", 1000);
-    }
-  }
+	/*******************函数*********************/
+	// 获取股票列表
+	async function getStockList(first = false) {
+		try {
+			let result = await invoke('handle_get_all_stocks');
+			if (first) {
+				setFilter(result.filter((stock) => stock.status !== 1).length > 0);
+			}
+			setStockList(result);
 
-  // 股票类型转换函数
-  const getStockTypeText = (stockType) => {
-    switch (stockType) {
-      case 1:
-        return "上海";
-      case 2:
-        return "深圳";
-      case 3:
-        return "创业板";
-      case 4:
-        return "科创板";
-      default:
-        return "未知";
-    }
-  };
+			result = await invoke('handle_stock_fee');
+			setDefaultFeeData({
+				stockType: 3,
+				commissionFeeRate: result.commission_fee_rate,
+				taxFeeRate: result.tax_fee_rate,
+				regulatoryFeeRate: result.regulatory_fee_rate,
+				brokerageFeeRate: result.brokerage_fee_rate,
+				transferFeeRate: result.transfer_fee_rate,
+			});
+		} catch (error) {
+			console.error('Error getting stock list:', error);
+			showError('获取股票列表失败', 1000);
+		}
+	}
 
-  // 格式化佣金费率
-  const formatCommissionFee = (rate) => {
-    return (rate * 100).toFixed(4) + "%";
-  };
+	// 股票类型转换函数
+	const getStockTypeText = (stockType) => {
+		switch (stockType) {
+			case 1:
+				return '上海';
+			case 2:
+				return '深圳';
+			case 3:
+				return '创业板';
+			case 4:
+				return '科创板';
+			default:
+				return '未知';
+		}
+	};
 
-  /*************建仓**************/
-  // 恢复默认值
-  const resetDefault = () => {
-    setFormData({
-      stockName: "",
-      stockType: 1,
-      currentPrice: "",
-      transactionPrice: "",
-      transactionPosition: 100,
-      commissionFeeRate: 0.00025,
-      taxFeeRate: 0.001,
-      regulatoryFeeRate: 0.00002,
-      brokerageFeeRate: defaultBrokerageFeeRate,
-      transferFeeRate: 0.00001,
-    });
-  };
-  // 建仓对话框
-  const openDialog = () => {
-    setShowDialog(true);
-  };
-  const closeDialog = () => {
-    setShowDialog(false);
-    setFormData({
-      stockName: "",
-      stockType: 1,
-      currentPrice: "",
-      transactionPrice: "",
-      transactionPosition: "",
-      commissionFeeRate: getFeeRate("commissionFeeRate"),
-      taxFeeRate: getFeeRate("taxFeeRate"),
-      regulatoryFeeRate: getFeeRate("regulatoryFeeRate"),
-      brokerageFeeRate: getFeeRate("brokerageFeeRate"),
-      transferFeeRate: getFeeRate("transferFeeRate"),
-    });
-  };
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    // 如果交易价格小于当前价格,则提示
-    if (name == "currentPrice" && value > 3000) {
-      showError("当前价格不能大于3000");
-      return;
-    }
-    // 如果交易价格大于当前价格,则提示
-    if (name == "transactionPrice" && value > 3000) {
-      showError("成本价格不能大于3000");
-      return;
-    }
-    if (name == "transactionPosition" && value > 1000000) {
-      showError("交易数量不能大于1000000");
-      return;
-    }
-    setFormData((prev) => {
-      const newFormData = {
-        ...prev,
-        [name]: value,
-      };
+	// 格式化佣金费率
+	const formatCommissionFee = (rate) => {
+		return (rate * 100).toFixed(4) + '%';
+	};
+	/*************设置默认费用**************/
+	// 恢复默认值
+	const resetDefault = () => {
+		setDefaultFeeData({
+			stockType: 1,
+			transactionPosition: 100,
+			commissionFeeRate: 0.00025,
+			taxFeeRate: 0.001,
+			regulatoryFeeRate: 0.00002,
+			brokerageFeeRate: 0.0000487,
+			transferFeeRate: 0.00001,
+		});
+	};
 
-      // 如果修改的是佣金费率，保存到localStorage
-      if (name === "commissionFeeRate") {
-        localStorage.setItem("commissionFeeRate", value);
-      }
-      if (name === "taxFeeRate") {
-        // 印花税
-        localStorage.setItem("taxFeeRate", value);
-      }
-      if (name === "regulatoryFeeRate") {
-        // 证管费
-        localStorage.setItem("regulatoryFeeRate", value);
-      }
-      if (name === "brokerageFeeRate") {
-        // 经手费
-        localStorage.setItem("brokerageFeeRate", value);
-      }
-      if (name === "transferFeeRate") {
-        localStorage.setItem("transferFeeRate", value);
-      }
+	const handleDefaultInputChange = (e) => {
+		const { name, value } = e.target;
+		setDefaultFeeData((prev) => {
+			const newFormData = {
+				...prev,
+				[name]: value,
+			};
 
-      return newFormData;
-    });
-  };
-  // 确认建仓
-  const handleConfirm = async () => {
-    try {
-      if (
-        !formData.stockName ||
-        !formData.currentPrice ||
-        !formData.transactionPrice ||
-        !formData.transactionPosition
-      ) {
-        showError("请填写所有字段", 1000);
-        return;
-      }
-      await invoke("handle_open_position", {
-        stockName: formData.stockName,
-        stockType: formData.stockType,
-        currentPrice: parseFloat(formData.currentPrice),
-        transactionPrice: parseFloat(formData.transactionPrice),
-        transactionPosition: parseInt(formData.transactionPosition),
-        commissionFeeRate: parseFloat(formData.commissionFeeRate),
-        taxFeeRate: parseFloat(formData.taxFeeRate),
-        regulatoryFeeRate: parseFloat(formData.regulatoryFeeRate),
-        brokerageFeeRate: parseFloat(formData.brokerageFeeRate),
-        transferFeeRate: parseFloat(formData.transferFeeRate),
-      });
-      getStockList();
-      closeDialog();
-      // showSuccess("建仓成功！", 500);
-    } catch (error) {
-      console.error("Error opening stock:", error);
-      showError("建仓失败", 1000);
-    }
-  };
+			return newFormData;
+		});
+	};
 
-  /*************删除股票**************/
-  const handleDeleteStock = async (stockId) => {
-    try {
-      await invoke("handle_delete_stock", { stockId });
-      getStockList();
-      setShowDeleteDialog(false);
-      setDeleteStockId(null);
-      // showSuccess("删除成功！", 500);
-    } catch (error) {
-      console.error("Error deleting stock:", error);
-      showError("删除失败", 1000);
-    }
-  };
+	const saveDefaultFee = async () => {
+		const result = await invoke('handle_stock_fee_update', {
+			commissionFeeRate: parseFloat(defaultFeeData.commissionFeeRate),
+			taxFeeRate: parseFloat(defaultFeeData.taxFeeRate),
+			regulatoryFeeRate: parseFloat(defaultFeeData.regulatoryFeeRate),
+			brokerageFeeRate: parseFloat(defaultFeeData.brokerageFeeRate),
+			transferFeeRate: parseFloat(defaultFeeData.transferFeeRate),
+		});
+		if (!result) {
+			showSuccess('默认费率已保存');
+			setDefaultBrokerageFeeRate(defaultFeeData.brokerageFeeRate);
+			localStorage.setItem('commissionFeeRate', defaultFeeData.commissionFeeRate);
+			localStorage.setItem('taxFeeRate', defaultFeeData.taxFeeRate);
+			localStorage.setItem('regulatoryFeeRate', defaultFeeData.regulatoryFeeRate);
+			localStorage.setItem('brokerageFeeRate', defaultFeeData.brokerageFeeRate);
+			localStorage.setItem('transferFeeRate', defaultFeeData.transferFeeRate);
+		} else {
+			showError('保存失败，请稍后再试');
+		}
+		setShowDefaultFeeDialog(false);
+	};
 
-  /*************拖拽排序**************/
-  const handleDragEnd = async (result) => {
-    if (filter) {
-      showError("排序需要先显示平仓股票");
-      return;
-    }
-    if (!result.destination) {
-      return;
-    }
-    const items = Array.from(stockList);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
+	/*************建仓**************/
+	// 使用默认费率
+	const useDefaultFee = async () => {
+		const result = await invoke('handle_stock_fee');
+		setFormData((prev) => ({
+			...prev,
+			commissionFeeRate: result.commission_fee_rate,
+			taxFeeRate: result.tax_fee_rate,
+			regulatoryFeeRate: result.regulatory_fee_rate,
+			brokerageFeeRate: result.brokerage_fee_rate,
+			transferFeeRate: result.transfer_fee_rate,
+		}));
+	};
+	// 建仓对话框
+	const openDialog = () => {
+		setShowDialog(true);
+	};
+	const closeDialog = () => {
+		setShowDialog(false);
+		setFormData({
+			stockName: '',
+			stockType: 1,
+			currentPrice: '',
+			transactionPrice: '',
+			transactionPosition: '',
+			commissionFeeRate: getFeeRate('commissionFeeRate'),
+			taxFeeRate: getFeeRate('taxFeeRate'),
+			regulatoryFeeRate: getFeeRate('regulatoryFeeRate'),
+			brokerageFeeRate: getFeeRate('brokerageFeeRate'),
+			transferFeeRate: getFeeRate('transferFeeRate'),
+		});
+	};
+	const handleInputChange = (e) => {
+		const { name, value } = e.target;
+		// 如果交易价格小于当前价格,则提示
+		if (name == 'currentPrice' && value > 3000) {
+			showError('当前价格不能大于3000');
+			return;
+		}
+		// 如果交易价格大于当前价格,则提示
+		if (name == 'transactionPrice' && value > 3000) {
+			showError('成本价格不能大于3000');
+			return;
+		}
+		if (name == 'transactionPosition' && value > 1000000) {
+			showError('交易数量不能大于1000000');
+			return;
+		}
+		setFormData((prev) => {
+			const newFormData = {
+				...prev,
+				[name]: value,
+			};
 
-    setStockList(items);
+			// 如果修改的是佣金费率，保存到localStorage
+			if (name === 'commissionFeeRate') {
+				localStorage.setItem('commissionFeeRate', value);
+			}
+			if (name === 'taxFeeRate') {
+				// 印花税
+				localStorage.setItem('taxFeeRate', value);
+			}
+			if (name === 'regulatoryFeeRate') {
+				// 证管费
+				localStorage.setItem('regulatoryFeeRate', value);
+			}
+			if (name === 'brokerageFeeRate') {
+				// 经手费
+				localStorage.setItem('brokerageFeeRate', value);
+			}
+			if (name === 'transferFeeRate') {
+				localStorage.setItem('transferFeeRate', value);
+			}
 
-    // 提取stock_id列表，按照新的顺序
-    const stockIdList = items.map((stock) => stock.stock_id);
-    try {
-      await invoke("handle_update_stock_sort", { list: stockIdList });
-      showSuccess("排序更新成功！");
-    } catch (error) {
-      console.error("Error updating stock sort:", error);
-      showError("排序更新失败");
-      // 如果更新失败，重新获取列表
-      getStockList();
-    }
-  };
-  // 搜索
-  const handleSearchChange = (e) => {
-    setSearchValue(e.target.value);
-  };
+			return newFormData;
+		});
+	};
+	// 确认建仓
+	const handleConfirm = async () => {
+		try {
+			if (
+				!formData.stockName ||
+				!formData.currentPrice ||
+				!formData.transactionPrice ||
+				!formData.transactionPosition
+			) {
+				showError('请填写所有字段', 1000);
+				return;
+			}
+			await invoke('handle_open_position', {
+				stockName: formData.stockName,
+				stockType: formData.stockType,
+				currentPrice: parseFloat(formData.currentPrice),
+				transactionPrice: parseFloat(formData.transactionPrice),
+				transactionPosition: parseInt(formData.transactionPosition),
+				commissionFeeRate: parseFloat(formData.commissionFeeRate),
+				taxFeeRate: parseFloat(formData.taxFeeRate),
+				regulatoryFeeRate: parseFloat(formData.regulatoryFeeRate),
+				brokerageFeeRate: parseFloat(formData.brokerageFeeRate),
+				transferFeeRate: parseFloat(formData.transferFeeRate),
+			});
+			getStockList();
+			closeDialog();
+			// showSuccess("建仓成功！", 500);
+		} catch (error) {
+			console.error('Error opening stock:', error);
+			showError('建仓失败', 1000);
+		}
+	};
 
-  // 清空搜索
-  const clearSearch = () => {
-    setSearchValue("");
-  };
+	/*************删除股票**************/
+	const handleDeleteStock = async (stockId) => {
+		try {
+			await invoke('handle_delete_stock', { stockId });
+			getStockList();
+			setShowDeleteDialog(false);
+			setDeleteStockId(null);
+			// showSuccess("删除成功！", 500);
+		} catch (error) {
+			console.error('Error deleting stock:', error);
+			showError('删除失败', 1000);
+		}
+	};
 
-  /*******************主题切换*********************/
-  const setTheme = (color, hover, shadow) => {
-    const root = document.documentElement;
-    root.style.setProperty("--primary-color", color || colorList[0].color);
-    root.style.setProperty("--primary-hover", hover || colorList[0].hover);
-    root.style.setProperty("--primary-shadow", shadow || colorList[0].shadow);
-  };
-  // 切换主题
-  const toggleTheme = () => {
-    const root = document.documentElement;
-    const currentColor = getComputedStyle(root)
-      .getPropertyValue("--primary-color")
-      .trim();
-    const currentIndex = colorList.findIndex(
-      (item) => item.color === currentColor
-    );
-    const nextIndex = (currentIndex + 1) % colorList.length;
-    const nextColor = colorList[nextIndex].color;
-    const nextHover = colorList[nextIndex].hover;
-    const nextShadow = colorList[nextIndex].shadow;
-    setTheme(nextColor, nextHover, nextShadow);
-    localStorage.setItem(
-      "theme",
-      JSON.stringify({
-        color: nextColor,
-        hover: nextHover,
-        shadow: nextShadow,
-      })
-    );
-    showSuccess(`已切换到${colorList[nextIndex].name}主题`);
-  };
-  /*************页面控制**************/
-  // 查看股票操作列表
-  const handleViewStock = async (stockId, stockName) => {
-    setSelectedStockId(stockId);
-    setSelectedStockName(stockName);
-    setCurrentPage("detail");
-  };
-  // 查看股票操作笔记
-  const handleViewActionInfo = async (stockId, stockName) => {
-    setSelectedStockId(stockId);
-    setSelectedStockName(stockName);
-    setCurrentPage("ActionInfo");
-  };
-  // 去连板
-  const handleOpenLimitCal = () => {
-    setCurrentPage("LimitCal");
-  };
-  // 返回列表页
-  const handleBackToList = async (
-    page = "list",
-    stockId = null,
-    stockName = null
-  ) => {
-    await getStockList();
-    setCurrentPage(page);
-    setSelectedStockId(stockId);
-    setSelectedStockName(stockName);
-  };
-  // 根据当前页面状态渲染不同内容
-  if (currentPage === "detail") {
-    return (
-      <Detail
-        stockId={selectedStockId}
-        stockName={selectedStockName}
-        onBack={handleBackToList}
-        handleViewActionInfo={handleViewActionInfo}
-      />
-    );
-  } else if (currentPage === "LimitCal") {
-    return <LimitCal onBack={handleBackToList} />;
-  } else if (currentPage === "ActionInfo") {
-    return (
-      <ActionInfo
-        stockId={selectedStockId}
-        stockName={selectedStockName}
-        onBack={handleBackToList}
-      />
-    );
-  }
+	/*************拖拽排序**************/
+	const handleDragEnd = async (result) => {
+		if (filter) {
+			showError('排序需要先显示平仓股票');
+			return;
+		}
+		if (!result.destination) {
+			return;
+		}
+		const items = Array.from(stockList);
+		const [reorderedItem] = items.splice(result.source.index, 1);
+		items.splice(result.destination.index, 0, reorderedItem);
 
-  /*******************渲染*********************/
-  return (
-    <main className="container">
-      <BackgroundManager onBackgroundChange={setHasCustomBackground} />
-      {/* Header */}
-      <div
-        className="header"
-        style={{
-          backgroundColor: hasCustomBackground
-            ? "rgba(255, 255, 255, 0)"
-            : undefined,
-        }}
-      >
-        <div className="header-title">盈亏计算器</div>
-        <div className="header-right-container">
-          <div className="search-container">
-            <input
-              className="header-search"
-              name="stockName"
-              value={searchValue}
-              onChange={handleSearchChange}
-              placeholder="搜索股票"
-            />
-            {searchValue && (
-              <button
-                className="clear-search-btn"
-                onClick={clearSearch}
-                title="清空搜索"
-              >
-                ×
-              </button>
-            )}
-          </div>
-          <button
-            className="open-stock-btn"
-            style={{
-              backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0)"
-                : undefined,
-            }}
-            onClick={openDialog}
-          >
-            建仓
-          </button>
-          <button
-            className="open-stock-btn"
-            style={{
-              backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0)"
-                : undefined,
-            }}
-            onClick={handleOpenLimitCal}
-          >
-            连板
-          </button>
-          <button
-            className="open-stock-btn"
-            style={{
-              backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0)"
-                : undefined,
-            }}
-            onClick={() => setFilter(!filter)}
-          >
-            {filter ? "显示平仓" : "隐藏平仓"}
-          </button>
+		setStockList(items);
 
-          <button
-            className="open-stock-btn"
-            style={{
-              backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0.2)"
-                : undefined,
-              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
-            }}
-            onClick={() => setFilter(!filter)}
-          >
-          调整默认值
-          </button>
-        </div>
-      </div>
+		// 提取stock_id列表，按照新的顺序
+		const stockIdList = items.map((stock) => stock.stock_id);
+		try {
+			await invoke('handle_update_stock_sort', { list: stockIdList });
+			showSuccess('排序更新成功！');
+		} catch (error) {
+			console.error('Error updating stock sort:', error);
+			showError('排序更新失败');
+			// 如果更新失败，重新获取列表
+			getStockList();
+		}
+	};
+	// 搜索
+	const handleSearchChange = (e) => {
+		setSearchValue(e.target.value);
+	};
 
-      {/* 股票列表 */}
-      <div
-        className="stock-list"
-        style={{
-          backgroundColor: hasCustomBackground
-            ? "rgba(255, 255, 255, 0)"
-            : undefined,
-        }}
-      >
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="stock-list">
-            {(provided) => (
-              <table
-                className="stock-table"
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-                style={{
-                  backgroundColor: hasCustomBackground
-                    ? "rgba(255, 255, 255, 0)"
-                    : undefined,
-                }}
-              >
-                <thead>
-                  <tr>
-                    <th style={{ width: "20px" }}></th>
-                    <th>股票名称</th>
-                    <th>类型</th>
-                    <th>佣金费率</th>
-                    <th>印花税率</th>
-                    <th>证管费率</th>
-                    <th>经手费率</th>
-                    <th>过户费率</th>
-                    <th>状态</th>
-                    <th>操作</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stockList.length === 0 ? (
-                    <tr>
-                      <td colSpan="9" className="empty-message">
-                        请先建仓股票
-                      </td>
-                    </tr>
-                  ) : (
-                    stockList
-                      .filter((stock) => {
-                        // 首先根据状态过滤
-                        if (filter) {
-                          if (stock.status !== 1) return false;
-                        }
-                        // 然后根据搜索值过滤
-                        if (searchValue.trim()) {
-                          return stock.stock_name
-                            .toLowerCase()
-                            .includes(searchValue.toLowerCase());
-                        }
-                        return true;
-                      })
-                      .map((stock, index) => (
-                        <Draggable
-                          key={stock.stock_id}
-                          draggableId={stock.stock_id.toString()}
-                          index={index}
-                        >
-                          {(provided, snapshot) => (
-                            <tr
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={snapshot.isDragging ? "dragging" : ""}
-                            >
-                              <td
-                                style={{ width: "50px", textAlign: "center" }}
-                              >
-                                <span
-                                  style={{ cursor: "grab", fontSize: "16px" }}
-                                >
-                                  ⋮⋮
-                                </span>
-                              </td>
-                              <td>{stock.stock_name}</td>
-                              <td>{getStockTypeText(stock.stock_type)}</td>
-                              <td>
-                                {formatCommissionFee(stock.commission_fee_rate)}
-                              </td>
-                              <td>{formatCommissionFee(stock.tax_fee_rate)}</td>
-                              <td>
-                                {formatCommissionFee(stock.regulatory_fee_rate)}
-                              </td>
-                              <td>
-                                {formatCommissionFee(stock.brokerage_fee_rate)}
-                              </td>
-                              <td>
-                                {formatCommissionFee(stock.transfer_fee_rate)}
-                              </td>
-                              <td>{stock.status == 1 ? "进行中" : "已平仓"}</td>
-                              <td>
-                                <button
-                                  className="action-btn view-btn"
-                                  onClick={() =>
-                                    handleViewStock(
-                                      stock.stock_id,
-                                      stock.stock_name
-                                    )
-                                  }
-                                >
-                                  查看
-                                </button>
-                                <button
-                                  className="action-btn delete-btn"
-                                  onClick={() => {
-                                    setShowDeleteDialog(true);
-                                    setDeleteStockId(stock.stock_id);
-                                  }}
-                                >
-                                  删除
-                                </button>
-                              </td>
-                            </tr>
-                          )}
-                        </Draggable>
-                      ))
-                  )}
-                  {provided.placeholder}
-                </tbody>
-              </table>
-            )}
-          </Droppable>
-        </DragDropContext>
-      </div>
+	// 清空搜索
+	const clearSearch = () => {
+		setSearchValue('');
+	};
 
-      {/* 建仓对话框 */}
-      {showDialog && (
-        <div className="dialog-overlay" onClick={closeDialog}>
-          <div
-            className="dialog"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => {
-              if (
-                e.key === "Enter" &&
-                formData.stockName &&
-                formData.currentPrice &&
-                formData.transactionPrice &&
-                formData.transactionPosition
-              ) {
-                handleConfirm();
-              }
-            }}
-            tabIndex={0}
-            style={{
-              backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0.95)"
-                : undefined,
-            }}
-          >
-            <div className="dialog-header">
-              <h3>股票建仓</h3>
-            </div>
-            <div className="dialog-content">
-              <div className="form-group">
-                <label>股票名称:</label>
-                <input
-                  type="text"
-                  name="stockName"
-                  value={formData.stockName}
-                  onChange={handleInputChange}
-                  placeholder="请输入股票名称"
-                />
-              </div>
-              <div className="form-group">
-                <div className="stock-type-buttons">
-                  <label>股票类型:</label>
-                  <button
-                    className={
-                      formData.stockType === 1
-                        ? "stock-type-button-active"
-                        : "stock-type-button"
-                    }
-                    onClick={() => {
-                      setFormData({
-                        ...formData,
-                        brokerageFeeRate: 0.0000487,
-                        stockType: 1,
-                      });
-                      localStorage.setItem("brokerageFeeRate", 0.0000487);
-                      setDefaultBrokerageFeeRate(0.0000487);
-                    }}
-                  >
-                    上海股(60开头)
-                  </button>
-                  <button
-                    className={
-                      formData.stockType === 2
-                        ? "stock-type-button-active"
-                        : "stock-type-button"
-                    }
-                    onClick={() => {
-                      setFormData({
-                        ...formData,
-                        brokerageFeeRate: 0.0000341,
-                        stockType: 2,
-                      });
-                      localStorage.setItem("brokerageFeeRate", 0.0000341);
-                      setDefaultBrokerageFeeRate(0.0000341);
-                    }}
-                  >
-                    深圳(00或30开头)
-                  </button>
-                </div>
-              </div>
-              <div className="form-group">
-                <label>当前价格:</label>
-                <input
-                  type="number"
-                  name="currentPrice"
-                  value={formData.currentPrice}
-                  onChange={handleInputChange}
-                  placeholder="请输入当前价格"
-                  step="0.01"
-                  max="3001"
-                />
-              </div>
-              <div className="form-group">
-                <label>成本:</label>
-                <input
-                  type="number"
-                  name="transactionPrice"
-                  value={formData.transactionPrice}
-                  onChange={handleInputChange}
-                  placeholder="请输入成本"
-                  step="0.01"
-                  max="3001"
-                />
-              </div>
-              <div className="form-group">
-                <label>数量:</label>
-                <input
-                  type="number"
-                  name="transactionPosition"
-                  value={formData.transactionPosition}
-                  onChange={handleInputChange}
-                  placeholder="请输入数量"
-                  min="0"
-                  step={100}
-                  max="1000100"
-                />
-              </div>
-              <div className="form-group">
-                <label>佣金比例:</label>
-                <input
-                  type="number"
-                  name="commissionFeeRate"
-                  value={formData.commissionFeeRate}
-                  onChange={handleInputChange}
-                  placeholder="请输入佣金比例"
-                  step={0.00001}
-                  max="1"
-                />
-              </div>
-              <div className="form-group">
-                <label>印花税率:</label>
-                <input
-                  type="number"
-                  name="taxFeeRate"
-                  value={formData.taxFeeRate}
-                  onChange={handleInputChange}
-                  placeholder="请输入印花税比例"
-                  step={0.001}
-                  max="1"
-                />
-              </div>
-              <div className="form-group">
-                <label>证管费率:</label>
-                <input
-                  type="number"
-                  name="regulatoryFeeRate"
-                  value={formData.regulatoryFeeRate}
-                  onChange={handleInputChange}
-                  placeholder="请输入证管费比例"
-                  step={0.00001}
-                  max="1"
-                />
-              </div>
-              <div className="form-group">
-                <label>经手费率:</label>
-                <input
-                  type="number"
-                  name="brokerageFeeRate"
-                  value={formData.brokerageFeeRate}
-                  onChange={handleInputChange}
-                  placeholder="请输入经手费比例"
-                  step={0.0000001}
-                  max="1"
-                />
-              </div>
-              <div className="form-group">
-                <label>过户费率:</label>
-                <input
-                  type="number"
-                  name="transferFeeRate"
-                  value={formData.transferFeeRate}
-                  onChange={handleInputChange}
-                  placeholder="请输入过户费比例"
-                  step={0.00001}
-                  max="1"
-                />
-              </div>
-            </div>
-            <div className="dialog-actions">
-              <button className="btn-cancel" onClick={resetDefault}>
-                恢复默认值
-              </button>
-              <button
-                className="btn-confirm"
-                disabled={
-                  !formData.stockName ||
-                  !formData.currentPrice ||
-                  !formData.transactionPrice ||
-                  !formData.transactionPosition
-                }
-                onClick={handleConfirm}
-              >
-                确认
-              </button>
+	/*******************主题切换*********************/
+	const setTheme = (color, hover, shadow) => {
+		const root = document.documentElement;
+		root.style.setProperty('--primary-color', color || colorList[0].color);
+		root.style.setProperty('--primary-hover', hover || colorList[0].hover);
+		root.style.setProperty('--primary-shadow', shadow || colorList[0].shadow);
+	};
+	// 切换主题
+	const toggleTheme = () => {
+		const root = document.documentElement;
+		const currentColor = getComputedStyle(root).getPropertyValue('--primary-color').trim();
+		const currentIndex = colorList.findIndex((item) => item.color === currentColor);
+		const nextIndex = (currentIndex + 1) % colorList.length;
+		const nextColor = colorList[nextIndex].color;
+		const nextHover = colorList[nextIndex].hover;
+		const nextShadow = colorList[nextIndex].shadow;
+		setTheme(nextColor, nextHover, nextShadow);
+		localStorage.setItem(
+			'theme',
+			JSON.stringify({
+				color: nextColor,
+				hover: nextHover,
+				shadow: nextShadow,
+			})
+		);
+		showSuccess(`已切换到${colorList[nextIndex].name}主题`);
+	};
+	/*************页面控制**************/
+	// 查看股票操作列表
+	const handleViewStock = async (stockId, stockName) => {
+		setSelectedStockId(stockId);
+		setSelectedStockName(stockName);
+		setCurrentPage('detail');
+	};
+	// 查看股票操作笔记
+	const handleViewActionInfo = async (stockId, stockName) => {
+		setSelectedStockId(stockId);
+		setSelectedStockName(stockName);
+		setCurrentPage('ActionInfo');
+	};
+	// 去连板
+	const handleOpenLimitCal = () => {
+		setCurrentPage('LimitCal');
+	};
+	// 返回列表页
+	const handleBackToList = async (page = 'list', stockId = null, stockName = null) => {
+		await getStockList();
+		setCurrentPage(page);
+		setSelectedStockId(stockId);
+		setSelectedStockName(stockName);
+	};
+	// 根据当前页面状态渲染不同内容
+	if (currentPage === 'detail') {
+		return (
+			<Detail
+				stockId={selectedStockId}
+				stockName={selectedStockName}
+				onBack={handleBackToList}
+				handleViewActionInfo={handleViewActionInfo}
+			/>
+		);
+	} else if (currentPage === 'LimitCal') {
+		return <LimitCal onBack={handleBackToList} />;
+	} else if (currentPage === 'ActionInfo') {
+		return <ActionInfo stockId={selectedStockId} stockName={selectedStockName} onBack={handleBackToList} />;
+	}
 
-              <button className="btn-cancel" onClick={closeDialog}>
-                取消
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+	/*******************渲染*********************/
+	return (
+		<main className="container">
+			<BackgroundManager onBackgroundChange={setHasCustomBackground} />
+			{/* Header */}
+			<div
+				className="header"
+				style={{
+					backgroundColor: hasCustomBackground ? 'rgba(255, 255, 255, 0)' : undefined,
+				}}
+			>
+				<div className="header-title">盈亏计算器</div>
+				<div className="header-right-container">
+					<div className="search-container">
+						<input
+							className="header-search"
+							name="stockName"
+							value={searchValue}
+							onChange={handleSearchChange}
+							placeholder="搜索股票"
+						/>
+						{searchValue && (
+							<button className="clear-search-btn" onClick={clearSearch} title="清空搜索">
+								×
+							</button>
+						)}
+					</div>
 
-      {/* 删除确认对话框 */}
-      {showDeleteDialog && (
-        <div
-          className="dialog-delete-overlay"
-          onClick={() => setShowDeleteDialog(false)}
-        >
-          <div
-            className="dialog-delete"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleDeleteStock(deleteStockId);
-              }
-            }}
-            tabIndex={0}
-            style={{
-              backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0.95)"
-                : undefined,
-            }}
-          >
-            <div className="dialog-delete-header">
-              <h3>你确定要删除这个股票吗？</h3>
-            </div>
-            <div className="delete-btn-container">
-              <button
-                className="btn-confirm"
-                onClick={() => handleDeleteStock(deleteStockId)}
-              >
-                确定
-              </button>
-              <button
-                className="btn-cancel"
-                onClick={() => setShowDeleteDialog(false)}
-              >
-                取消
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+					<button
+						className="open-stock-btn"
+						style={{
+							backgroundColor: hasCustomBackground ? 'rgba(255, 255, 255, 0)' : undefined,
+						}}
+						onClick={openDialog}
+					>
+						建仓
+					</button>
 
-      {/* Toast容器 */}
-      <ToastContainer toasts={toasts} removeToast={removeToast} />
-    </main>
-  );
+					<button
+						className="open-stock-btn"
+						style={{
+							backgroundColor: hasCustomBackground ? 'rgba(255, 255, 255, 0)' : undefined,
+						}}
+						onClick={handleOpenLimitCal}
+					>
+						连板
+					</button>
+
+					<button
+						className="open-stock-btn"
+						style={{
+							backgroundColor: hasCustomBackground ? 'rgba(255, 255, 255, 0)' : undefined,
+						}}
+						onClick={() => setFilter(!filter)}
+					>
+						{filter ? '显示平仓' : '隐藏平仓'}
+					</button>
+
+					<button
+						className="open-stock-btn"
+						style={{
+							backgroundColor: hasCustomBackground ? 'rgba(255, 255, 255, 0.2)' : undefined,
+							backdropFilter: hasCustomBackground ? 'blur(15px)' : undefined,
+						}}
+						onClick={() => setShowDefaultFeeDialog(true)}
+					>
+						调整默认费率
+					</button>
+				</div>
+			</div>
+
+			{/* 股票列表 */}
+			<div
+				className="stock-list"
+				style={{
+					backgroundColor: hasCustomBackground ? 'rgba(255, 255, 255, 0)' : undefined,
+				}}
+			>
+				<DragDropContext onDragEnd={handleDragEnd}>
+					<Droppable droppableId="stock-list">
+						{(provided) => (
+							<table
+								className="stock-table"
+								ref={provided.innerRef}
+								{...provided.droppableProps}
+								style={{
+									backgroundColor: hasCustomBackground ? 'rgba(255, 255, 255, 0)' : undefined,
+								}}
+							>
+								<thead>
+									<tr>
+										<th style={{ width: '20px' }}></th>
+										<th>股票名称</th>
+										<th>类型</th>
+										<th>佣金费率</th>
+										<th>印花税率</th>
+										<th>证管费率</th>
+										<th>经手费率</th>
+										<th>过户费率</th>
+										<th>状态</th>
+										<th>操作</th>
+									</tr>
+								</thead>
+								<tbody>
+									{stockList.length === 0 ? (
+										<tr>
+											<td colSpan="9" className="empty-message">
+												请先建仓股票
+											</td>
+										</tr>
+									) : (
+										stockList
+											.filter((stock) => {
+												// 首先根据状态过滤
+												if (filter) {
+													if (stock.status !== 1) return false;
+												}
+												// 然后根据搜索值过滤
+												if (searchValue.trim()) {
+													return stock.stock_name
+														.toLowerCase()
+														.includes(searchValue.toLowerCase());
+												}
+												return true;
+											})
+											.map((stock, index) => (
+												<Draggable
+													key={stock.stock_id}
+													draggableId={stock.stock_id.toString()}
+													index={index}
+												>
+													{(provided, snapshot) => (
+														<tr
+															ref={provided.innerRef}
+															{...provided.draggableProps}
+															{...provided.dragHandleProps}
+															className={snapshot.isDragging ? 'dragging' : ''}
+														>
+															<td style={{ width: '50px', textAlign: 'center' }}>
+																<span style={{ cursor: 'grab', fontSize: '16px' }}>
+																	⋮⋮
+																</span>
+															</td>
+															<td>{stock.stock_name}</td>
+															<td>{getStockTypeText(stock.stock_type)}</td>
+															<td>{formatCommissionFee(stock.commission_fee_rate)}</td>
+															<td>{formatCommissionFee(stock.tax_fee_rate)}</td>
+															<td>{formatCommissionFee(stock.regulatory_fee_rate)}</td>
+															<td>{formatCommissionFee(stock.brokerage_fee_rate)}</td>
+															<td>{formatCommissionFee(stock.transfer_fee_rate)}</td>
+															<td>{stock.status == 1 ? '进行中' : '已平仓'}</td>
+															<td>
+																<button
+																	className="action-btn view-btn"
+																	onClick={() =>
+																		handleViewStock(
+																			stock.stock_id,
+																			stock.stock_name
+																		)
+																	}
+																>
+																	查看
+																</button>
+																<button
+																	className="action-btn delete-btn"
+																	onClick={() => {
+																		setShowDeleteDialog(true);
+																		setDeleteStockId(stock.stock_id);
+																	}}
+																>
+																	删除
+																</button>
+															</td>
+														</tr>
+													)}
+												</Draggable>
+											))
+									)}
+									{provided.placeholder}
+								</tbody>
+							</table>
+						)}
+					</Droppable>
+				</DragDropContext>
+			</div>
+
+			{/* 建仓对话框 */}
+			{showDialog && (
+				<div className="dialog-overlay" onClick={closeDialog}>
+					<div
+						className="dialog"
+						onClick={(e) => e.stopPropagation()}
+						onKeyDown={(e) => {
+							if (
+								e.key === 'Enter' &&
+								formData.stockName &&
+								formData.currentPrice &&
+								formData.transactionPrice &&
+								formData.transactionPosition
+							) {
+								handleConfirm();
+							}
+						}}
+						tabIndex={0}
+						style={{
+							backgroundColor: hasCustomBackground ? 'rgba(255, 255, 255, 0.95)' : undefined,
+						}}
+					>
+						<div className="dialog-header">
+							<h3>股票建仓</h3>
+						</div>
+						<div className="dialog-content">
+							<div className="form-group">
+								<label>股票名称:</label>
+								<input
+									type="text"
+									name="stockName"
+									value={formData.stockName}
+									onChange={handleInputChange}
+									placeholder="请输入股票名称"
+								/>
+							</div>
+							<div className="form-group">
+								<div className="stock-type-buttons">
+									<label>股票类型:</label>
+									<button
+										className={
+											formData.stockType === 1 ? 'stock-type-button-active' : 'stock-type-button'
+										}
+										onClick={() => {
+											setFormData({
+												...formData,
+												brokerageFeeRate: 0.0000487,
+												stockType: 1,
+											});
+											localStorage.setItem('brokerageFeeRate', 0.0000487);
+											setDefaultBrokerageFeeRate(0.0000487);
+										}}
+									>
+										上海股(60开头)
+									</button>
+									<button
+										className={
+											formData.stockType === 2 ? 'stock-type-button-active' : 'stock-type-button'
+										}
+										onClick={() => {
+											setFormData({
+												...formData,
+												brokerageFeeRate: 0.0000341,
+												stockType: 2,
+											});
+											localStorage.setItem('brokerageFeeRate', 0.0000341);
+											setDefaultBrokerageFeeRate(0.0000341);
+										}}
+									>
+										深圳(00或30开头)
+									</button>
+								</div>
+							</div>
+							<div className="form-group">
+								<label>当前价格:</label>
+								<input
+									type="number"
+									name="currentPrice"
+									value={formData.currentPrice}
+									onChange={handleInputChange}
+									placeholder="请输入当前价格"
+									step="0.01"
+									max="3001"
+								/>
+							</div>
+							<div className="form-group">
+								<label>成本:</label>
+								<input
+									type="number"
+									name="transactionPrice"
+									value={formData.transactionPrice}
+									onChange={handleInputChange}
+									placeholder="请输入成本"
+									step="0.01"
+									max="3001"
+								/>
+							</div>
+							<div className="form-group">
+								<label>数量:</label>
+								<input
+									type="number"
+									name="transactionPosition"
+									value={formData.transactionPosition}
+									onChange={handleInputChange}
+									placeholder="请输入数量"
+									min="0"
+									step={100}
+									max="1000100"
+								/>
+							</div>
+							<div className="form-group">
+								<label>佣金比例:</label>
+								<input
+									type="number"
+									name="commissionFeeRate"
+									value={formData.commissionFeeRate}
+									onChange={handleInputChange}
+									placeholder="请输入佣金比例"
+									step={0.00001}
+									max="1"
+								/>
+							</div>
+							<div className="form-group">
+								<label>印花税率:</label>
+								<input
+									type="number"
+									name="taxFeeRate"
+									value={formData.taxFeeRate}
+									onChange={handleInputChange}
+									placeholder="请输入印花税比例"
+									step={0.001}
+									max="1"
+								/>
+							</div>
+							<div className="form-group">
+								<label>证管费率:</label>
+								<input
+									type="number"
+									name="regulatoryFeeRate"
+									value={formData.regulatoryFeeRate}
+									onChange={handleInputChange}
+									placeholder="请输入证管费比例"
+									step={0.00001}
+									max="1"
+								/>
+							</div>
+							<div className="form-group">
+								<label>经手费率:</label>
+								<input
+									type="number"
+									name="brokerageFeeRate"
+									value={formData.brokerageFeeRate}
+									onChange={handleInputChange}
+									placeholder="请输入经手费比例"
+									step={0.0000001}
+									max="1"
+								/>
+							</div>
+							<div className="form-group">
+								<label>过户费率:</label>
+								<input
+									type="number"
+									name="transferFeeRate"
+									value={formData.transferFeeRate}
+									onChange={handleInputChange}
+									placeholder="请输入过户费比例"
+									step={0.00001}
+									max="1"
+								/>
+							</div>
+						</div>
+						<div className="dialog-actions">
+							<button className="btn-cancel" onClick={useDefaultFee}>
+								默认费率
+							</button>
+							<button
+								className="btn-confirm"
+								disabled={
+									!formData.stockName ||
+									!formData.currentPrice ||
+									!formData.transactionPrice ||
+									!formData.transactionPosition
+								}
+								onClick={handleConfirm}
+							>
+								确认
+							</button>
+
+							<button className="btn-cancel" onClick={closeDialog}>
+								取消
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* 删除确认对话框 */}
+			{showDeleteDialog && (
+				<div className="dialog-delete-overlay" onClick={() => setShowDeleteDialog(false)}>
+					<div
+						className="dialog-delete"
+						onKeyDown={(e) => {
+							if (e.key === 'Enter') {
+								handleDeleteStock(deleteStockId);
+							}
+						}}
+						tabIndex={0}
+						style={{
+							backgroundColor: hasCustomBackground ? 'rgba(255, 255, 255, 0.95)' : undefined,
+						}}
+					>
+						<div className="dialog-delete-header">
+							<h3>你确定要删除这个股票吗？</h3>
+						</div>
+						<div className="delete-btn-container">
+							<button className="btn-confirm" onClick={() => handleDeleteStock(deleteStockId)}>
+								确定
+							</button>
+							<button className="btn-cancel" onClick={() => setShowDeleteDialog(false)}>
+								取消
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* 调整默认值对话框 */}
+			{showDefaultFeeDialog && (
+				<div className="dialog-overlay" onClick={() => setShowDefaultFeeDialog(false)}>
+					<div
+						className="dialog"
+						onClick={(e) => e.stopPropagation()}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter') {
+								saveDefaultFee();
+							}
+						}}
+						tabIndex={0}
+						style={{
+							backgroundColor: hasCustomBackground ? 'rgba(255, 255, 255, 0.95)' : undefined,
+						}}
+					>
+						<div className="dialog-header">
+							<h3>设置默认费率</h3>
+						</div>
+						<div className="dialog-content">
+							<div className="form-group">
+								<div className="stock-type-buttons">
+									<label>股票类型:</label>
+									<button
+										className={
+											defaultFeeData.stockType === 1
+												? 'stock-type-button-active'
+												: 'stock-type-button'
+										}
+										onClick={() => {
+											setDefaultFeeData({
+												...defaultFeeData,
+												brokerageFeeRate: 0.0000487,
+												stockType: 1,
+											});
+										}}
+									>
+										上海股
+									</button>
+									<button
+										className={
+											defaultFeeData.stockType === 2
+												? 'stock-type-button-active'
+												: 'stock-type-button'
+										}
+										onClick={() => {
+											setDefaultFeeData({
+												...defaultFeeData,
+												brokerageFeeRate: 0.0000341,
+												stockType: 2,
+											});
+										}}
+									>
+										深圳
+									</button>
+									<button
+										className={
+											defaultFeeData.stockType === 3
+												? 'stock-type-button-active'
+												: 'stock-type-button'
+										}
+										onClick={() => {
+											setDefaultFeeData({
+												...defaultFeeData,
+												stockType: 3,
+											});
+										}}
+									>
+										自定义
+									</button>
+								</div>
+							</div>
+							<div className="form-group">
+								<label>佣金比例:</label>
+								<input
+									type="number"
+									name="commissionFeeRate"
+									value={defaultFeeData.commissionFeeRate}
+									onChange={handleDefaultInputChange}
+									placeholder="请输入佣金比例"
+									step={0.00001}
+									max="1"
+								/>
+							</div>
+							<div className="form-group">
+								<label>印花税率:</label>
+								<input
+									type="number"
+									name="taxFeeRate"
+									value={defaultFeeData.taxFeeRate}
+									onChange={handleDefaultInputChange}
+									placeholder="请输入印花税比例"
+									step={0.001}
+									max="1"
+								/>
+							</div>
+							<div className="form-group">
+								<label>证管费率:</label>
+								<input
+									type="number"
+									name="regulatoryFeeRate"
+									value={defaultFeeData.regulatoryFeeRate}
+									onChange={handleDefaultInputChange}
+									placeholder="请输入证管费比例"
+									step={0.00001}
+									max="1"
+								/>
+							</div>
+							<div className="form-group">
+								<label>经手费率:</label>
+								<input
+									type="number"
+									name="brokerageFeeRate"
+									value={defaultFeeData.brokerageFeeRate}
+									onChange={handleDefaultInputChange}
+									placeholder="请输入经手费比例"
+									step={0.0000001}
+									max="1"
+								/>
+							</div>
+							<div className="form-group">
+								<label>过户费率:</label>
+								<input
+									type="number"
+									name="transferFeeRate"
+									value={defaultFeeData.transferFeeRate}
+									onChange={handleDefaultInputChange}
+									placeholder="请输入过户费比例"
+									step={0.00001}
+									max="1"
+								/>
+							</div>
+						</div>
+						<div className="dialog-actions">
+							<button className="btn-cancel" onClick={resetDefault}>
+								恢复默认值
+							</button>
+							<button className="btn-confirm" onClick={saveDefaultFee}>
+								确认
+							</button>
+
+							<button className="btn-cancel" onClick={() => setShowDefaultFeeDialog(false)}>
+								取消
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Toast容器 */}
+			<ToastContainer toasts={toasts} removeToast={removeToast} />
+		</main>
+	);
 }
 
 export default App;
