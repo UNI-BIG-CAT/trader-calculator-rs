@@ -73,9 +73,8 @@ function LimitCal({ onBack }) {
         className="header"
         style={{
           backgroundColor: hasCustomBackground
-            ? "rgba(255, 255, 255, 0.2)"
+            ? "rgba(255, 255, 255, 0)"
             : undefined,
-          backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
         }}
       >
         <div className="header-title">连板计算器</div>
@@ -85,9 +84,8 @@ function LimitCal({ onBack }) {
           className="back-btn"
           style={{
             backgroundColor: hasCustomBackground
-              ? "rgba(255, 255, 255, 0.2)"
+              ? "rgba(255, 255, 255, 0)"
               : undefined,
-            backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
           }}
           onClick={onBack}
         >
@@ -106,7 +104,7 @@ function LimitCal({ onBack }) {
         tabIndex={0}
         style={{
           backgroundColor: hasCustomBackground
-            ? "rgba(255, 255, 255, 0.2)"
+            ? "rgba(255, 255, 255, 0)"
             : undefined,
           backdropFilter: hasCustomBackground ? "blur(8px)" : undefined,
         }}
@@ -116,9 +114,8 @@ function LimitCal({ onBack }) {
           <input
             style={{
               backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0.3)"
+                ? "rgba(255, 255, 255, 0)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
             }}
             type="number"
             value={startPrice}
@@ -134,9 +131,8 @@ function LimitCal({ onBack }) {
           <input
             style={{
               backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0.3)"
+                ? "rgba(255, 255, 255, 0)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
             }}
             type="number"
             value={stockQuantity}
@@ -156,9 +152,8 @@ function LimitCal({ onBack }) {
               style={{
                 backgroundColor:
                   dailyChange != 10 && hasCustomBackground
-                    ? "rgba(255, 255, 255, 0.5)"
+                    ? "rgba(255, 255, 255, 0)"
                     : undefined,
-                backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
               }}
               onClick={() => setDailyChange(10)}
             >
@@ -169,9 +164,8 @@ function LimitCal({ onBack }) {
               style={{
                 backgroundColor:
                   dailyChange != 5 && hasCustomBackground
-                    ? "rgba(255, 255, 255, 0.5)"
+                    ? "rgba(255, 255, 255, 0)"
                     : undefined,
-                backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
               }}
               onClick={() => setDailyChange(5)}
             >
@@ -182,9 +176,8 @@ function LimitCal({ onBack }) {
               style={{
                 backgroundColor:
                   dailyChange != -5 && hasCustomBackground
-                    ? "rgba(255, 255, 255, 0.5)"
+                    ? "rgba(255, 255, 255, 0)"
                     : undefined,
-                backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
               }}
               onClick={() => setDailyChange(-5)}
             >
@@ -194,9 +187,8 @@ function LimitCal({ onBack }) {
               style={{
                 backgroundColor:
                   dailyChange != -10 && hasCustomBackground
-                    ? "rgba(255, 255, 255, 0.5)"
+                    ? "rgba(255, 255, 255, 0)"
                     : undefined,
-                backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
               }}
               className={`change-btn ${dailyChange === -10 ? "active" : ""}`}
               onClick={() => setDailyChange(-10)}
@@ -211,9 +203,8 @@ function LimitCal({ onBack }) {
           <input
             style={{
               backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0.3)"
+                ? "rgba(255, 255, 255, 0)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
             }}
             type="number"
             value={boardCount}
@@ -244,9 +235,8 @@ function LimitCal({ onBack }) {
               style={{
                 backgroundColor:
                   dailyChange != -10 && hasCustomBackground
-                    ? "rgba(255, 255, 255, 0.4)"
+                    ? "rgba(255, 255, 255, 0)"
                     : undefined,
-                backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
               }}
             >
               <thead>

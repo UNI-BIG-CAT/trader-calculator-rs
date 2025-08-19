@@ -65,73 +65,73 @@ function App() {
       name: "默认",
       color: "#F1933C",
       hover: "#e0852e",
-      shadow: "rgba(216, 110, 17, 0.1)",
+      shadow: "rgba(216, 110, 17, 0)",
     },
     {
       name: "薄暮",
       color: "#ff7875",
       hover: "#fff1f0",
-      shadow: "rgba(246, 65, 59, 0.1)",
+      shadow: "rgba(246, 65, 59, 0)",
     },
     {
       name: "火山",
       color: "#ff9c6e",
       hover: "#fff2e8",
-      shadow: "rgba(246, 121, 59, 0.1)",
+      shadow: "rgba(246, 121, 59, 0)",
     },
     {
       name: "金盏花",
       color: "#ffd666",
       hover: "#fffbe6",
-      shadow: "rgba(246, 218, 59, 0.1)",
+      shadow: "rgba(246, 218, 59, 0)",
     },
     {
       name: "日出",
       color: "#fadb14",
       hover: "#feffe6",
-      shadow: "rgba(240, 246, 59, 0.1)",
+      shadow: "rgba(240, 246, 59, 0)",
     },
     {
       name: "青柠",
       color: "#a0d911",
       hover: "#fcffe6",
-      shadow: "rgba(187, 246, 59, 0.1)",
+      shadow: "rgba(187, 246, 59, 0)",
     },
     {
       name: "极光绿",
       color: "#95de64",
       hover: "#f6ffed",
-      shadow: "rgba(134, 246, 59, 0.1)",
+      shadow: "rgba(134, 246, 59, 0)",
     },
     {
       name: "明青",
       color: "#5cdbd3",
       hover: "#e6fffb",
-      shadow: "rgba(59, 130, 246, 0.1)",
+      shadow: "rgba(59, 130, 246, 0)",
     },
     {
       name: "拂晓蓝",
       color: "#69b1ff",
       hover: "#e6f4ff",
-      shadow: "rgba(59, 209, 246, 0.1)",
+      shadow: "rgba(59, 209, 246, 0)",
     },
     {
       name: "极客蓝",
       color: "#2f54eb",
       hover: "#2f54eb",
-      shadow: "rgba(93, 138, 242, 0.1)",
+      shadow: "rgba(93, 138, 242, 0)",
     },
     {
       name: "酱紫",
       color: "#b37feb",
       hover: "#f9f0ff",
-      shadow: "rgba(177, 93, 242, 0.1)",
+      shadow: "rgba(177, 93, 242, 0)",
     },
     {
       name: "法式洋红",
       color: "#ff85c0",
       hover: "#fff0f6",
-      shadow: "rgba(222, 93, 242, 0.1)",
+      shadow: "rgba(222, 93, 242, 0)",
     },
   ];
   /*******************生命周期*********************/
@@ -474,9 +474,8 @@ function App() {
         className="header"
         style={{
           backgroundColor: hasCustomBackground
-            ? "rgba(255, 255, 255, 0.2)"
+            ? "rgba(255, 255, 255, 0)"
             : undefined,
-          backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
         }}
       >
         <div className="header-title">盈亏计算器</div>
@@ -503,9 +502,8 @@ function App() {
             className="open-stock-btn"
             style={{
               backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0.2)"
+                ? "rgba(255, 255, 255, 0)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
             }}
             onClick={openDialog}
           >
@@ -515,9 +513,8 @@ function App() {
             className="open-stock-btn"
             style={{
               backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0.2)"
+                ? "rgba(255, 255, 255, 0)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
             }}
             onClick={handleOpenLimitCal}
           >
@@ -527,9 +524,8 @@ function App() {
             className="open-stock-btn"
             style={{
               backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0.2)"
+                ? "rgba(255, 255, 255, 0)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
             }}
             onClick={() => setFilter(!filter)}
           >
@@ -556,9 +552,8 @@ function App() {
         className="stock-list"
         style={{
           backgroundColor: hasCustomBackground
-            ? "rgba(255, 255, 255, 0.2)"
+            ? "rgba(255, 255, 255, 0)"
             : undefined,
-          backdropFilter: hasCustomBackground ? "blur(8px)" : undefined,
         }}
       >
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -570,7 +565,7 @@ function App() {
                 {...provided.droppableProps}
                 style={{
                   backgroundColor: hasCustomBackground
-                    ? "rgba(255, 255, 255, 0.2)"
+                    ? "rgba(255, 255, 255, 0)"
                     : undefined,
                 }}
               >
@@ -705,7 +700,6 @@ function App() {
               backgroundColor: hasCustomBackground
                 ? "rgba(255, 255, 255, 0.95)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
             }}
           >
             <div className="dialog-header">
@@ -904,7 +898,6 @@ function App() {
               backgroundColor: hasCustomBackground
                 ? "rgba(255, 255, 255, 0.95)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
             }}
           >
             <div className="dialog-delete-header">

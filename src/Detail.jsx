@@ -382,9 +382,8 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
         className="header"
         style={{
           backgroundColor: hasCustomBackground
-            ? "rgba(255, 255, 255, 0.2)"
+            ? "rgba(255, 255, 255, 0)"
             : undefined,
-          backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
         }}
       >
         <div className="header-title">{stockName}-控仓</div>
@@ -394,9 +393,8 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
             className="back-btn"
             style={{
               backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0.2)"
+                ? "rgba(255, 255, 255, 0)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
             }}
             onClick={() => handleViewActionInfo(stockId, stockName)}
           >
@@ -407,9 +405,8 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
             className="back-btn"
             style={{
               backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0.2)"
+                ? "rgba(255, 255, 255, 0)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
             }}
             onClick={() => setLastActions(!lastActions)}
           >
@@ -418,9 +415,8 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
           <button
             style={{
               backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0.2)"
+                ? "rgba(255, 255, 255, 0)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(10px)" : undefined,
             }}
             className="back-btn"
             onClick={onBack}
@@ -455,18 +451,16 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
           className="detail-action-btn-container"
           style={{
             backgroundColor: hasCustomBackground
-              ? "rgba(255, 255, 255, 0.2)"
+              ? "rgba(255, 255, 255, 0)"
               : undefined,
-            backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
           }}
         >
           <button
             className="detail-action-btn"
             style={{
               backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0.2)"
+                ? "rgba(255, 255, 255, 0)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
             }}
             disabled={stock.status == 2}
             onClick={addStock}
@@ -477,9 +471,8 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
             className="detail-action-btn"
             style={{
               backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0.2)"
+                ? "rgba(255, 255, 255, 0)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
             }}
             disabled={stock.status == 2}
             onClick={reduceStock}
@@ -490,9 +483,8 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
             className="detail-action-btn"
             style={{
               backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0.2)"
+                ? "rgba(255, 255, 255, 0)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
             }}
             disabled={stock.status == 2}
             onClick={closeStock}
@@ -502,9 +494,8 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
           <button
             style={{
               backgroundColor: hasCustomBackground
-                ? "rgba(255, 255, 255, 0.2)"
+                ? "rgba(255, 255, 255, 0)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
             }}
             className="detail-action-btn"
             disabled={actionList.length <= 1}
@@ -544,7 +535,6 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
               backgroundColor: hasCustomBackground
                 ? "rgba(255, 255, 255, 0.95)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
             }}
           >
             <div className="dialog-header">
@@ -626,7 +616,6 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
               backgroundColor: hasCustomBackground
                 ? "rgba(255, 255, 255, 0.95)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
             }}
           >
             <div className="dialog-header">
@@ -693,7 +682,6 @@ function Detail({ stockId, stockName, onBack, handleViewActionInfo }) {
               backgroundColor: hasCustomBackground
                 ? "rgba(255, 255, 255, 0.95)"
                 : undefined,
-              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
             }}
           >
             <div className="dialog-delete-header">
