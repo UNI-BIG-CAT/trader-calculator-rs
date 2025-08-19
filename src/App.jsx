@@ -535,6 +535,19 @@ function App() {
           >
             {filter ? "显示平仓" : "隐藏平仓"}
           </button>
+
+          <button
+            className="open-stock-btn"
+            style={{
+              backgroundColor: hasCustomBackground
+                ? "rgba(255, 255, 255, 0.2)"
+                : undefined,
+              backdropFilter: hasCustomBackground ? "blur(15px)" : undefined,
+            }}
+            onClick={() => setFilter(!filter)}
+          >
+          调整默认值
+          </button>
         </div>
       </div>
 
